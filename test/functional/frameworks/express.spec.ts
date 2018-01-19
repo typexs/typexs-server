@@ -4,7 +4,7 @@ import {suite, test, timeout} from "mocha-typescript";
 import {expect} from "chai";
 
 import {inspect} from "util";
-import {Express} from "../../../src/libs/frameworks/express/Express";
+import {Express} from "../../../src/libs/web/frameworks/express/Express";
 
 
 let express: Express = null;
