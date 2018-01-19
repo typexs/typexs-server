@@ -1,0 +1,21 @@
+
+
+server:
+
+  default:
+
+    type: web
+    framework: express
+    host: 127.0.0.1
+    port: 3554
+
+    routes:
+
+    - type: routing_controller
+      context: default
+
+    - type: routing_controller
+      context: api
+      routePrefix: api
+
+    - type: static_files

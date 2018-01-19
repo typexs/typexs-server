@@ -1,22 +1,21 @@
 import * as _ from "lodash"
-import {StringOrFunction} from "typexs-base";
-import {IFrameworkSupportOptions} from "./IFrameworkSupportOptions";
+import {StringOrFunction,Container} from "typexs-base";
 import {IFrameworkSupport} from "./IFrameworkSupport";
 import {ExpressSupport} from "./express/ExpressSupport";
 
 export class FrameworkSupportFactory {
 
 
-  get(name: StringOrFunction, options?: IFrameworkSupportOptions): IFrameworkSupport {
+  static get(name: StringOrFunction): IFrameworkSupport {
     if (_.isString(name)) {
       switch (name) {
         case "express":
-          return new ExpressSupport(options);
+          return new ExpressSupport();
         default:
           throw new Error('server type');
       }
     } else {
-      return Reflect.construct(name, [options])
+      return Reflect.construct(name, [])
     }
   }
 

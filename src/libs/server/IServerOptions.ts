@@ -42,7 +42,7 @@ export const DEFAULT_SERVER_OPTIONS: IServerOptions = {
 
     ip: '127.0.0.1',
 
-    port: 3128,
+    port: 3554,
 
     fn: 'root',
 
