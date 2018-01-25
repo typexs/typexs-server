@@ -6,6 +6,8 @@ export interface IServer {
 
   initialize(options: IServerInstanceOptions): void;
 
+  options(): IServerInstanceOptions;
+
   prepare(): void;
 
   start(): Promise<boolean>;

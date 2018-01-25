@@ -1,4 +1,3 @@
-import {ROUTE} from "../../types";
 import {IRoutingController} from "../IRoutingController";
 import {IStaticFiles} from "../IStaticFiles";
 import {IApplication} from "./IApplication";

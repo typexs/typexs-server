@@ -1,8 +1,15 @@
-import {JsonController} from "routing-controllers";
+import {Get, JsonController} from "routing-controllers";
 import {ContextGroup} from "../../../../../src/decorators/ContextGroup";
 
 
 @JsonController()
-export class JsonDataDeliverySecond {
+export class JsonDataDeliveryThird {
+
+  @Get('/get')
+  get(){
+    return {json:'test'}
+  }
 
 }
+
+

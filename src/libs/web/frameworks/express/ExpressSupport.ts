@@ -13,7 +13,7 @@ export class ExpressSupport implements IFrameworkSupport {
 
 
   create(){
-    ExpressSupport.LIB = require('./Express');
+    ExpressSupport.LIB = require('./Express').Express;
     this.wrapper = Reflect.construct(ExpressSupport.LIB, []);
     //  this.app.disable("x-powered-by");
     this.wrapper.create();
@@ -26,7 +26,7 @@ export class ExpressSupport implements IFrameworkSupport {
   }
 
   useStaticRoute(options:IStaticFiles){
-    this.wrapper.useRouteController(options);
+    this.wrapper.useStaticRoute(options);
     return this;
   }
 
