@@ -9,6 +9,7 @@ import {Helper} from "../../../src/libs/Helper";
 @suite('functional/controllers/context_group')
 class Context_groupSpec {
 
+  /*
   before() {
     MetaArgs.clear();
   }
@@ -16,6 +17,7 @@ class Context_groupSpec {
   after() {
     MetaArgs.clear();
   }
+  */
 
   @test
   async 'grouping'() {

@@ -3,6 +3,7 @@ import {IStaticFiles} from "../../IStaticFiles";
 import {IRoutingController} from "../../IRoutingController";
 import {IApplication} from "../IApplication";
 import * as http from "http";
+import {IRoute} from "../../../server/IRoute";
 
 
 export class ExpressSupport implements IFrameworkSupport {
@@ -34,9 +35,12 @@ export class ExpressSupport implements IFrameworkSupport {
     this.wrapper.handle(req,res);
   }
 
-
   app():IApplication {
     return this.wrapper.app();
+  }
+
+  getRoutes():IRoute[]{
+    return this.wrapper.getRoutes();
   }
 
 }

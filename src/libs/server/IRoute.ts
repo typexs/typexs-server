@@ -1,5 +1,6 @@
 export interface IRoute {
+
   route: string | RegExp;
-  type: string;
+  method: string;
   context: string;
 }

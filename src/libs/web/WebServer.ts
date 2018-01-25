@@ -21,7 +21,7 @@ useContainer(Container);
 
 export class WebServer extends Server implements IServer {
 
-  private __prepared:boolean = false;
+  private __prepared: boolean = false;
 
   @Inject()
   loader: RuntimeLoader;
@@ -29,8 +29,6 @@ export class WebServer extends Server implements IServer {
   framework: IFrameworkSupport;
 
   name: string;
-
-  routes: IRoute[] = []
 
 
   initialize(options: IWebServerInstanceOptions) {
@@ -57,22 +55,19 @@ export class WebServer extends Server implements IServer {
 
 
   prepare(): Promise<void> {
-    if(this.__prepared){
+    if (this.__prepared) {
       return null;
     }
     this.__prepared = true;
 
-    this.routes = [];
+
     this.loadFramework().create();
 
     let opts = this.options();
-    let loader = this.loader;
     let classes = this.loader.getClasses(K_CORE_LIB_CONTROLLERS);
     let classesByGroup = Helper.resolveGroups(classes);
-    let actions = getMetadataArgsStorage().actions;
 
     for (let entry of opts.routes) {
-      //let key = Object.keys(entry).shift()
       let key = entry.type;
       if (key === K_ROUTE_CONTROLLER) {
         let routing = <IRoutingController>entry;
@@ -80,7 +75,7 @@ export class WebServer extends Server implements IServer {
         routing.classTransformer = false;
 
         let routeContext = C_DEFAULT;
-        if (_.has(routing, 'context')) {
+        if (routing.context) {
           routeContext = routing.context;
         }
 
@@ -96,19 +91,10 @@ export class WebServer extends Server implements IServer {
           }
         }
 
-        let filteredActions = _.filter(actions, (action) => {
-          return controllerClasses.indexOf(action.target) > -1
-        });
-        for (let fAction of filteredActions) {
-          this.routes.push({
-            context: routeContext,
-            route: fAction.route,
-            type: fAction.type,
-          })
-        }
-
         routing.controllers = controllerClasses;
-        this.framework.useRouteController(routing);
+        if(!_.isEmpty(controllerClasses)){
+          this.framework.useRouteController(routing);
+        }
       } else if (key === K_ROUTE_STATIC) {
         this.framework.useStaticRoute(<IStaticFiles>entry);
       } else {
@@ -117,6 +103,7 @@ export class WebServer extends Server implements IServer {
     }
     return null
   }
+
 
   response(req: http.IncomingMessage, res: http.ServerResponse) {
     this.framework.handle(req, res);
@@ -128,8 +115,9 @@ export class WebServer extends Server implements IServer {
     return o.protocol + '://' + o.ip + (o.port ? ':' + o.port : '');
   }
 
+
   getRoutes() {
-    return this.routes;
+    return this.framework.getRoutes();
   }
 
   start() {

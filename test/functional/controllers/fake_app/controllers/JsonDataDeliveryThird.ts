@@ -6,8 +6,8 @@ import {ContextGroup} from "../../../../../src/decorators/ContextGroup";
 export class JsonDataDeliveryThird {
 
   @Get('/get')
-  get(){
-    return {json:'test'}
+  get() {
+    return {json: 'test'}
   }
 
 }
