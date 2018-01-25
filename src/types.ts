@@ -1,5 +1,5 @@
-import {IRoutingController} from "./libs/IRoutingController";
-import {IStaticFiles} from "./libs/IStaticFiles";
+import {IRoutingController} from "./libs/web/IRoutingController";
+import {IStaticFiles} from "./libs/web/IStaticFiles";
 
 
 export const C_DEFAULT = 'default';

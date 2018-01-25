@@ -40,6 +40,8 @@ class Server_factorySpec {
       initialize(options: IServerInstanceOptions) {
       };
 
+      options(): IServerInstanceOptions{return <IServerInstanceOptions>{};}
+
       prepare() {
       };
 
@@ -80,6 +82,9 @@ class Server_factorySpec {
 
       prepare() {
       };
+
+      options(): IServerInstanceOptions{return <IServerInstanceOptions>{};}
+
 
       async start() {
         return true;

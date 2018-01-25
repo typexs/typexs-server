@@ -7,6 +7,8 @@ export class ServerTmpl implements IServer {
   initialize(options: IServerInstanceOptions) {
   };
 
+  options(): IServerInstanceOptions{return <IServerInstanceOptions>{};}
+
   prepare() {
   };
 

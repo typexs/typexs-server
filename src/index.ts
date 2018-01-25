@@ -1,9 +1,8 @@
 
 export * from  "./decorators/ContextGroup";
-export * from  "./commands/ServerCommand";
 export * from  "./libs/exceptions/ServerTypeIsNotSetError";
 export * from  "./libs/Helper";
-export * from  "./libs/web/frameworks/express/IExpressOptions";
+
 export * from  "./libs/web/frameworks/express/ExpressSupport";
 export * from  "./libs/web/frameworks/IFrameworkSupport";
 export * from  "./libs/web/frameworks/IApplication";
@@ -23,5 +22,8 @@ export * from  "./libs/server/Exceptions";
 export * from  "./libs/server/IServerOptions";
 export * from  "./libs/server/IServer";
 export * from  "./libs/server/ServerUtils";
+
+export * from  "./commands/ServerCommand";
+
 export * from  "./Activator";
 export * from  "./types";
