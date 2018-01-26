@@ -5,16 +5,18 @@ import {C_SERVER} from "./types";
 
 export class Activator {
 
-  @Inject()
+  @Inject(RuntimeLoader.name)
   loader: RuntimeLoader;
 
   async startup(){
 
     let data = Config.get(C_SERVER, TYPEXS_NAME);
     let serverRegistry = new ServerRegistry();
+    Container.set(ServerRegistry,serverRegistry);
+
     if(data){
       await serverRegistry.load(data);
-      Container.set(ServerRegistry,serverRegistry);
+
     }
 
   }
