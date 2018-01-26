@@ -1,11 +1,5 @@
-
-
-
-
-import {Log, Storage, Inject, Container,Config} from "typexs-base";
-
-
-
+import {Log, Storage, Inject, Container, Config} from "typexs-base";
+import {ServerRegistry} from "../";
 
 
 export class AppServerCommand {
@@ -13,10 +7,11 @@ export class AppServerCommand {
   @Inject()
   storage: Storage;
 
+  @Inject()
+  registry: ServerRegistry;
 
 
-
-  command = "server <op> [name]";
+  command = "server [name] [op]";
   aliases = "s";
   describe = "Commands to server";
 
@@ -25,13 +20,26 @@ export class AppServerCommand {
     return yargs
   }
 
-  async handler(argv: any) {
-
-    if (argv.op == 'start') {
-
-    } else {
-      console.log("No order")
+  async start(name:string){
+    let service = this.registry.get(name);
+    let status = await service.start();
+    if(status) {
+      Log.info('Server ' + name + ' started.');
+    }else{
+      Log.error('Failed to start server ' + name+'.');
     }
 
+  }
+
+  async handler(argv: any) {
+    if (argv.name) {
+      await this.start(argv.name);
+    }else{
+      let instanceNames = this.registry.getInstanceNames();
+      let p = []
+      for(let name of instanceNames){
+        await this.start(name);
+      }
+    }
   }
 }
