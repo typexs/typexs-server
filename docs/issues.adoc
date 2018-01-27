@@ -5,3 +5,5 @@ Impl. Controllers which deliver meta information of runtime, usage, routes, ...
 
 
 
+*@ISSUE {counter:task} 20180127* +
+Add pass through routing-controller in index.ts

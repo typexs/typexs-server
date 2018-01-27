@@ -1,3 +1,4 @@
+export * from 'routing-controllers';
 
 export * from  "./decorators/ContextGroup";
 export * from  "./libs/exceptions/ServerTypeIsNotSetError";

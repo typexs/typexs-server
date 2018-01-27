@@ -16,7 +16,6 @@ export class Activator {
 
     if(data){
       await serverRegistry.load(data);
-
     }
 
   }
