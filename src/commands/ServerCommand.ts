@@ -1,10 +1,10 @@
-import {Log, Storage, Inject, Container, Config} from "typexs-base";
+import {Inject, Log, Storage} from "typexs-base";
 import {ServerRegistry} from "../";
 
 
 export class AppServerCommand {
 
-  @Inject()
+  @Inject('Storage')
   storage: Storage;
 
   @Inject()
