@@ -15,7 +15,7 @@ export class Activator {
     let data = Config.get(C_SERVER, {});
     let serverRegistry = new ServerRegistry();
     Container.set(ServerRegistry, serverRegistry);
-    Container.set(ServerRegistry.name, serverRegistry);
+    Container.set('ServerRegistry', serverRegistry);
 
     if (data) {
       await serverRegistry.load(data);

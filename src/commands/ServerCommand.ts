@@ -2,7 +2,7 @@ import {Inject, Log, Storage} from "typexs-base";
 import {ServerRegistry} from "../";
 
 
-export class AppServerCommand {
+export class ServerCommand {
 
   @Inject('Storage')
   storage: Storage;
