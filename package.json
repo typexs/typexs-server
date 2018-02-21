@@ -60,7 +60,7 @@
     "ts-node": "^5.0.0",
     "typescript": "^2.6.2",
     "typescript-require": "^0.2.9-1",
-    "typexs-base": ">=0.3.14"
+    "typexs-base": ">=0.3.17"
   },
   "dependencies": {
     "glob": "^7.1.2",
