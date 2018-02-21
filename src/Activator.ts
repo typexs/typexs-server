@@ -1,6 +1,7 @@
 import {RuntimeLoader, Inject, Config, TYPEXS_NAME, Container} from "typexs-base";
 import {ServerRegistry} from "./libs/server/ServerRegistry";
 import {C_SERVER} from "./types";
+import * as _ from 'lodash';
 
 
 export class Activator {
@@ -17,7 +18,7 @@ export class Activator {
     Container.set(ServerRegistry, serverRegistry);
     Container.set('ServerRegistry', serverRegistry);
 
-    if (data) {
+    if (!_.isEmpty(data)) {
       await serverRegistry.load(data);
     }
 

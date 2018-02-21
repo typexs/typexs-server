@@ -1,7 +1,7 @@
 import * as http from "http";
 import * as _ from 'lodash'
 import {ClassLoader, Container, Inject, RuntimeLoader, TodoException} from "typexs-base";
-import {getMetadataArgsStorage, useContainer} from "routing-controllers";
+import {useContainer} from "routing-controllers";
 
 import {Server} from "./../server/Server";
 
@@ -14,8 +14,8 @@ import {IRoutingController} from "./IRoutingController";
 import {Helper} from "./../Helper";
 import {IWebServerInstanceOptions} from "./IWebServerInstanceOptions";
 import {IServer} from "../server/IServer";
-import {IRoute} from "../server/IRoute";
 import {IMiddleware} from "../server/IMiddleware";
+import {IRoute} from "../../";
 
 
 useContainer(Container);
@@ -29,7 +29,7 @@ export class WebServer extends Server implements IServer {
 
   framework: IFrameworkSupport;
 
-  middlewares: IMiddleware[] = []
+  middlewares: IMiddleware[] = [];
 
   name: string;
 
@@ -137,7 +137,7 @@ export class WebServer extends Server implements IServer {
   }
 
 
-  getRoutes() {
+  getRoutes():IRoute[] {
     return this.framework.getRoutes();
   }
 

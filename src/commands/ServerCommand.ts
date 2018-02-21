@@ -7,7 +7,7 @@ export class ServerCommand {
   @Inject('Storage')
   storage: Storage;
 
-  @Inject()
+  @Inject('ServerRegistry')
   registry: ServerRegistry;
 
 
