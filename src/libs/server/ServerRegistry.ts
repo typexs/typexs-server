@@ -9,11 +9,16 @@ import {ServerUtils} from "./ServerUtils";
 
 export class ServerRegistry {
 
-  @Inject()
+
   factory: ServerFactory;
 
   registry: IServer[] = [];
-  
+
+
+  constructor(){
+    this.factory = new ServerFactory();
+  }
+
 
   async load(options: any) {
     let servers = {};

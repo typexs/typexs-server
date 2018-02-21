@@ -13,7 +13,7 @@ export class Activator {
   async startup() {
 
     let data = Config.get(C_SERVER, {});
-    let serverRegistry = Container.get(ServerRegistry);
+    let serverRegistry = new ServerRegistry();
     Container.set(ServerRegistry, serverRegistry);
     Container.set('ServerRegistry', serverRegistry);
 

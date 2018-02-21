@@ -18,7 +18,7 @@ export * from "./libs/server/ServerFactory";
 export * from "./libs/server/ServerRegistry";
 export * from "./libs/server/ServerUtils";
 
-export * from "./libs/web/frameworks/express/Express";
+
 export * from "./libs/web/frameworks/express/ExpressSupport";
 export * from "./libs/web/frameworks/FrameworkSupportFactory";
 

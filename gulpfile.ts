@@ -1,15 +1,19 @@
 import {Gulpclass, Task, SequenceTask, MergedTask} from "gulpclass";
 
+
 import * as fs from 'fs';
 import * as glob from 'glob';
+import * as gulp from 'gulp';
+import * as watch from 'gulp-watch';
 
-const gulp = require("gulp");
+
 const bump = require('gulp-bump');
 const del = require("del");
 const shell = require("gulp-shell");
 const replace = require("gulp-replace");
 const sourcemaps = require("gulp-sourcemaps");
 const ts = require("gulp-typescript");
+const sequence = require('run-sequence');
 
 
 @Gulpclass()
@@ -55,11 +59,11 @@ export class Gulpfile {
       }
     }
     _glob.forEach((f: string) => {
-      if(!/\/\/ index\.ts ignore/.test(fs.readFileSync(f).toString('utf-8'))){
-        forIndexTs.push(`export * from "./${f.replace(/(^src\/)|((\.d)?\.ts$)/g,'')}";`);
+      if (!/\/\/ index\.ts ignore/.test(fs.readFileSync(f).toString('utf-8'))) {
+        forIndexTs.push(`export * from "./${f.replace(/(^src\/)|((\.d)?\.ts$)/g, '')}";`);
       }
     });
-    fs.writeFileSync('./src/index.ts',forIndexTs.join('\n'));
+    fs.writeFileSync('./src/index.ts', forIndexTs.join('\n'));
     return;
   }
 
@@ -73,10 +77,11 @@ export class Gulpfile {
    */
   @MergedTask()
   packageCompile() {
-    const tsProject = ts.createProject("tsconfig.json", {typescript: require("typescript")});
+    const tsProject = ts.createProject("tsconfig.json");
     const tsResult = gulp.src([
       "./src/**/*.ts",
       "!./src/**/files/*.ts",
+      "!./src/**/files/**/*.ts",
       "./node_modules/@types/**/*.ts"])
       .pipe(sourcemaps.init())
       .pipe(tsProject());
@@ -131,11 +136,7 @@ export class Gulpfile {
    */
   @Task()
   packageCopyBin() {
-    if (require('fs').existsSync('./bin')) {
-      return gulp.src("./bin/*").pipe(gulp.dest("./build/package/bin"));
-    } else {
-      return;
-    }
+    return gulp.src("./bin/*").pipe(gulp.dest("./build/package/bin"));
   }
 
 
@@ -169,6 +170,35 @@ export class Gulpfile {
     ];
   }
 
+
+  /**
+   * Creates a package that can be published to npm.
+   */
+  @SequenceTask()
+  packageNoClean() {
+    return [
+
+      "packageCompile",
+      [
+        "packageCopyBin",
+        "packageCopyJsons",
+        "packageCopyFiles",
+        "packageReplaceReferences",
+        "packagePreparePackageFile",
+        "packageCopyReadme",
+      ],
+    ];
+  }
+
+
+  @SequenceTask("watchPackage")
+  watchPackage(): any {
+    return watch(["src/**/*.(ts|json|css|scss)"], {ignoreInitial: false, read: false}, (file: any) => {
+      sequence([ "packageNoClean"]);
+    })
+
+  }
+
   // -------------------------------------------------------------------------
   // Main Packaging and Publishing tasks
   // -------------------------------------------------------------------------
@@ -195,12 +225,6 @@ export class Gulpfile {
       ]));
   }
 
-
-
-  @Task()
-  buildIndexTs() {
-
-  }
 
   // -------------------------------------------------------------------------
   // Versioning

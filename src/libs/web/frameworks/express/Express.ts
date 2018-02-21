@@ -1,3 +1,5 @@
+// index.ts ingore
+
 import * as express from "express";
 import * as _ from "lodash";
 
@@ -45,7 +47,6 @@ export class Express implements IFrameworkSupport {
       }
     }
 
-    let routes = this._routes
     this.app().use(app);
     /*
     if(options.routePrefix){
@@ -72,10 +73,7 @@ export class Express implements IFrameworkSupport {
     return this._routes;
   }
 
-  // TODO
-  useMiddleware() {
-    this._app.use
-  }
+
 
   app(): IApplication {
     if (!this._app) {
