@@ -2,7 +2,7 @@
   "name": "typexs-server",
   "version": "0.1.6",
   "description": "Servers for typexs",
-  "main": "index.js",
+  "main": "src/index",
   "directories": {
     "doc": "docs/de"
   },
@@ -96,6 +96,13 @@
           "controllers",
           "src/controllers",
           "src/modules/*/controllers"
+        ]
+      },
+      {
+        "topic": "server.middleware",
+        "refs": [
+          "middleware",
+          "src/middleware"
         ]
       }
     ]

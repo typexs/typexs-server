@@ -10,7 +10,7 @@ export class FrameworkSupportFactory {
     if (_.isString(name)) {
       switch (name) {
         case "express":
-          return new ExpressSupport();
+          return Container.get(ExpressSupport);
         default:
           throw new Error('server type');
       }
