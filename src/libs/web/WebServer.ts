@@ -15,7 +15,7 @@ import {Helper} from "./../Helper";
 import {IWebServerInstanceOptions} from "./IWebServerInstanceOptions";
 import {IServer} from "../server/IServer";
 import {IRoute} from "../server/IRoute";
-import {IMiddleware} from "./IMiddleware";
+import {IMiddleware} from "../server/IMiddleware";
 
 
 useContainer(Container);

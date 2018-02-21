@@ -1,6 +1,6 @@
 import {IRoutingController} from "../IRoutingController";
 import {IStaticFiles} from "../IStaticFiles";
-import {IApplication} from "./IApplication";
+import {IApplication} from "../../server/IApplication";
 import * as http from "http";
 import {IRoute} from "../../server/IRoute";
 

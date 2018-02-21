@@ -5,10 +5,11 @@ import {createExpressServer} from "routing-controllers";
 import {IStaticFiles} from "../../IStaticFiles";
 import {IRoutingController} from "../../IRoutingController";
 import {IFrameworkSupport} from "../IFrameworkSupport";
-import {IApplication} from "../IApplication";
+
 import * as http from "http";
 import {IRoute} from "../../../server/IRoute";
 import {C_DEFAULT} from "../../../../types";
+import {IApplication} from "../../../../";
 
 
 export class Express implements IFrameworkSupport {
