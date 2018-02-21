@@ -15,6 +15,7 @@ import {Helper} from "./../Helper";
 import {IWebServerInstanceOptions} from "./IWebServerInstanceOptions";
 import {IServer} from "../server/IServer";
 import {IRoute} from "../server/IRoute";
+import {IMiddleware} from "./IMiddleware";
 
 
 useContainer(Container);
@@ -23,10 +24,12 @@ export class WebServer extends Server implements IServer {
 
   private __prepared: boolean = false;
 
-  @Inject()
+  @Inject('RuntimeLoader')
   loader: RuntimeLoader;
 
   framework: IFrameworkSupport;
+
+  middlewares: IMiddleware[] = []
 
   name: string;
 
@@ -62,6 +65,7 @@ export class WebServer extends Server implements IServer {
 
 
     this.loadFramework().create();
+    this.loadMiddleware();
 
     let opts = this.options();
     let classes = this.loader.getClasses(K_CORE_LIB_CONTROLLERS);
@@ -101,7 +105,24 @@ export class WebServer extends Server implements IServer {
         throw  new TodoException()
       }
     }
+
+
     return null
+  }
+
+  private loadMiddleware(){
+    let classes = this.loader.getClasses('server.middleware')
+    for(let cls of classes){
+      let instance = <IMiddleware>Container.get(cls);
+      if(instance.validate(this.options())){
+        instance.prepare();
+        this.middlewares.push(instance);
+      }
+    }
+
+    for(let middleware of this.middlewares){
+      middleware.use(this.framework.app());
+    }
   }
 
 

@@ -1,11 +1,14 @@
 import * as _ from "lodash";
-import {Container, StringOrFunction, PlatformUtils, ClassLoader} from "typexs-base";
+import {Inject, Container, StringOrFunction, PlatformUtils, ClassLoader} from "typexs-base";
 import {WebServer} from "../web/WebServer";
 import {IServer} from "./IServer";
 import {Helper} from "../Helper";
 
 
 export class ServerFactory {
+
+
+
 
 
   static checkFunction(fn: Function) {
