@@ -1,6 +1,6 @@
 {
   "name": "typexs-server",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Servers for typexs",
   "main": "index.js",
   "directories": {
@@ -95,7 +95,7 @@
         "refs": [
           "controllers",
           "src/controllers",
-          "src/components/*/controllers"
+          "src/modules/*/controllers"
         ]
       }
     ]
