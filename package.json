@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "glob": "^7.1.2",
-    "typexs-base": "^0.4.0",
+    "typexs-base": "^0.4.1",
     "lodash": "^4.17.5",
     "routing-controllers": "^0.7.6"
   },
