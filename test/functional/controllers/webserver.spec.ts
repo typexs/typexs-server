@@ -1,12 +1,10 @@
 import {suite, test} from "mocha-typescript";
-import {RuntimeLoader, Container, MetaArgs, Bootstrap} from "typexs-base";
+import {Bootstrap, Container, RuntimeLoader} from "typexs-base";
 import {WebServer} from "../../../src/libs/web/WebServer";
 import {C_DEFAULT, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from "../../../src/types";
-import * as request from 'supertest-as-promised';
+import * as request from 'supertest';
 import {expect} from "chai";
 import {IStaticFiles} from "../../../src/libs/web/IStaticFiles";
-import {IRoutingController} from "../../../src/libs/web/IRoutingController";
-import {getMetadataArgsStorage} from "routing-controllers";
 
 @suite('functional/controllers/webserver')
 class WebserverSpec {
@@ -37,7 +35,7 @@ class WebserverSpec {
     });
 
     await loader.prepare();
-    Container.set(RuntimeLoader, loader);
+    Container.set("RuntimeLoader", loader);
 
     let web = Container.get(WebServer);
     await web.initialize({
@@ -76,7 +74,7 @@ class WebserverSpec {
     let loader = new RuntimeLoader({});
 
     await loader.prepare();
-    Container.set(RuntimeLoader, loader);
+    Container.set("RuntimeLoader", loader);
 
     let web = Container.get(WebServer);
     await web.initialize({
@@ -118,7 +116,7 @@ class WebserverSpec {
     });
 
     await loader.prepare();
-    Container.set(RuntimeLoader, loader);
+    Container.set("RuntimeLoader", loader);
 
     let web = Container.get(WebServer);
     await web.initialize({

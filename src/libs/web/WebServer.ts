@@ -25,11 +25,11 @@ export class WebServer extends Server implements IServer {
   private __prepared: boolean = false;
 
   @Inject('RuntimeLoader')
-  loader: RuntimeLoader;
+  private loader: RuntimeLoader;
 
-  framework: IFrameworkSupport;
+  private framework: IFrameworkSupport;
 
-  middlewares: IMiddleware[] = [];
+  private _middlewares: IMiddleware[] = [];
 
   name: string;
 
@@ -37,18 +37,7 @@ export class WebServer extends Server implements IServer {
   initialize(options: IWebServerInstanceOptions) {
     _.defaults(options, {routes: []});
     super.initialize(options);
-  }
-
-
-  loadFramework() {
-    if (!this.framework) {
-      if (this.options().framework) {
-        this.framework = (FrameworkSupportFactory.get(this.options().framework));
-      } else {
-        throw new Error('framework not present!')
-      }
-    }
-    return this.framework;
+    this.loadMiddleware();
   }
 
 
@@ -57,15 +46,14 @@ export class WebServer extends Server implements IServer {
   }
 
 
-  prepare(): Promise<void> {
+  async prepare(): Promise<void> {
     if (this.__prepared) {
       return null;
     }
     this.__prepared = true;
 
-
     this.loadFramework().create();
-    this.loadMiddleware();
+    await this.useMiddleware();
 
     let opts = this.options();
     let classes = this.loader.getClasses(K_CORE_LIB_CONTROLLERS);
@@ -73,6 +61,7 @@ export class WebServer extends Server implements IServer {
 
     for (let entry of opts.routes) {
       let key = entry.type;
+
       if (key === K_ROUTE_CONTROLLER) {
         let routing = <IRoutingController>entry;
 
@@ -96,35 +85,69 @@ export class WebServer extends Server implements IServer {
         }
 
         routing.controllers = controllerClasses;
-        if(!_.isEmpty(controllerClasses)){
+        if (!_.isEmpty(controllerClasses)) {
+          await this.extendOptionsForMiddleware(routing);
           this.framework.useRouteController(routing);
         }
       } else if (key === K_ROUTE_STATIC) {
+        await this.extendOptionsForMiddleware(entry);
         this.framework.useStaticRoute(<IStaticFiles>entry);
       } else {
         throw  new TodoException()
       }
     }
-
-
     return null
   }
 
-  private loadMiddleware(){
-    let classes = this.loader.getClasses('server.middleware')
-    for(let cls of classes){
-      let instance = <IMiddleware>Container.get(cls);
-      if(instance.validate(this.options())){
-        instance.prepare();
-        this.middlewares.push(instance);
+  private loadFramework() {
+    if (!this.framework) {
+      if (this.options().framework) {
+        this.framework = (FrameworkSupportFactory.get(this.options().framework));
+      } else {
+        throw new Error('framework not present!')
       }
     }
-
-    for(let middleware of this.middlewares){
-      middleware.use(this.framework.app());
-    }
+    return this.framework;
   }
 
+  private loadMiddleware() {
+    let classes = this.loader.getClasses('server.middleware')
+    for (let cls of classes) {
+      let instance = <IMiddleware>Container.get(cls);
+      if (instance.validate(_.clone(this.options()))) {
+        this._middlewares.push(instance);
+      }
+    }
+    this.prepareMiddleware();
+  }
+
+
+  private extendOptionsForMiddleware(opts: any) {
+    return this.execOnMiddleware('extendOptions', opts);
+  }
+
+  private prepareMiddleware() {
+    return this.execOnMiddleware('prepare', this._options);
+  }
+
+  private useMiddleware() {
+    return this.execOnMiddleware('use', this.framework.app());
+  }
+
+
+  private execOnMiddleware(method: string, ...args: any[]): any[] {
+    return this._middlewares.map((m) => {
+      if (m[method]) {
+        return m[method](...args);
+      }
+      return null;
+    });
+
+  }
+
+  middlewares() {
+    return this._middlewares;
+  }
 
   response(req: http.IncomingMessage, res: http.ServerResponse) {
     this.framework.handle(req, res);
@@ -137,7 +160,7 @@ export class WebServer extends Server implements IServer {
   }
 
 
-  getRoutes():IRoute[] {
+  getRoutes(): IRoute[] {
     return this.framework.getRoutes();
   }
 

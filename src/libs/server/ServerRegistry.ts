@@ -44,11 +44,14 @@ export class ServerRegistry {
   }
 
 
+
   getInstanceNames():string[]{
     return _.map(this.registry,(x) => {return x.name;})
   }
 
+
   get(name: string) {
     return _.find(this.registry, {name: name});
   }
+
 }

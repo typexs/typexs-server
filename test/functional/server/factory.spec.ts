@@ -11,7 +11,7 @@ import * as path from "path";
 import * as glob from "glob";
 
 @suite('functional/server/factory')
-class Server_factorySpec {
+class FactorySpec {
 
 
   before(){
@@ -26,6 +26,7 @@ class Server_factorySpec {
   async 'get web server'() {
     let loader = new RuntimeLoader({});
     Container.set(RuntimeLoader,loader);
+    Container.set("RuntimeLoader",loader);
     let r = new ServerFactory();
     let web = r.get('web');
     expect(web instanceof WebServer).to.be.true;

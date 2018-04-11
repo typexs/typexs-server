@@ -12,7 +12,7 @@ import * as glob from "glob";
 import {IWebServerInstanceOptions} from "../../../src/libs/web/IWebServerInstanceOptions";
 
 @suite('functional/server/registry')
-class Server_registrySpec {
+class RegistrySpec {
 
 
   before() {
@@ -26,7 +26,7 @@ class Server_registrySpec {
   @test
   async 'error creating of web server because of framework missing'() {
     let loader = new RuntimeLoader({});
-    Container.set(RuntimeLoader, loader);
+    Container.set("RuntimeLoader", loader);
 
     let registry = new ServerRegistry();
     try {
@@ -40,7 +40,7 @@ class Server_registrySpec {
   @test
   async 'create a express web server'() {
     let loader = new RuntimeLoader({});
-    Container.set(RuntimeLoader, loader);
+    Container.set("RuntimeLoader", loader);
 
     let registry = new ServerRegistry();
     let instance = await registry.create('default', <IWebServerInstanceOptions>{type: 'web', framework: 'express'});

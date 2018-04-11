@@ -196,8 +196,8 @@ export class Gulpfile {
     return watch(["src/**/*.(ts|json|css|scss)"], {ignoreInitial: false, read: false}, (file: any) => {
       sequence([ "packageNoClean"]);
     })
-
   }
+
 
   // -------------------------------------------------------------------------
   // Main Packaging and Publishing tasks

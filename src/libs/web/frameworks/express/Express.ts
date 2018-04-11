@@ -1,6 +1,7 @@
 // index.ts ingore
 
 import * as express from "express";
+
 import * as _ from "lodash";
 
 import {createExpressServer} from "routing-controllers";
@@ -24,6 +25,7 @@ export class Express implements IFrameworkSupport {
   create() {
     this._app = express();
     this._app.disable('x-powered-by');
+
     return this;
   }
 
