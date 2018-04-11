@@ -23,6 +23,7 @@ class RegistrySpec {
     Container.reset();
   }
 
+
   @test
   async 'error creating of web server because of framework missing'() {
     let loader = new RuntimeLoader({});
@@ -36,6 +37,7 @@ class RegistrySpec {
       expect(err.message).to.eq('framework not present!');
     }
   }
+
 
   @test
   async 'create a express web server'() {
