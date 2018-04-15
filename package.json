@@ -1,6 +1,6 @@
 {
   "name": "typexs-server",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "description": "Servers for typexs",
   "main": "index.js",
   "directories": {
@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "glob": "^7.1.2",
-    "typexs-base": "^0.4.1",
+    "typexs-base": "^0.4.2",
     "lodash": "^4.17.5",
     "routing-controllers": "^0.7.6"
   },
