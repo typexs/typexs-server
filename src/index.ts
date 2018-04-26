@@ -7,6 +7,10 @@ export * from "./libs/exceptions/ServerTypeIsNotSetError";
 export * from "./libs/Helper";
 
 export * from "./libs/server/Exceptions";
+export * from "./libs/server/IByteRange";
+export * from "./libs/server/IMediaType";
+export * from "./libs/server/ICookieOptions";
+export * from "./libs/server/IRequestRanges";
 export * from "./libs/server/IRequest";
 export * from "./libs/server/IResponse";
 export * from "./libs/server/IRoute";

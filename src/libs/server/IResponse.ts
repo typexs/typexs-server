@@ -1,6 +1,11 @@
 import * as http from "http";
-import {Application, CookieOptions, Errback, Response, Send} from "express-serve-static-core";
+import {IApplication} from "./IApplication";
+import {ICookieOptions} from "./ICookieOptions";
 
+
+export type ISend = (body?: any) => IResponse;
+
+export type IErrback = (err: Error) => void;
 /**
  * Copy from core.Response of express
  */
@@ -8,7 +13,7 @@ export interface IResponse extends http.ServerResponse {
   /**
    * Set status `code`.
    */
-  status(code: number): Response;
+  status(code: number): IResponse;
 
   /**
    * Set the response HTTP status code to `statusCode` and send its string representation as the response body.
@@ -21,7 +26,7 @@ export interface IResponse extends http.ServerResponse {
    *    res.sendStatus(404); // equivalent to res.status(404).send('Not Found')
    *    res.sendStatus(500); // equivalent to res.status(500).send('Internal Server Error')
    */
-  sendStatus(code: number): Response;
+  sendStatus(code: number): IResponse;
 
   /**
    * Set Link header field with the given `links`.
@@ -33,10 +38,10 @@ export interface IResponse extends http.ServerResponse {
      *      last: 'http://api.example.com/users?page=5'
      *    });
    */
-  links(links: any): Response;
+  links(links: any): IResponse;
 
   /**
-   * Send a response.
+   * ISend a response.
    *
    * Examples:
    *
@@ -46,10 +51,10 @@ export interface IResponse extends http.ServerResponse {
    *     res.send(404, 'Sorry, cant find that');
    *     res.send(404);
    */
-  send: Send;
+  send: ISend;
 
   /**
-   * Send JSON response.
+   * ISend JSON response.
    *
    * Examples:
    *
@@ -58,10 +63,10 @@ export interface IResponse extends http.ServerResponse {
    *     res.json(500, 'oh noes!');
    *     res.json(404, 'I dont have that');
    */
-  json: Send;
+  json: ISend;
 
   /**
-   * Send JSON response with JSONP callback support.
+   * ISend JSON response with JSONP callback support.
    *
    * Examples:
    *
@@ -70,7 +75,7 @@ export interface IResponse extends http.ServerResponse {
    *     res.jsonp(500, 'oh noes!');
    *     res.jsonp(404, 'I dont have that');
    */
-  jsonp: Send;
+  jsonp: ISend;
 
   /**
    * Transfer the file at the given `path`.
@@ -114,8 +119,8 @@ export interface IResponse extends http.ServerResponse {
    */
   sendFile(path: string): void;
   sendFile(path: string, options: any): void;
-  sendFile(path: string, fn: Errback): void;
-  sendFile(path: string, options: any, fn: Errback): void;
+  sendFile(path: string, fn: IErrback): void;
+  sendFile(path: string, options: any, fn: IErrback): void;
 
   /**
    * @deprecated Use sendFile instead.
@@ -128,11 +133,11 @@ export interface IResponse extends http.ServerResponse {
   /**
    * @deprecated Use sendFile instead.
    */
-  sendfile(path: string, fn: Errback): void;
+  sendfile(path: string, fn: IErrback): void;
   /**
    * @deprecated Use sendFile instead.
    */
-  sendfile(path: string, options: any, fn: Errback): void;
+  sendfile(path: string, options: any, fn: IErrback): void;
 
   /**
    * Transfer the file at the given `path` as an attachment.
@@ -146,8 +151,8 @@ export interface IResponse extends http.ServerResponse {
    */
   download(path: string): void;
   download(path: string, filename: string): void;
-  download(path: string, fn: Errback): void;
-  download(path: string, filename: string, fn: Errback): void;
+  download(path: string, fn: IErrback): void;
+  download(path: string, filename: string, fn: IErrback): void;
 
   /**
    * Set _Content-Type_ response header with `type` through `mime.lookup()`
@@ -161,7 +166,7 @@ export interface IResponse extends http.ServerResponse {
    *     res.type('application/json');
    *     res.type('png');
    */
-  contentType(type: string): Response;
+  contentType(type: string): IResponse;
 
   /**
    * Set _Content-Type_ response header with `type` through `mime.lookup()`
@@ -175,7 +180,7 @@ export interface IResponse extends http.ServerResponse {
    *     res.type('application/json');
    *     res.type('png');
    */
-  type(type: string): Response;
+  type(type: string): IResponse;
 
   /**
    * Respond to the Acceptable formats using an `obj`
@@ -229,12 +234,12 @@ export interface IResponse extends http.ServerResponse {
    * a `.default` callback it will be invoked
    * instead.
    */
-  format(obj: any): Response;
+  format(obj: any): IResponse;
 
   /**
    * Set _Content-Disposition_ header to _attachment_ with optional `filename`.
    */
-  attachment(filename?: string): Response;
+  attachment(filename?: string): IResponse;
 
   /**
    * Set header `field` to `val`, or pass
@@ -248,11 +253,11 @@ export interface IResponse extends http.ServerResponse {
    *
    * Aliased as `res.header()`.
    */
-  set(field: any): Response;
-  set(field: string, value?: string): Response;
+  set(field: any): IResponse;
+  set(field: string, value?: string): IResponse;
 
-  header(field: any): Response;
-  header(field: string, value?: string): Response;
+  header(field: any): IResponse;
+  header(field: string, value?: string): IResponse;
 
   // Property indicating if HTTP headers has been sent for the response.
   headersSent: boolean;
@@ -261,7 +266,7 @@ export interface IResponse extends http.ServerResponse {
   get(field: string): string;
 
   /** Clear cookie `name`. */
-  clearCookie(name: string, options?: any): Response;
+  clearCookie(name: string, options?: any): IResponse;
 
   /**
    * Set cookie `name` to `val`, with the given `options`.
@@ -280,9 +285,9 @@ export interface IResponse extends http.ServerResponse {
    *    // save as above
    *    res.cookie('rememberme', '1', { maxAge: 900000, httpOnly: true })
    */
-  cookie(name: string, val: string, options: CookieOptions): Response;
-  cookie(name: string, val: any, options: CookieOptions): Response;
-  cookie(name: string, val: any): Response;
+  cookie(name: string, val: string, options: ICookieOptions): IResponse;
+  cookie(name: string, val: any, options: ICookieOptions): IResponse;
+  cookie(name: string, val: any): IResponse;
 
   /**
    * Set the location header to `url`.
@@ -310,7 +315,7 @@ export interface IResponse extends http.ServerResponse {
    *
    *      res.location('/login');
    */
-  location(url: string): Response;
+  location(url: string): IResponse;
 
   /**
    * Redirect to the given `url` with optional response `status`
@@ -356,9 +361,9 @@ export interface IResponse extends http.ServerResponse {
    *     res.vary('User-Agent').render('docs');
    *
    */
-  vary(field: string): Response;
+  vary(field: string): IResponse;
 
-  app: Application;
+  app: IApplication;
 
   /**
    * Appends the specified value to the HTTP response header field.
@@ -369,6 +374,6 @@ export interface IResponse extends http.ServerResponse {
    *
    * @since 4.11.0
    */
-  append(field: string, value?: string[]|string): Response;
+  append(field: string, value?: string[]|string): IResponse;
 
 }

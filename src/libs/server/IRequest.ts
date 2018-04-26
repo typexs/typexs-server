@@ -1,5 +1,7 @@
 import * as http from "http";
-import {Application, MediaType, RequestRanges, Response} from "express-serve-static-core";
+import {IApplication} from "./IApplication";
+import {IRequestRanges} from "./IRequestRanges";
+import {IMediaType} from "./IMediaType";
 
 
 /**
@@ -124,13 +126,13 @@ export interface IRequest extends http.IncomingMessage {
    * for example "Range: users=0-3" should respond
    * with 4 users when available, not 3.
    */
-  range(size: number): RequestRanges|null|-1|-2;
+  range(size: number): IRequestRanges|null|-1|-2;
 
   /**
    * Return an array of Accepted media types
    * ordered from highest quality to lowest.
    */
-  accepted: MediaType[];
+  accepted: IMediaType[];
 
   /**
    * @deprecated since 4.11 Use either req.params, req.body or req.query, as applicable.
@@ -276,6 +278,6 @@ export interface IRequest extends http.IncomingMessage {
 
   baseUrl: string;
 
-  app: Application;
+  app: IApplication;
 
 }
