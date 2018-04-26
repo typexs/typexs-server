@@ -7,6 +7,8 @@ export * from "./libs/exceptions/ServerTypeIsNotSetError";
 export * from "./libs/Helper";
 
 export * from "./libs/server/Exceptions";
+export * from "./libs/server/IRequest";
+export * from "./libs/server/IResponse";
 export * from "./libs/server/IRoute";
 export * from "./libs/server/IServer";
 export * from "./libs/server/IMiddleware";
