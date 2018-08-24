@@ -53,6 +53,7 @@ export class WebServer extends Server implements IServer {
     this.__prepared = true;
 
     this.loadFramework().create();
+    await this.prepareMiddleware();
     await this.useMiddleware();
 
     let opts = this.options();
@@ -118,7 +119,6 @@ export class WebServer extends Server implements IServer {
         this._middlewares.push(instance);
       }
     }
-    this.prepareMiddleware();
   }
 
 
@@ -126,12 +126,14 @@ export class WebServer extends Server implements IServer {
     return this.execOnMiddleware('extendOptions', opts);
   }
 
-  private prepareMiddleware() {
-    return this.execOnMiddleware('prepare', this._options);
+
+  private prepareMiddleware(): Promise<any[]> {
+    return Promise.all(this.execOnMiddleware('prepare', this._options));
   }
 
-  private useMiddleware() {
-    return this.execOnMiddleware('use', this.framework.app());
+
+  private useMiddleware(): Promise<any[]> {
+    return Promise.all(this.execOnMiddleware('use', this.framework.app()));
   }
 
 
