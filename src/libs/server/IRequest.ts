@@ -28,9 +28,11 @@ export interface IRequest extends http.IncomingMessage {
    * Aliased as `req.header()`.
    */
   get(name: "set-cookie"): string[] | undefined;
+
   get(name: string): string | undefined;
 
   header(name: "set-cookie"): string[] | undefined;
+
   header(name: string): string | undefined;
 
   /**
@@ -71,8 +73,11 @@ export interface IRequest extends http.IncomingMessage {
    *     // => "json"
    */
   accepts(): string[];
+
   accepts(type: string): string | false;
+
   accepts(type: string[]): string | false;
+
   accepts(...type: string[]): string | false;
 
   /**
@@ -83,8 +88,11 @@ export interface IRequest extends http.IncomingMessage {
    * For more information, or if you have issues or concerns, see accepts.
    */
   acceptsCharsets(): string[];
+
   acceptsCharsets(charset: string): string | false;
+
   acceptsCharsets(charset: string[]): string | false;
+
   acceptsCharsets(...charset: string[]): string | false;
 
   /**
@@ -95,8 +103,11 @@ export interface IRequest extends http.IncomingMessage {
    * For more information, or if you have issues or concerns, see accepts.
    */
   acceptsEncodings(): string[];
+
   acceptsEncodings(encoding: string): string | false;
+
   acceptsEncodings(encoding: string[]): string | false;
+
   acceptsEncodings(...encoding: string[]): string | false;
 
   /**
@@ -107,8 +118,11 @@ export interface IRequest extends http.IncomingMessage {
    * For more information, or if you have issues or concerns, see accepts.
    */
   acceptsLanguages(): string[];
+
   acceptsLanguages(lang: string): string | false;
+
   acceptsLanguages(lang: string[]): string | false;
+
   acceptsLanguages(...lang: string[]): string | false;
 
   /**
@@ -126,7 +140,7 @@ export interface IRequest extends http.IncomingMessage {
    * for example "Range: users=0-3" should respond
    * with 4 users when available, not 3.
    */
-  range(size: number): IRequestRanges|null|-1|-2;
+  range(size: number): IRequestRanges | null | -1 | -2;
 
   /**
    * Return an array of Accepted media types
@@ -279,5 +293,8 @@ export interface IRequest extends http.IncomingMessage {
   baseUrl: string;
 
   app: IApplication;
+
+
+  next(...args: any[]): void;
 
 }

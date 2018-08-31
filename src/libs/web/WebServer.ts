@@ -100,6 +100,7 @@ export class WebServer extends Server implements IServer {
     return null
   }
 
+
   private loadFramework() {
     if (!this.framework) {
       if (this.options().framework) {
@@ -110,6 +111,7 @@ export class WebServer extends Server implements IServer {
     }
     return this.framework;
   }
+
 
   private loadMiddleware() {
     let classes = this.loader.getClasses('server.middleware')
