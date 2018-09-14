@@ -1,27 +1,16 @@
-import {RuntimeLoader, Inject, Config, TYPEXS_NAME, Container} from "typexs-base";
+import {RuntimeLoader, Inject, Config, TYPEXS_NAME, Container, IActivator} from "typexs-base";
 import {ServerRegistry} from "./libs/server/ServerRegistry";
 import {C_SERVER} from "./types";
 import * as _ from 'lodash';
 
 
-export class Activator {
+export class Activator implements IActivator{
 
-  /*
-  @Inject('RuntimeLoader')
-  loader: RuntimeLoader;
-*/
 
   async startup() {
-
-    let data = Config.get(C_SERVER, {});
     let serverRegistry = new ServerRegistry();
     Container.set(ServerRegistry, serverRegistry);
     Container.set('ServerRegistry', serverRegistry);
-
-    if (!_.isEmpty(data)) {
-      await serverRegistry.load(data);
-    }
-
   }
 
 }

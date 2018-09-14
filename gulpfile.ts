@@ -4,7 +4,6 @@ import {Gulpclass, Task, SequenceTask, MergedTask} from "gulpclass";
 import * as fs from 'fs';
 import * as glob from 'glob';
 import * as gulp from 'gulp';
-import * as watch from 'gulp-watch';
 
 
 const bump = require('gulp-bump');
@@ -13,7 +12,6 @@ const shell = require("gulp-shell");
 const replace = require("gulp-replace");
 const sourcemaps = require("gulp-sourcemaps");
 const ts = require("gulp-typescript");
-const sequence = require('run-sequence');
 
 
 @Gulpclass()
@@ -191,12 +189,6 @@ export class Gulpfile {
   }
 
 
-  @SequenceTask("watchPackage")
-  watchPackage(): any {
-    return watch(["src/**/*.(ts|json|css|scss)"], {ignoreInitial: false, read: false}, (file: any) => {
-      sequence([ "packageNoClean"]);
-    })
-  }
 
 
   // -------------------------------------------------------------------------
