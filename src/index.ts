@@ -3,6 +3,7 @@ export * from "routing-controllers";
 export * from "./Activator";
 export * from "./commands/ServerCommand";
 export * from "./decorators/ContextGroup";
+export * from "./decorators/Credentials";
 export * from "./libs/exceptions/ServerTypeIsNotSetError";
 export * from "./libs/Helper";
 
