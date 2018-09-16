@@ -37,4 +37,7 @@ export * from "./libs/web/IStaticFiles";
 export * from "./libs/web/IWebServerInstanceOptions";
 export * from "./libs/web/WebServer";
 export * from "./libs/web/WebServerUtils";
+
+export * from "./libs/CrednetialsHelper";
+
 export * from "./types";

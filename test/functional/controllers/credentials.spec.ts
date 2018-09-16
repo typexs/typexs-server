@@ -82,7 +82,7 @@ class CredentialsSpec {
 
     let stopped = await web.stop();
     expect(stopped).to.be.true;
-    
+
     expect(creds).to.deep.include.members(
       [
         ['allow get'],
