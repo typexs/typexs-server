@@ -60,9 +60,14 @@ class WebserverSpec {
     expect(res.body).to.deep.eq({json: 'test'});
     expect(routes).to.deep.eq([
       {
+        "authorized": false,
         "context": "default",
-        "route": "/get",
-        "method": "get"
+        "controller": "JsonDataDelivery",
+        "controllerMethod": "get",
+        "credential": null,
+        "method": "get",
+        "params": null,
+        "route": "/get"
       }
     ]);
 
@@ -153,18 +158,26 @@ class WebserverSpec {
     expect(stopped).to.be.true;
     expect(res1.body).to.deep.eq({json: 'test'});
     expect(res2.body).to.deep.eq({json: 'api'});
-    expect(routes).to.deep.eq([
-      {
-        "context": "default",
-        "route": "/get",
-        "method": "get"
-      },
-      {
-        "context": "api",
-        "method": "get",
-        "route": "/api/get"
-      }
-    ]);
+    expect(routes).to.deep.eq(
+      [
+        {
+          "authorized": false,
+          "context": "default",
+          "controller": "JsonDataDelivery",
+          "controllerMethod": "get",
+          "credential": null,
+          "method": "get",
+          "params": null,
+          "route": "/get",
+        },
+        {
+          "authorized": false,
+          "context": "api",
+          "method": "get",
+          "params": null,
+          "route": "/api/get"
+        }
+      ]);
 
   }
 

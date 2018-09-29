@@ -5,6 +5,7 @@ import * as request from 'request-promise';
 import {expect} from "chai";
 import {Server} from "../../../src";
 import * as _ from "lodash";
+import {inspect} from "util";
 
 
 const settingsTemplate: any = {
@@ -87,12 +88,73 @@ class System_info_controllerSpec {
   async 'list routes'() {
 
     const url = server.url();
-    let res = await request.get(url + '/api/routes',{json:true});
-    console.log(res)
-
+    let res = await request.get(url + '/api/routes', {json: true});
+    expect(res).to.have.length(4);
+    expect(_.find(res, {controllerMethod: 'listRoutes'})).to.deep.eq({
+      context: 'api',
+      route: '/api/routes',
+      method: 'get',
+      params: null,
+      controller: 'SystemInfoController',
+      controllerMethod: 'listRoutes',
+      credential: ['allow routes view'],
+      authorized: true
+    });
 
   }
 
+  @test @timeout(300000)
+  async 'list config'() {
 
+    const url = server.url();
+    let res = await request.get(url + '/api/config', {json: true});
+    let baseConfig = res.shift();
+    console.log(inspect(baseConfig.server, false, 10))
+    let compare = _.clone(settingsTemplate);
+
+    compare.storage.default.name = 'default';
+    compare.storage.default.entities = [];
+    expect(baseConfig.storage).to.have.deep.eq(compare.storage);
+
+    expect(baseConfig.server).to.have.deep.eq({
+      "default": {
+        "_debug": false,
+        "fn": "root",
+        "framework": "express",
+        "host": "localhost",
+        "ip": "127.0.0.1",
+        "port": 4500,
+        "protocol": "http",
+        "routes": [
+          {
+            "authorizationChecker": "",
+            "classTransformer": false,
+            "context": "api",
+            "controllers": [
+              "SystemInfoController"
+            ],
+            "currentUserChecker": "",
+            "routePrefix": "api",
+            "type": "routing_controller",
+          }
+        ],
+        "stall": 0,
+        "timeout": 60000,
+        "type": "web",
+      }
+    });
+  }
+
+  @test @timeout(300000)
+  async 'list modules'() {
+    const url = server.url();
+    let res = await request.get(url + '/api/modules', {json: true});
+    expect(_.map(res,r => r.name)).to.have.members(['typexs-server','typexs-base','@schematics/typexs']);
+
+  }
+
+  @test.skip() @timeout(300000)
+  async 'list storages'() {
+
+  }
 }
-
