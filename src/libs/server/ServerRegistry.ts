@@ -15,7 +15,7 @@ export class ServerRegistry {
   registry: IServer[] = [];
 
 
-  constructor(){
+  constructor() {
     this.factory = new ServerFactory();
   }
 
@@ -44,13 +44,14 @@ export class ServerRegistry {
   }
 
 
-
-  getInstanceNames():string[]{
-    return _.map(this.registry,(x) => {return x.name;})
+  getInstanceNames(): string[] {
+    return _.map(this.registry, (x) => {
+      return x.name;
+    })
   }
 
 
-  get(name: string) {
+  get(name: string): IServer {
     return _.find(this.registry, {name: name});
   }
 

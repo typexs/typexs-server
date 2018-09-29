@@ -6,6 +6,7 @@ import * as _ from "lodash";
 
 export class CredentialsHelper {
 
+
   static getRightsForAction(action: Action): string[] {
     let actions = getMetadataArgsStorage().actions;
     let actionMetadatas = actions.filter(x => x.type == action.request.method.toLowerCase() && x.route == action.request.route.path);
@@ -28,4 +29,12 @@ export class CredentialsHelper {
     }
     return [];
   }
+
+  static getCredentialFor(target: Function, methodName: string): any {
+    let credentials = MetaArgs.key(K_META_CREDENTIALS_ARGS)
+      .find(x => x.target == target &&
+        methodName == x.method);
+    return credentials;
+  }
+
 }

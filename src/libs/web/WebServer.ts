@@ -1,7 +1,7 @@
 import * as http from "http";
 import * as _ from 'lodash'
 import {ClassLoader, Container, Inject, RuntimeLoader, TodoException} from "typexs-base";
-import {useContainer} from "routing-controllers";
+import {Action, useContainer} from "routing-controllers";
 
 import {Server} from "./../server/Server";
 
@@ -88,6 +88,7 @@ export class WebServer extends Server implements IServer {
         routing.controllers = controllerClasses;
         if (!_.isEmpty(controllerClasses)) {
           await this.extendOptionsForMiddleware(routing);
+          this.applyDefaultOptionsIfNotGiven(routing);
           this.framework.useRouteController(routing);
         }
       } else if (key === K_ROUTE_STATIC) {
@@ -98,6 +99,19 @@ export class WebServer extends Server implements IServer {
       }
     }
     return null
+  }
+
+  private applyDefaultOptionsIfNotGiven(options: IRoutingController) {
+    if (!_.has(options, 'authorizationChecker')) {
+      options.authorizationChecker = (action: Action, roles: any[]) => {
+        return true;
+      }
+    }
+    if (!_.has(options, 'currentUserChecker')) {
+      options.currentUserChecker = (action: Action) => {
+        return null;
+      }
+    }
   }
 
 
@@ -174,6 +188,10 @@ export class WebServer extends Server implements IServer {
 
   stop() {
     return super.stop();
+  }
+
+  hasRoutes(): boolean {
+    return true;
   }
 
 }

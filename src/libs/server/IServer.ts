@@ -1,4 +1,5 @@
 import {IServerInstanceOptions} from "./IServerInstanceOptions";
+import {IRoute} from "./IRoute";
 
 export interface IServer {
 
@@ -14,5 +15,11 @@ export interface IServer {
 
   stop(): Promise<boolean>;
 
+  hasRoutes(): boolean;
 
+  getRoutes(): IRoute[];
+
+  getUri(): string;
 }
+
+

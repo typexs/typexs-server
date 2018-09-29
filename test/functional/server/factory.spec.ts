@@ -9,6 +9,7 @@ import {ServerFactory} from "../../../src/libs/server/ServerFactory";
 import {WebServer} from "../../../src/libs/web/WebServer";
 import * as path from "path";
 import * as glob from "glob";
+import {IRoute} from "../../../src";
 
 @suite('functional/server/factory')
 class FactorySpec {
@@ -54,6 +55,18 @@ class FactorySpec {
         return true;
       };
 
+      getRoutes(): IRoute[] {
+        return [];
+      }
+
+      getUri(): string {
+        return "";
+      }
+
+      hasRoutes(): boolean {
+        return false;
+      }
+
     }
     let web = r.get(ServerTmplX);
     expect(web instanceof ServerTmplX).to.be.true;
@@ -94,6 +107,18 @@ class FactorySpec {
       async stop() {
         return true;
       };
+
+      getRoutes(): IRoute[] {
+        return [];
+      }
+
+      getUri(): string {
+        return "";
+      }
+
+      hasRoutes(): boolean {
+        return false;
+      }
 
     }
 
