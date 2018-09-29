@@ -109,7 +109,6 @@ class System_info_controllerSpec {
     const url = server.url();
     let res = await request.get(url + '/api/config', {json: true});
     let baseConfig = res.shift();
-    console.log(inspect(baseConfig.server, false, 10))
     let compare = _.clone(settingsTemplate);
 
     compare.storage.default.name = 'default';
@@ -149,12 +148,22 @@ class System_info_controllerSpec {
   async 'list modules'() {
     const url = server.url();
     let res = await request.get(url + '/api/modules', {json: true});
-    expect(_.map(res,r => r.name)).to.have.members(['typexs-server','typexs-base','@schematics/typexs']);
+    expect(_.map(res, r => r.name)).to.have.members(['typexs-server', 'typexs-base', '@schematics/typexs']);
 
   }
 
-  @test.skip() @timeout(300000)
+  @test @timeout(300000)
   async 'list storages'() {
+    const url = server.url();
+    let res = await request.get(url + '/api/storages', {json: true});
+    expect(res).to.have.length(1);
+    res = res.shift()
+    let compare = _.clone(settingsTemplate);
+    compare.storage.default.name = 'default';
+    compare.storage.default.entities = [];
+    expect(res).to.have.deep.eq(compare.storage.default);
+
+//    expect(_.map(res,r => r.name)).to.have.members(['typexs-server','typexs-base','@schematics/typexs']);
 
   }
 }

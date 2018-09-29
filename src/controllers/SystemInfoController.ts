@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import {Inject, RuntimeLoader, Config, ClassLoader, IModule, CONFIG_NAMESPACE, BaseUtils} from "typexs-base";
+import {Inject, RuntimeLoader, Config, ClassLoader, IModule, CONFIG_NAMESPACE, BaseUtils, Storage} from "typexs-base";
 import {ContextGroup} from "../decorators/ContextGroup";
 import {Authorized, Get, getMetadataArgsStorage, JsonController} from "routing-controllers";
 import {Credentials} from "../decorators/Credentials";
@@ -18,6 +18,8 @@ export class SystemInfoController {
   @Inject("ServerRegistry")
   serverRegistry: ServerRegistry;
 
+  @Inject("Storage")
+  storage: Storage;
 
   @Credentials('allow routes view')
   @Get('/routes')
@@ -60,6 +62,19 @@ export class SystemInfoController {
   @Credentials('allow storages view')
   @Get('/storages')
   getStorageInfo(): any {
-    return [];
+    let options = _.clone(this.storage.getAllOptions());
+    Helper.walk(options, (x: any) => {
+      if (['user', 'username', 'password'].indexOf(x.key) !== -1 && x.location.indexOf('storage') !== -1) {
+        delete x.parent[x.key];
+      }
+      if (_.isFunction(x.value)) {
+        if (_.isArray(x.parent)) {
+          x.parent[x.index] = ClassLoader.getClassName(x.value);
+        } else {
+          x.parent[x.key] = ClassLoader.getClassName(x.value);
+        }
+      }
+    });
+    return options;
   }
 }
