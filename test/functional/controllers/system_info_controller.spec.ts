@@ -5,7 +5,6 @@ import * as request from 'request-promise';
 import {expect} from "chai";
 import {Server} from "../../../src";
 import * as _ from "lodash";
-import {inspect} from "util";
 
 
 const settingsTemplate: any = {
@@ -84,9 +83,9 @@ class System_info_controllerSpec {
 
   }
 
+
   @test @timeout(300000)
   async 'list routes'() {
-
     const url = server.url();
     let res = await request.get(url + '/api/routes', {json: true});
     expect(res).to.have.length(4);
@@ -100,12 +99,12 @@ class System_info_controllerSpec {
       credential: ['allow routes view'],
       authorized: true
     });
-
   }
+
+
 
   @test @timeout(300000)
   async 'list config'() {
-
     const url = server.url();
     let res = await request.get(url + '/api/config', {json: true});
     let baseConfig = res.shift();
@@ -144,13 +143,14 @@ class System_info_controllerSpec {
     });
   }
 
+
   @test @timeout(300000)
   async 'list modules'() {
     const url = server.url();
     let res = await request.get(url + '/api/modules', {json: true});
     expect(_.map(res, r => r.name)).to.have.members(['typexs-server', 'typexs-base', '@schematics/typexs']);
-
   }
+
 
   @test @timeout(300000)
   async 'list storages'() {
@@ -162,8 +162,7 @@ class System_info_controllerSpec {
     compare.storage.default.name = 'default';
     compare.storage.default.entities = [];
     expect(res).to.have.deep.eq(compare.storage.default);
-
-//    expect(_.map(res,r => r.name)).to.have.members(['typexs-server','typexs-base','@schematics/typexs']);
-
   }
+
+
 }
