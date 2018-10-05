@@ -4,7 +4,7 @@ import * as express from "express";
 
 import * as _ from "lodash";
 
-import {createExpressServer, getMetadataArgsStorage} from "routing-controllers";
+import {Action, ActionMetadata, createExpressServer, getMetadataArgsStorage} from "routing-controllers";
 import {IStaticFiles} from "../../IStaticFiles";
 import {IRoutingController} from "../../IRoutingController";
 import {IFrameworkSupport} from "../IFrameworkSupport";
@@ -13,7 +13,18 @@ import * as http from "http";
 import {IRoute} from "../../../server/IRoute";
 import {C_DEFAULT} from "../../../../types";
 import {CredentialsHelper, IApplication} from "../../../../";
+import {ActionMetadataArgs} from "../../../../../node_modules/routing-controllers/metadata/args/ActionMetadataArgs";
+import {ActionType} from "../../../../../node_modules/routing-controllers/metadata/types/ActionType";
 
+
+interface ActionResolved {
+  route: string;
+  type: ActionType,
+  action: ActionMetadataArgs;
+  authorized: boolean;
+  credential: string | string[];
+  params: any[];
+}
 
 export class Express implements IFrameworkSupport {
 
@@ -51,6 +62,39 @@ export class Express implements IFrameworkSupport {
     return this;
   }
 
+  resolveMetadata(): ActionResolved[] {
+    let res: ActionResolved[] = [];
+    const metadataStore = getMetadataArgsStorage();
+    const authHandlers = metadataStore.responseHandlers.filter(r => r.type === 'authorized');
+    metadataStore.controllers.forEach(controller => {
+      const controllerActions = _.filter(metadataStore.actions, a => a.target == controller.target)
+      controllerActions.forEach(action => {
+        let route = action.route instanceof RegExp ? action.route.source : action.route;
+        if (controller.route) {
+          route = controller.route + route;
+        }
+
+        const params = metadataStore.params.filter(param => param.method == action.method && param.object.constructor == action.target)
+
+        // TODO handle regex
+        const credential = CredentialsHelper.getCredentialFor(action.target, action.method);
+        const authorized = !!_.find(authHandlers, a => a.target === action.target && a.method === action.method);
+        let entry: ActionResolved = {
+          route: route,
+          type: action.type,
+          action: action,
+          credential: credential.rights,
+          authorized: authorized,
+          params: params.map(p => {
+            return {name: p.name, required: p.required, index: p.index, parse: p.parse}
+          })
+        }
+        res.push(entry);
+      })
+
+    })
+    return res;
+  }
 
   getRoutes() {
     if (!this._routes) {
@@ -60,8 +104,9 @@ export class Express implements IFrameworkSupport {
         const options = appSetting.options;
         const app = appSetting.mounted;
         let prefix = options.routePrefix;
-        let actions = getMetadataArgsStorage().actions;
-        let authHandlers = getMetadataArgsStorage().responseHandlers.filter(r => r.type === 'authorized');
+
+        let actions = this.resolveMetadata();
+
         for (let entry of app._router.stack) {
           if (entry.route) {
             let r = entry.route;
@@ -72,20 +117,18 @@ export class Express implements IFrameworkSupport {
               if (handle.name !== 'routeHandler') continue;
               method = handle.method;
               let action = _.find(actions, a => (prefix ? '/' + prefix + a.route === r.path : a.route === r.path) && a.type.toLowerCase() == method.toLowerCase());
-              let credential = null, authorized: boolean = false;
+
               if (action) {
-                credential = CredentialsHelper.getCredentialFor(action.target, action.method);
-                authorized = !!_.find(authHandlers, a => a.target === action.target && a.method === action.method);
 
                 this._routes.push({
                   context: options.context ? options.context : C_DEFAULT,
-                  route: r.path,
+                  route: prefix ? '/' + prefix + action.route : action.route,
                   method: method,
-                  params: !_.isEmpty(params) ? params : null,
-                  controller: action.target.name,
-                  controllerMethod: action.method,
-                  credential: credential ? credential.rights : null,
-                  authorized: authorized
+                  params: action.params,
+                  controller: action.action.target.name,
+                  controllerMethod: action.action.method,
+                  credential: action.credential ? action.credential : null,
+                  authorized: action.authorized
                 })
 
               } else {
@@ -94,7 +137,7 @@ export class Express implements IFrameworkSupport {
                   route: r.path,
                   method: method,
                   params: !_.isEmpty(params) ? params : null,
-                  authorized: authorized
+                  authorized: false
                 })
 
               }

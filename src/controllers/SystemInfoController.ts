@@ -1,14 +1,13 @@
 import * as _ from "lodash";
-import {Inject, RuntimeLoader, Config, ClassLoader, IModule, CONFIG_NAMESPACE, BaseUtils, Storage} from "typexs-base";
+import {ClassLoader, Config, IModule, Inject, RuntimeLoader, Storage} from "typexs-base";
 import {ContextGroup} from "../decorators/ContextGroup";
-import {Authorized, Get, getMetadataArgsStorage, JsonController} from "routing-controllers";
+import {Get, getMetadataArgsStorage, JsonController, Param} from "routing-controllers";
 import {Credentials} from "../decorators/Credentials";
 import {Helper, IRoute, ServerRegistry} from "..";
-import {inspect} from "util";
-
+import {getMetadataArgsStorage as ormMetadataArgsStorage} from "typeorm"
 
 @ContextGroup("api")
-@JsonController()
+@JsonController("/system")
 export class SystemInfoController {
 
 
@@ -76,5 +75,33 @@ export class SystemInfoController {
       }
     });
     return options;
+  }
+
+  @Credentials('allow storages entity view')
+  @Get('/storage/:name/entities')
+  getStorageEntities(@Param('name') name: string): any[] {
+    let ref = this.storage.get(name);
+    let entityNames = _.map(ref.getOptions().entities, e => {
+      if (_.isString(e)) {
+        return e
+      } else if (_.isFunction(e)) {
+        return ClassLoader.getClassName(e)
+      } else {
+        return (<any>e).options.name;
+      }
+    });
+
+    let tables = ormMetadataArgsStorage().tables.filter(t => entityNames.indexOf(ClassLoader.getClassName(t.target)) !== -1);
+
+    Helper.walk(tables, (x: any) => {
+      if (_.isFunction(x.value)) {
+        if (_.isArray(x.parent)) {
+          x.parent[x.index] = ClassLoader.getClassName(x.value);
+        } else {
+          x.parent[x.key] = ClassLoader.getClassName(x.value);
+        }
+      }
+    });
+    return tables;
   }
 }

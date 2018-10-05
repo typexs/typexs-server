@@ -1,6 +1,12 @@
 import {suite, test, timeout} from "mocha-typescript";
 import {Bootstrap, Container} from "typexs-base";
-import {K_ROUTE_CONTROLLER} from "../../../src/types";
+import {
+  API_SYSTEM_CONFIG,
+  API_SYSTEM_MODULES,
+  API_SYSTEM_ROUTES,
+  API_SYSTEM_STORAGES,
+  K_ROUTE_CONTROLLER
+} from "../../../src/types";
 import * as request from 'request-promise';
 import {expect} from "chai";
 import {Server} from "../../../src";
@@ -87,26 +93,42 @@ class System_info_controllerSpec {
   @test @timeout(300000)
   async 'list routes'() {
     const url = server.url();
-    let res = await request.get(url + '/api/routes', {json: true});
-    expect(res).to.have.length(4);
+    let res = await request.get(url + API_SYSTEM_ROUTES, {json: true});
+    expect(res).to.have.length.greaterThan(4);
     expect(_.find(res, {controllerMethod: 'listRoutes'})).to.deep.eq({
       context: 'api',
-      route: '/api/routes',
+      route: API_SYSTEM_ROUTES,
       method: 'get',
-      params: null,
+      params: [],
       controller: 'SystemInfoController',
       controllerMethod: 'listRoutes',
       credential: ['allow routes view'],
       authorized: true
     });
+    expect(_.find(res, {controllerMethod: 'getStorageEntities'})).to.deep.eq({
+      context: 'api',
+      route: '/api/system/storage/:name/entities',
+      method: 'get',
+      params: [
+        {
+          "index": 0,
+          "name": "name",
+          "parse": false,
+          "required": true
+        }
+      ],
+      controller: 'SystemInfoController',
+      controllerMethod: 'getStorageEntities',
+      credential: [  "allow storages entity view"],
+      authorized: true
+    });
   }
-
 
 
   @test @timeout(300000)
   async 'list config'() {
     const url = server.url();
-    let res = await request.get(url + '/api/config', {json: true});
+    let res = await request.get(url + API_SYSTEM_CONFIG, {json: true});
     let baseConfig = res.shift();
     let compare = _.clone(settingsTemplate);
 
@@ -147,7 +169,7 @@ class System_info_controllerSpec {
   @test @timeout(300000)
   async 'list modules'() {
     const url = server.url();
-    let res = await request.get(url + '/api/modules', {json: true});
+    let res = await request.get(url + API_SYSTEM_MODULES, {json: true});
     expect(_.map(res, r => r.name)).to.have.members(['typexs-server', 'typexs-base', '@schematics/typexs']);
   }
 
@@ -155,7 +177,7 @@ class System_info_controllerSpec {
   @test @timeout(300000)
   async 'list storages'() {
     const url = server.url();
-    let res = await request.get(url + '/api/storages', {json: true});
+    let res = await request.get(url + API_SYSTEM_STORAGES, {json: true});
     expect(res).to.have.length(1);
     res = res.shift()
     let compare = _.clone(settingsTemplate);

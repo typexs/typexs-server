@@ -12,3 +12,9 @@ export const K_ROUTE_CONTROLLER = 'routing_controller';
 
 export type ROUTE_TYPE = 'static_files' | 'routing_controller'
 export type ROUTE = IRoutingController | IStaticFiles
+
+
+export const API_SYSTEM_MODULES = '/api/system/modules';
+export const API_SYSTEM_ROUTES = '/api/system/routes';
+export const API_SYSTEM_CONFIG = '/api/system/config';
+export const API_SYSTEM_STORAGES = '/api/system/storages';
