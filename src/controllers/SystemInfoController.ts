@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import {ClassLoader, Config, IModule, Inject, RuntimeLoader, Storage} from "typexs-base";
 import {ContextGroup} from "../decorators/ContextGroup";
-import {Get, getMetadataArgsStorage, JsonController, Param} from "routing-controllers";
+import {Get, JsonController, Param} from "routing-controllers";
 import {Credentials} from "../decorators/Credentials";
 import {Helper, IRoute, ServerRegistry} from "..";
 import {getMetadataArgsStorage as ormMetadataArgsStorage} from "typeorm"
@@ -44,7 +44,8 @@ export class SystemInfoController {
   getConfig(): any {
     let cfg = _.clone(Config.get());
     Helper.walk(cfg, (x: any) => {
-      if (['user', 'username', 'password'].indexOf(x.key) !== -1 && x.location.indexOf('storage') !== -1) {
+      // TODO make this list configurable! system.info.hide.keys!
+      if (['user', 'username', 'password'].indexOf(x.key) !== -1) {
         delete x.parent[x.key];
       }
       if (_.isFunction(x.value)) {
@@ -63,7 +64,7 @@ export class SystemInfoController {
   getStorageInfo(): any {
     let options = _.clone(this.storage.getAllOptions());
     Helper.walk(options, (x: any) => {
-      if (['user', 'username', 'password'].indexOf(x.key) !== -1 && x.location.indexOf('storage') !== -1) {
+      if (['user', 'username', 'password'].indexOf(x.key) !== -1) {
         delete x.parent[x.key];
       }
       if (_.isFunction(x.value)) {
