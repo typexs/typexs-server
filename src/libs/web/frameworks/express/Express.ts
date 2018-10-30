@@ -83,7 +83,7 @@ export class Express implements IFrameworkSupport {
           route: route,
           type: action.type,
           action: action,
-          credential: credential.rights,
+          credential: credential ? credential.rights : null,
           authorized: authorized,
           params: params.map(p => {
             return {name: p.name, required: p.required, index: p.index, parse: p.parse}
@@ -116,7 +116,8 @@ export class Express implements IFrameworkSupport {
             for (let handle of  r.stack) {
               if (handle.name !== 'routeHandler') continue;
               method = handle.method;
-              let action = _.find(actions, a => (prefix ? '/' + prefix + a.route === r.path : a.route === r.path) && a.type.toLowerCase() == method.toLowerCase());
+              let action = _.find(actions, a => (prefix ? '/' + prefix + a.route === r.path : a.route === r.path) &&
+                a.type.toLowerCase() == method.toLowerCase());
 
               if (action) {
 
