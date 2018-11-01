@@ -20,6 +20,7 @@ export class SystemInfoController {
   @Inject("Storage")
   storage: Storage;
 
+
   @Credentials('allow routes view')
   @Get('/routes')
   listRoutes(): IRoute[] {
@@ -39,10 +40,12 @@ export class SystemInfoController {
     return this.loader.registry.modules();
   }
 
+
   @Credentials('allow global config view')
   @Get('/config')
   getConfig(): any {
-    let cfg = _.clone(Config.get());
+    let _orgCfg = Config.get();
+    let cfg = _.cloneDeepWith(_orgCfg);
     Helper.walk(cfg, (x: any) => {
       // TODO make this list configurable! system.info.hide.keys!
       if (['user', 'username', 'password'].indexOf(x.key) !== -1) {
@@ -59,10 +62,11 @@ export class SystemInfoController {
     return cfg;
   }
 
+
   @Credentials('allow storages view')
   @Get('/storages')
   getStorageInfo(): any {
-    let options = _.clone(this.storage.getAllOptions());
+    let options = _.cloneDeepWith(this.storage.getAllOptions());
     Helper.walk(options, (x: any) => {
       if (['user', 'username', 'password'].indexOf(x.key) !== -1) {
         delete x.parent[x.key];
@@ -78,6 +82,7 @@ export class SystemInfoController {
     return options;
   }
 
+
   @Credentials('allow storages entity view')
   @Get('/storage/:name/entities')
   getStorageEntities(@Param('name') name: string): any[] {
@@ -92,7 +97,7 @@ export class SystemInfoController {
       }
     });
 
-    let tables = ormMetadataArgsStorage().tables.filter(t => entityNames.indexOf(ClassLoader.getClassName(t.target)) !== -1);
+    let tables = _.cloneDeepWith(ormMetadataArgsStorage().tables.filter(t => entityNames.indexOf(ClassLoader.getClassName(t.target)) !== -1));
 
     Helper.walk(tables, (x: any) => {
       if (_.isFunction(x.value)) {
@@ -105,4 +110,5 @@ export class SystemInfoController {
     });
     return tables;
   }
+
 }
