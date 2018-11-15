@@ -1,5 +1,5 @@
 import {suite, test} from "mocha-typescript";
-import {Bootstrap, Container, MetaArgs, RuntimeLoader} from "typexs-base";
+import {Bootstrap, Container, MetaArgs, RuntimeLoader} from "@typexs/base";
 import {WebServer} from "../../../src/libs/web/WebServer";
 import {C_DEFAULT, K_META_CREDENTIALS_ARGS, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from "../../../src/types";
 import * as request from 'supertest';

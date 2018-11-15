@@ -1,5 +1,5 @@
 import * as _ from "lodash"
-import {StringOrFunction,Container} from "typexs-base";
+import {StringOrFunction,Container} from "@typexs/base";
 import {IFrameworkSupport} from "./IFrameworkSupport";
 import {ExpressSupport} from "./express/ExpressSupport";
 

@@ -2,7 +2,7 @@ import {suite, test} from "mocha-typescript";
 import {ServerRegistry} from "../../../src/libs/server/ServerRegistry";
 
 import {expect} from "chai";
-import {PlatformUtils, Container, RuntimeLoader} from "typexs-base";
+import {PlatformUtils, Container, RuntimeLoader} from "@typexs/base";
 import {IServer} from "../../../src/libs/server/IServer";
 import {IServerInstanceOptions} from "../../../src/libs/server/IServerInstanceOptions";
 import {ServerFactory} from "../../../src/libs/server/ServerFactory";

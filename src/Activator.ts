@@ -1,7 +1,5 @@
-import {RuntimeLoader, Inject, Config, TYPEXS_NAME, Container, IActivator} from "typexs-base";
+import {Config, Container, IActivator, Inject, RuntimeLoader, TYPEXS_NAME} from "@typexs/base";
 import {ServerRegistry} from "./libs/server/ServerRegistry";
-import {C_SERVER} from "./types";
-import * as _ from 'lodash';
 
 
 export class Activator implements IActivator{

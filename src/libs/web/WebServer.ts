@@ -1,6 +1,6 @@
 import * as http from "http";
 import * as _ from 'lodash'
-import {ClassLoader, Container, Inject, RuntimeLoader, TodoException} from "typexs-base";
+import {ClassLoader, Container, Inject, RuntimeLoader, TodoException} from "@typexs/base";
 import {Action, useContainer} from "routing-controllers";
 
 import {Server} from "./../server/Server";

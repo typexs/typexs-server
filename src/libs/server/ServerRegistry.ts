@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import {StringOrFunction, Container, Inject} from "typexs-base";
+import {StringOrFunction, Container, Inject} from "@typexs/base";
 import {ServerFactory} from "./ServerFactory";
 import {IServer} from "./IServer";
 import {IServerInstanceOptions} from "./IServerInstanceOptions";

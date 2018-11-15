@@ -1,5 +1,5 @@
 import {suite, test, timeout} from "mocha-typescript";
-import {Bootstrap, Container} from "typexs-base";
+import {Bootstrap, Container} from "@typexs/base";
 import {
   API_SYSTEM_CONFIG,
   API_SYSTEM_MODULES,
@@ -7,7 +7,7 @@ import {
   API_SYSTEM_STORAGES,
   K_ROUTE_CONTROLLER
 } from "../../../src/types";
-import * as request from 'request-promise';
+import * as request from "request-promise";
 import {expect} from "chai";
 import {Server} from "../../../src";
 import * as _ from "lodash";
@@ -170,7 +170,7 @@ class System_info_controllerSpec {
   async 'list modules'() {
     const url = server.url();
     let res = await request.get(url + API_SYSTEM_MODULES, {json: true});
-    expect(_.map(res, r => r.name)).to.have.members(['typexs-server', 'typexs-base', '@schematics/typexs']);
+    expect(_.map(res, r => r.name)).to.have.members(['@typexs/server', '@typexs/base', '@schematics/typexs']);
   }
 
 

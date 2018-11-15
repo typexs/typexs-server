@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import {C_DEFAULT, K_META_CONTEXT_ARGS} from "../types";
-import {MetaArgs} from "typexs-base";
+import {MetaArgs} from "@typexs/base";
 
 
 export class Helper {

@@ -1,4 +1,4 @@
-import {MetaArgs} from "typexs-base";
+import {MetaArgs} from "@typexs/base";
 import {K_META_CONTEXT_ARGS, K_META_CREDENTIALS_ARGS} from "../types";
 import * as _ from "lodash";
 import {Authorized} from "routing-controllers";

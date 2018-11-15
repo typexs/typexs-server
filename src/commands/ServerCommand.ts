@@ -1,4 +1,4 @@
-import {Inject, Log, Storage} from "typexs-base";
+import {Inject, Log, Storage} from "@typexs/base";
 import {ServerRegistry} from "../";
 
 

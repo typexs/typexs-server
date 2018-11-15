@@ -1,5 +1,5 @@
 import {Action, getMetadataArgsStorage} from "routing-controllers";
-import {MetaArgs} from "typexs-base";
+import {MetaArgs} from "@typexs/base";
 import {K_META_CREDENTIALS_ARGS} from "../types";
 import * as _ from "lodash";
 

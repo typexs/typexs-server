@@ -4,7 +4,7 @@ import * as https from 'https'
 import * as net from 'net'
 import * as fs from 'fs'
 import * as _ from "lodash"
-import {Log, TodoException} from "typexs-base";
+import {Log, TodoException} from "@typexs/base";
 
 import {DEFAULT_SERVER_OPTIONS, IServerOptions} from "./IServerOptions";
 

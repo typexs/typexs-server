@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import {ClassLoader, Config, IModule, Inject, RuntimeLoader, Storage} from "typexs-base";
+import {ClassLoader, Config, IModule, Inject, RuntimeLoader, Storage} from "@typexs/base";
 import {ContextGroup} from "../decorators/ContextGroup";
 import {Get, JsonController, Param} from "routing-controllers";
 import {Credentials} from "../decorators/Credentials";
