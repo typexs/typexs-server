@@ -66,7 +66,7 @@ class WebserverSpec {
         "controllerMethod": "get",
         "credential": null,
         "method": "get",
-        "params": null,
+        "params": [],
         "route": "/get"
       }
     ]);
@@ -167,7 +167,7 @@ class WebserverSpec {
           "controllerMethod": "get",
           "credential": null,
           "method": "get",
-          "params": null,
+          "params": [],
           "route": "/get",
         },
         {
