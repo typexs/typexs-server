@@ -6,7 +6,7 @@ export interface IRoute {
 
   context: string;
 
-  credential?: string | string[];
+  permissions?: string | string[];
 
   instance?: string;
 

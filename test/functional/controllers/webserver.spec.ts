@@ -64,7 +64,7 @@ class WebserverSpec {
         "context": "default",
         "controller": "JsonDataDelivery",
         "controllerMethod": "get",
-        "credential": null,
+        "permissions": null,
         "method": "get",
         "params": [],
         "route": "/get"
@@ -165,7 +165,7 @@ class WebserverSpec {
           "context": "default",
           "controller": "JsonDataDelivery",
           "controllerMethod": "get",
-          "credential": null,
+          "permissions": null,
           "method": "get",
           "params": [],
           "route": "/get",

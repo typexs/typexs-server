@@ -2,9 +2,18 @@ import * as _ from "lodash";
 import {ClassLoader, Config, IModule, Inject, RuntimeLoader, Storage} from "@typexs/base";
 import {ContextGroup} from "../decorators/ContextGroup";
 import {Get, JsonController, Param} from "routing-controllers";
-import {Credentials} from "../decorators/Credentials";
-import {Helper, IRoute, ServerRegistry} from "..";
+import {Access} from "../decorators/Access";
+import {Helper} from "./../libs/Helper";
+import {ServerRegistry} from "./../libs/server/ServerRegistry";
+import {IRoute} from "./../libs/server/IRoute";
 import {getMetadataArgsStorage as ormMetadataArgsStorage} from "typeorm"
+import {
+  PERMISSION_ALLOW_ROUTES_VIEW,
+  PERMISSION_ALLOW_STORAGE_ENTITY_VIEW,
+  PERMISSION_ALLOW_STORAGES_VIEW,
+  PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW,
+  PERMISSION_ALLOW_MODULES_VIEW
+} from "../libs/Constants";
 
 @ContextGroup("api")
 @JsonController("/system")
@@ -21,7 +30,7 @@ export class SystemInfoController {
   storage: Storage;
 
 
-  @Credentials('allow routes view')
+  @Access(PERMISSION_ALLOW_ROUTES_VIEW)
   @Get('/routes')
   listRoutes(): IRoute[] {
     let routes: IRoute[] = [];
@@ -34,14 +43,14 @@ export class SystemInfoController {
   }
 
 
-  @Credentials('allow modules view')
+  @Access(PERMISSION_ALLOW_MODULES_VIEW)
   @Get('/modules')
   listModules(): IModule[] {
     return this.loader.registry.modules();
   }
 
 
-  @Credentials('allow global config view')
+  @Access(PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW)
   @Get('/config')
   getConfig(): any {
     let _orgCfg = Config.get();
@@ -63,7 +72,7 @@ export class SystemInfoController {
   }
 
 
-  @Credentials('allow storages view')
+  @Access(PERMISSION_ALLOW_STORAGES_VIEW)
   @Get('/storages')
   getStorageInfo(): any {
     let options = _.cloneDeepWith(this.storage.getAllOptions());
@@ -83,7 +92,7 @@ export class SystemInfoController {
   }
 
 
-  @Credentials('allow storages entity view')
+  @Access(PERMISSION_ALLOW_STORAGE_ENTITY_VIEW)
   @Get('/storage/:name/entities')
   getStorageEntities(@Param('name') name: string): any[] {
     let ref = this.storage.get(name);

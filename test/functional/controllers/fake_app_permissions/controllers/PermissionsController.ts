@@ -1,30 +1,30 @@
 import {Get, JsonController, Post} from "routing-controllers";
-import {Credentials} from "../../../../../src";
+import {Access} from "../../../../../src";
 
 
 @JsonController()
-export class CredentialsController {
+export class PermissionsController {
 
-  @Credentials('allow get')
+  @Access('allow get')
   @Get('/get')
   get() {
     return {json: 'api'}
   }
 
-  @Credentials('allow get :name')
+  @Access('allow get :name')
   @Get('/get/:name')
   getByName() {
     return {json: 'api2'}
   }
 
   @Get('/get_other/:name')
-  @Credentials('allow get_other :name')
+  @Access('allow get_other :name')
   getByNameOther() {
     return {json: 'api3'}
   }
 
   @Post('/get_other/:name')
-  @Credentials('allow post :name')
+  @Access('allow post :name')
   postByNameOther() {
     return {json: 'api3'}
   }

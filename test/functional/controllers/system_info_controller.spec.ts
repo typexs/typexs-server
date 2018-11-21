@@ -9,7 +9,7 @@ import {
 } from "../../../src/types";
 import * as request from "request-promise";
 import {expect} from "chai";
-import {Server} from "../../../src";
+import {PERMISSION_ALLOW_ROUTES_VIEW, PERMISSION_ALLOW_STORAGE_ENTITY_VIEW, Server} from "../../../src";
 import * as _ from "lodash";
 
 
@@ -102,7 +102,7 @@ class System_info_controllerSpec {
       params: [],
       controller: 'SystemInfoController',
       controllerMethod: 'listRoutes',
-      credential: ['allow routes view'],
+      permissions: [PERMISSION_ALLOW_ROUTES_VIEW],
       authorized: true
     });
     expect(_.find(res, {controllerMethod: 'getStorageEntities'})).to.deep.eq({
@@ -119,7 +119,7 @@ class System_info_controllerSpec {
       ],
       controller: 'SystemInfoController',
       controllerMethod: 'getStorageEntities',
-      credential: [  "allow storages entity view"],
+      permissions: [ PERMISSION_ALLOW_STORAGE_ENTITY_VIEW],
       authorized: true
     });
   }

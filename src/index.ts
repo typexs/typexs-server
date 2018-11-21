@@ -3,9 +3,10 @@ export * from "routing-controllers";
 export * from "./Activator";
 export * from "./commands/ServerCommand";
 export * from "./decorators/ContextGroup";
-export * from "./decorators/Credentials";
+export * from "./decorators/Access";
 export * from "./libs/exceptions/ServerTypeIsNotSetError";
 export * from "./libs/Helper";
+export * from "./libs/Constants";
 
 export * from "./libs/server/Exceptions";
 export * from "./libs/server/IByteRange";
@@ -38,6 +39,6 @@ export * from "./libs/web/IWebServerInstanceOptions";
 export * from "./libs/web/WebServer";
 export * from "./libs/web/WebServerUtils";
 
-export * from "./libs/CrednetialsHelper";
+export * from "./libs/PermissionsHelper";
 
 export * from "./types";

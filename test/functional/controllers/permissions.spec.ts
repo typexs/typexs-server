@@ -1,17 +1,17 @@
 import {suite, test} from "mocha-typescript";
 import {Bootstrap, Container, MetaArgs, RuntimeLoader} from "@typexs/base";
 import {WebServer} from "../../../src/libs/web/WebServer";
-import {C_DEFAULT, K_META_CREDENTIALS_ARGS, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from "../../../src/types";
+import {C_DEFAULT, K_META_PERMISSIONS_ARGS, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from "../../../src/types";
 import * as request from 'supertest';
 import {expect} from "chai";
 import {IStaticFiles} from "../../../src/libs/web/IStaticFiles";
 import {IWebServerInstanceOptions} from "../../../src";
 import {Action, getMetadataArgsStorage} from "routing-controllers";
 import * as _ from "lodash";
-import {CredentialsHelper} from "../../../src/libs/CrednetialsHelper";
+import {PermissionsHelper} from "../../../src/libs/PermissionsHelper";
 
-@suite('functional/controllers/credentials')
-class CredentialsSpec {
+@suite('functional/controllers/permissions')
+class PermissionsSpec {
 
 
   before() {
@@ -27,9 +27,9 @@ class CredentialsSpec {
   }
 
   @test
-  async 'check credential annotations'() {
+  async 'check permission annotations'() {
     let loader = new RuntimeLoader({
-      appdir: __dirname + '/fake_app_credentials',
+      appdir: __dirname + '/fake_app_permissions',
       libs: [{
         "topic": "server.controllers",
         "refs": [
@@ -51,7 +51,7 @@ class CredentialsSpec {
         type: K_ROUTE_CONTROLLER,
         context: C_DEFAULT,
         authorizationChecker: (action: Action, roles?: string[]) => {
-          creds.push(CredentialsHelper.getRightsForAction(action));
+          creds.push(PermissionsHelper.getRightsForAction(action));
           return true;
         }
       }]

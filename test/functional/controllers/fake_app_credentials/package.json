@@ -1,8 +1,0 @@
-{
-  "name": "fake_app_credentials",
-  "version": "0.0.1",
-  "typexs":{
-    "name":"fake_app_credentials"
-  },
-  "dependencies": {}
-}

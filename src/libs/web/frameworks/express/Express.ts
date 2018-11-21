@@ -12,7 +12,7 @@ import {IFrameworkSupport} from "../IFrameworkSupport";
 import * as http from "http";
 import {IRoute} from "../../../server/IRoute";
 import {C_DEFAULT} from "../../../../types";
-import {CredentialsHelper, IApplication} from "../../../../";
+import {PermissionsHelper, IApplication} from "../../../../";
 import {ActionMetadataArgs} from "../../../../../node_modules/routing-controllers/metadata/args/ActionMetadataArgs";
 import {ActionType} from "../../../../../node_modules/routing-controllers/metadata/types/ActionType";
 
@@ -22,7 +22,7 @@ interface ActionResolved {
   type: ActionType,
   action: ActionMetadataArgs;
   authorized: boolean;
-  credential: string | string[];
+  permission: string | string[];
   params: any[];
 }
 
@@ -77,13 +77,13 @@ export class Express implements IFrameworkSupport {
         const params = metadataStore.params.filter(param => param.method == action.method && param.object.constructor == action.target)
 
         // TODO handle regex
-        const credential = CredentialsHelper.getCredentialFor(action.target, action.method);
+        const permissions = PermissionsHelper.getPermissionFor(action.target, action.method);
         const authorized = !!_.find(authHandlers, a => a.target === action.target && a.method === action.method);
         let entry: ActionResolved = {
           route: route,
           type: action.type,
           action: action,
-          credential: credential ? credential.rights : null,
+          permission: permissions ? permissions.accessPermissions : null,
           authorized: authorized,
           params: params.map(p => {
             return {name: p.name, required: p.required, index: p.index, parse: p.parse}
@@ -128,7 +128,7 @@ export class Express implements IFrameworkSupport {
                   params: action.params,
                   controller: action.action.target.name,
                   controllerMethod: action.action.method,
-                  credential: action.credential ? action.credential : null,
+                  permissions: action.permission ? action.permission : null,
                   authorized: action.authorized
                 })
 
