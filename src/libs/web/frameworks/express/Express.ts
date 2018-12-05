@@ -4,7 +4,7 @@ import * as express from "express";
 
 import * as _ from "lodash";
 
-import {Action, ActionMetadata, createExpressServer, getMetadataArgsStorage} from "routing-controllers";
+import {createExpressServer, getMetadataArgsStorage} from "routing-controllers";
 import {IStaticFiles} from "../../IStaticFiles";
 import {IRoutingController} from "../../IRoutingController";
 import {IFrameworkSupport} from "../IFrameworkSupport";
@@ -12,10 +12,10 @@ import {IFrameworkSupport} from "../IFrameworkSupport";
 import * as http from "http";
 import {IRoute} from "../../../server/IRoute";
 import {C_DEFAULT} from "../../../../types";
-import {PermissionsHelper, IApplication} from "../../../../";
-import {ActionMetadataArgs} from "../../../../../node_modules/routing-controllers/metadata/args/ActionMetadataArgs";
-import {ActionType} from "../../../../../node_modules/routing-controllers/metadata/types/ActionType";
-
+import {IApplication, PermissionsHelper} from "../../../../";
+import {ActionMetadataArgs} from "routing-controllers/metadata/args/ActionMetadataArgs";
+import {ActionType} from "routing-controllers/metadata/types/ActionType";
+import * as bodyParser from "body-parser";
 
 interface ActionResolved {
   route: string;
@@ -38,6 +38,9 @@ export class Express implements IFrameworkSupport {
   create() {
     this._app = express();
     this._app.disable('x-powered-by');
+    // TODO create settings
+    this._app.use(bodyParser.json({limit: '10mb'}));
+    this._app.use(bodyParser.urlencoded({limit: '10mb'}));
     return this;
   }
 
