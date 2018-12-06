@@ -119,7 +119,7 @@ class System_info_controllerSpec {
       ],
       controller: 'SystemInfoController',
       controllerMethod: 'getStorageEntities',
-      permissions: [ PERMISSION_ALLOW_STORAGE_ENTITY_VIEW],
+      permissions: [PERMISSION_ALLOW_STORAGE_ENTITY_VIEW],
       authorized: true
     });
   }
@@ -154,6 +154,7 @@ class System_info_controllerSpec {
               "SystemInfoController"
             ],
             "currentUserChecker": "",
+            "limit": "10mb",
             "routePrefix": "api",
             "type": "routing_controller",
           }
