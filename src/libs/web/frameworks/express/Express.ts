@@ -15,7 +15,7 @@ import {C_DEFAULT} from "../../../../types";
 import {IApplication, PermissionsHelper} from "../../../../";
 import {ActionMetadataArgs} from "routing-controllers/metadata/args/ActionMetadataArgs";
 import {ActionType} from "routing-controllers/metadata/types/ActionType";
-import * as bodyParser from "body-parser";
+//import * as bodyParser from "body-parser";
 
 interface ActionResolved {
   route: string;
@@ -24,6 +24,10 @@ interface ActionResolved {
   authorized: boolean;
   permission: string | string[];
   params: any[];
+}
+
+const DEFAULT_ROUTE_OPTIONS = {
+  limit: '10mb'
 }
 
 export class Express implements IFrameworkSupport {
@@ -38,16 +42,21 @@ export class Express implements IFrameworkSupport {
   create() {
     this._app = express();
     this._app.disable('x-powered-by');
-    // TODO create settings
-    this._app.use(bodyParser.json({limit: '10mb'}));
-    this._app.use(bodyParser.urlencoded({limit: '10mb'}));
     return this;
   }
 
 
   useRouteController(options: IRoutingController) {
+    _.defaults(options, DEFAULT_ROUTE_OPTIONS);
     const app = createExpressServer(options);
     app.disable('x-powered-by');
+    // TODO create settings
+    if (options.limit) {
+      this.app().use(express.json({limit: options.limit}));
+     // this.app().use(bodyParser.urlencoded({limit: options.limit, extended: true}));
+     // this.app().use(bodyParser());
+    }
+
     this.app().use(app);
     this._mapOptions.push({options: options, mounted: app});
     return this;
@@ -91,11 +100,11 @@ export class Express implements IFrameworkSupport {
           params: params.map(p => {
             return {name: p.name, required: p.required, index: p.index, parse: p.parse}
           })
-        }
+        };
         res.push(entry);
       })
 
-    })
+    });
     return res;
   }
 

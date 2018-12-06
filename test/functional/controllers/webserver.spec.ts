@@ -144,14 +144,10 @@ class WebserverSpec {
     let started = await web.start();
 
     let [res1, res2] = await Promise.all([
-      request(uri).get('/get').expect(200)
-      ,
+      request(uri).get('/get').expect(200),
       request(uri).get('/api/get').expect(200)
-    ])
+    ]);
 
-
-    //let res1 = await request(uri).get('/get').expect(200);
-    //let res2 = await request(uri).get('/api/get').expect(200);
     let stopped = await web.stop();
 
     expect(started).to.be.true;
