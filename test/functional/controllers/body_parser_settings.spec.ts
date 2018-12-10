@@ -1,15 +1,11 @@
 import {suite, test} from "mocha-typescript";
-import {Bootstrap, Container, CryptUtils, MetaArgs, RuntimeLoader} from "@typexs/base";
+import {Bootstrap, Container, CryptUtils, RuntimeLoader} from "@typexs/base";
 import {WebServer} from "../../../src/libs/web/WebServer";
-import {C_DEFAULT, K_META_PERMISSIONS_ARGS, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from "../../../src/types";
+import {C_DEFAULT, K_ROUTE_CONTROLLER} from "../../../src/types";
 import * as request from 'supertest';
 import {expect} from "chai";
-import {IStaticFiles} from "../../../src/libs/web/IStaticFiles";
 import {IWebServerInstanceOptions} from "../../../src";
-import {Action, getMetadataArgsStorage} from "routing-controllers";
 import * as _ from "lodash";
-import {PermissionsHelper} from "../../../src/libs/PermissionsHelper";
-import {isNumber} from "util";
 
 @suite('functional/controllers/body_parser_settings')
 class Body_parser_settingsSpec {

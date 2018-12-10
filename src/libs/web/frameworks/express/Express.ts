@@ -12,9 +12,10 @@ import {IFrameworkSupport} from "../IFrameworkSupport";
 import * as http from "http";
 import {IRoute} from "../../../server/IRoute";
 import {C_DEFAULT} from "../../../../types";
-import {IApplication, PermissionsHelper} from "../../../../";
+import {IApplication} from "../../../../";
 import {ActionMetadataArgs} from "routing-controllers/metadata/args/ActionMetadataArgs";
 import {ActionType} from "routing-controllers/metadata/types/ActionType";
+import {RoutePermissionsHelper} from "../../../RoutePermissionsHelper";
 //import * as bodyParser from "body-parser";
 
 interface ActionResolved {
@@ -78,6 +79,7 @@ export class Express implements IFrameworkSupport {
     let res: ActionResolved[] = [];
     const metadataStore = getMetadataArgsStorage();
     const authHandlers = metadataStore.responseHandlers.filter(r => r.type === 'authorized');
+
     metadataStore.controllers.forEach(controller => {
       const controllerActions = _.filter(metadataStore.actions, a => a.target == controller.target)
       controllerActions.forEach(action => {
@@ -89,7 +91,7 @@ export class Express implements IFrameworkSupport {
         const params = metadataStore.params.filter(param => param.method == action.method && param.object.constructor == action.target)
 
         // TODO handle regex
-        const permissions = PermissionsHelper.getPermissionFor(action.target, action.method);
+        const permissions = RoutePermissionsHelper.getPermissionFor(action.target, action.method);
         const authorized = !!_.find(authHandlers, a => a.target === action.target && a.method === action.method);
         let entry: ActionResolved = {
           route: route,

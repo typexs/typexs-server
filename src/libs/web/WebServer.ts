@@ -1,6 +1,6 @@
 import * as http from "http";
 import * as _ from 'lodash'
-import {ClassLoader, Container, Inject, RuntimeLoader, TodoException} from "@typexs/base";
+import {ClassLoader, Container, Inject, MetaArgs, RuntimeLoader, TodoException} from "@typexs/base";
 import {Action, useContainer} from "routing-controllers";
 
 import {Server} from "./../server/Server";
@@ -15,7 +15,7 @@ import {Helper} from "./../Helper";
 import {IWebServerInstanceOptions} from "./IWebServerInstanceOptions";
 import {IServer} from "../server/IServer";
 import {IMiddleware} from "../server/IMiddleware";
-import {IRoute} from "../../";
+import {IRoute, K_ROUTE_CACHE} from "../../";
 
 
 useContainer(Container);
@@ -90,6 +90,8 @@ export class WebServer extends Server implements IServer {
           await this.extendOptionsForMiddleware(routing);
           this.applyDefaultOptionsIfNotGiven(routing);
           this.framework.useRouteController(routing);
+
+
         }
       } else if (key === K_ROUTE_STATIC) {
         await this.extendOptionsForMiddleware(entry);
@@ -98,6 +100,9 @@ export class WebServer extends Server implements IServer {
         throw  new TodoException()
       }
     }
+
+    let routes = MetaArgs.key(K_ROUTE_CACHE)
+    this.getRoutes().map(p => routes.push(p));
     return null
   }
 

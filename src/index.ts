@@ -39,6 +39,6 @@ export * from "./libs/web/IWebServerInstanceOptions";
 export * from "./libs/web/WebServer";
 export * from "./libs/web/WebServerUtils";
 
-export * from "./libs/PermissionsHelper";
+export * from "./libs/RoutePermissionsHelper";
 
 export * from "./types";

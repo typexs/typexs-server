@@ -1,9 +1,9 @@
 import {Get, JsonController, Post} from "routing-controllers";
-import {Access} from "../../../../../src";
+import {Access, ContextGroup} from "../../../../../src";
 
-
+@ContextGroup('api')
 @JsonController()
-export class PermissionsController {
+export class PermissionsApiController {
 
   @Access('allow get')
   @Get('/perm/get')
