@@ -4,4 +4,5 @@ import {IRouteType} from "./IRouteType";
 export interface IRoutingController extends RoutingControllersOptions,IRouteType {
   context?: string;
   limit?: number | string;
+
 }

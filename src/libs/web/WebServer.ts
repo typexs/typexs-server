@@ -1,7 +1,7 @@
 import * as http from "http";
 import * as _ from 'lodash'
 import {ClassLoader, Container, Inject, MetaArgs, RuntimeLoader, TodoException} from "@typexs/base";
-import {Action, useContainer} from "routing-controllers";
+import {Action, getMetadataArgsStorage, Middleware, useContainer} from "routing-controllers";
 
 import {Server} from "./../server/Server";
 
@@ -86,6 +86,7 @@ export class WebServer extends Server implements IServer {
         }
 
         routing.controllers = controllerClasses;
+        routing.middlewares = getMetadataArgsStorage().middlewares.map(x => x.target);
         if (!_.isEmpty(controllerClasses)) {
           await this.extendOptionsForMiddleware(routing);
           this.applyDefaultOptionsIfNotGiven(routing);
@@ -133,11 +134,16 @@ export class WebServer extends Server implements IServer {
 
 
   private loadMiddleware() {
-    let classes = this.loader.getClasses('server.middleware')
+    let classes = this.loader.getClasses('server.middleware');
+    let routingMiddleware = getMetadataArgsStorage().middlewares;
+
     for (let cls of classes) {
-      let instance = <IMiddleware>Container.get(cls);
-      if (instance.validate(_.clone(this.options()))) {
-        this._middlewares.push(instance);
+      let skip = routingMiddleware.find(m => m.target == cls);
+      if (!skip) {
+        let instance = <IMiddleware>Container.get(cls);
+        if (instance['validate'] && instance.validate(_.clone(this.options()))) {
+          this._middlewares.push(instance);
+        }
       }
     }
   }
