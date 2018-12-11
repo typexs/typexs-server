@@ -211,7 +211,7 @@ export class Server {
   }
 
   onServerConnection(socket: net.Socket, secured: boolean = false): void {
-    this.debug('Server->onServerConnection secured=' + secured + ' ' + this.url());
+    // this.debug('Server->onServerConnection secured=' + secured + ' ' + this.url());
     // register connection
     let self = this;
     let key = socket.remoteAddress + ':' + socket.remotePort;
