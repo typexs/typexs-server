@@ -155,6 +155,7 @@ class System_info_controllerSpec {
             ],
             "currentUserChecker": "",
             "limit": "10mb",
+            "middlewares": [],
             "routePrefix": "api",
             "type": "routing_controller",
           }
