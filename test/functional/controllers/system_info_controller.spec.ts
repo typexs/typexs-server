@@ -28,20 +28,12 @@ const settingsTemplate: any = {
   },
 
   app: {name: 'demo', path: __dirname + '/../../..'},
-  /*
-    modules: {
-      paths: [
-        __dirname + '/packages'
-      ],
-    },
-  */
 
   logging: {
     enable: true,
     level: 'debug',
     transports: [{console: {}}],
   },
-
 
   server: {
     default: {
