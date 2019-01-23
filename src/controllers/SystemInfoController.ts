@@ -1,19 +1,22 @@
 import * as _ from "lodash";
-import {ClassLoader, Config, IModule, Inject, RuntimeLoader, Storage} from "@typexs/base";
+import {Inject} from 'typedi';
+import {Config} from 'commons-config';
+import {ClassLoader} from 'commons-base';
+import {IModule, Invoker, RuntimeLoader, Storage, TreeUtils, WalkValues} from "@typexs/base";
 import {ContextGroup} from "../decorators/ContextGroup";
 import {Get, JsonController, Param} from "routing-controllers";
 import {Access} from "../decorators/Access";
-import {Helper} from "./../libs/Helper";
 import {ServerRegistry} from "./../libs/server/ServerRegistry";
 import {IRoute} from "./../libs/server/IRoute";
 import {getMetadataArgsStorage as ormMetadataArgsStorage} from "typeorm"
 import {
+  PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW,
+  PERMISSION_ALLOW_MODULES_VIEW,
   PERMISSION_ALLOW_ROUTES_VIEW,
   PERMISSION_ALLOW_STORAGE_ENTITY_VIEW,
-  PERMISSION_ALLOW_STORAGES_VIEW,
-  PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW,
-  PERMISSION_ALLOW_MODULES_VIEW
+  PERMISSION_ALLOW_STORAGES_VIEW
 } from "../libs/Constants";
+import {SystemInfoApi} from "../api/SystemInfo.api";
 
 @ContextGroup("api")
 @JsonController("/system")
@@ -29,6 +32,8 @@ export class SystemInfoController {
   @Inject("Storage")
   storage: Storage;
 
+  @Inject(Invoker.NAME)
+  invoker: Invoker;
 
   @Access(PERMISSION_ALLOW_ROUTES_VIEW)
   @Get('/routes')
@@ -39,6 +44,7 @@ export class SystemInfoController {
       let instance = this.serverRegistry.get(instanceName);
       routes = _.concat(routes, instance.getRoutes());
     }
+    this.invoker.use(SystemInfoApi).prepareRoutes(routes);
     return routes;
   }
 
@@ -46,7 +52,9 @@ export class SystemInfoController {
   @Access(PERMISSION_ALLOW_MODULES_VIEW)
   @Get('/modules')
   listModules(): IModule[] {
-    return this.loader.registry.modules();
+    let modules = this.loader.registry.modules();
+    this.invoker.use(SystemInfoApi).prepareModules(modules);
+    return modules;
   }
 
 
@@ -55,9 +63,11 @@ export class SystemInfoController {
   getConfig(): any {
     let _orgCfg = Config.get();
     let cfg = _.cloneDeepWith(_orgCfg);
-    Helper.walk(cfg, (x: any) => {
+    let filterKeys = this.getFilterKeys();
+
+    TreeUtils.walk(cfg, (x: any) => {
       // TODO make this list configurable! system.info.hide.keys!
-      if (['user', 'username', 'password'].indexOf(x.key) !== -1) {
+      if (filterKeys.indexOf(x.key) !== -1) {
         delete x.parent[x.key];
       }
       if (_.isFunction(x.value)) {
@@ -68,7 +78,16 @@ export class SystemInfoController {
         }
       }
     });
+    this.invoker.use(SystemInfoApi).prepareConfig(cfg);
     return cfg;
+  }
+
+  getFilterKeys(): string[] {
+    // TODO cache this!
+    let filterKeys = ['user', 'username', 'password'];
+    let res: string[][] = <string[][]><any>this.invoker.use(SystemInfoApi).filterConfigKeys();
+    filterKeys = _.uniq(_.concat(filterKeys, ...res).filter(x => !_.isEmpty(x)));
+    return filterKeys;
   }
 
 
@@ -76,8 +95,9 @@ export class SystemInfoController {
   @Get('/storages')
   getStorageInfo(): any {
     let options = _.cloneDeepWith(this.storage.getAllOptions());
-    Helper.walk(options, (x: any) => {
-      if (['user', 'username', 'password'].indexOf(x.key) !== -1) {
+    let filterKeys = this.getFilterKeys();
+    TreeUtils.walk(options, (x: WalkValues) => {
+      if (_.isString(x.key) && filterKeys.indexOf(x.key) !== -1) {
         delete x.parent[x.key];
       }
       if (_.isFunction(x.value)) {
@@ -88,6 +108,7 @@ export class SystemInfoController {
         }
       }
     });
+    this.invoker.use(SystemInfoApi).prepareStorageInfo(options);
     return options;
   }
 
@@ -108,7 +129,7 @@ export class SystemInfoController {
 
     let tables = _.cloneDeepWith(ormMetadataArgsStorage().tables.filter(t => entityNames.indexOf(ClassLoader.getClassName(t.target)) !== -1));
 
-    Helper.walk(tables, (x: any) => {
+    TreeUtils.walk(tables, (x: WalkValues) => {
       if (_.isFunction(x.value)) {
         if (_.isArray(x.parent)) {
           x.parent[x.index] = ClassLoader.getClassName(x.value);
@@ -117,6 +138,7 @@ export class SystemInfoController {
         }
       }
     });
+    this.invoker.use(SystemInfoApi).prepareStorageEntities(tables);
     return tables;
   }
 
