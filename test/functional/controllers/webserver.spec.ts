@@ -1,10 +1,11 @@
 import {suite, test} from "mocha-typescript";
-import {Bootstrap, Container, RuntimeLoader} from "@typexs/base";
+import {Bootstrap, Container, RuntimeLoader, Config} from "@typexs/base";
 import {WebServer} from "../../../src/libs/web/WebServer";
-import {C_DEFAULT, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from "../../../src/types";
+import {C_DEFAULT} from "../../../src/libs/Constants";
 import * as request from 'supertest';
 import {expect} from "chai";
 import {IStaticFiles} from "../../../src/libs/web/IStaticFiles";
+import {K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from "../../../src";
 
 @suite('functional/controllers/webserver')
 class WebserverSpec {
@@ -19,6 +20,7 @@ class WebserverSpec {
 
   after() {
     Container.reset();
+    Config.clear();
 
   }
 
@@ -74,7 +76,7 @@ class WebserverSpec {
   }
 
   @test
-  async 'load static routing'() {
+  async 'load static routing for absolute path'() {
 
     let loader = new RuntimeLoader({});
 
@@ -86,6 +88,39 @@ class WebserverSpec {
       type: 'web', framework: 'express', routes: [<IStaticFiles>{
         type: K_ROUTE_STATIC,
         path: __dirname + '/fake_app/public'
+      }]
+    });
+
+    await web.prepare();
+    let uri = web.getUri();
+    let routes = web.getRoutes();
+
+    let started = await web.start();
+
+    let res = await request(uri).get('/index.html')
+      .expect(200);
+    let stopped = await web.stop();
+
+    expect(started).to.be.true;
+    expect(stopped).to.be.true;
+    expect(res.text).to.eq('<html>\n<body>TEST</body>\n</html>\n');
+    expect(res.type).to.eq('text/html');
+    expect(routes).to.deep.eq([]);
+  }
+
+  @test
+  async 'load static routing for relative path'() {
+    Config.set('app.path', __dirname + '/fake_app')
+    let loader = new RuntimeLoader({});
+
+    await loader.prepare();
+    Container.set("RuntimeLoader", loader);
+
+    let web = Container.get(WebServer);
+    await web.initialize({
+      type: 'web', framework: 'express', routes: [<IStaticFiles>{
+        type: K_ROUTE_STATIC,
+        path: 'public'
       }]
     });
 

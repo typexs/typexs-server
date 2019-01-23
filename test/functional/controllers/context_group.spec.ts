@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import {suite, test} from "mocha-typescript";
 import {MetaArgs, ClassLoader} from "@typexs/base";
 import {expect} from "chai";
-import {K_META_CONTEXT_ARGS} from "../../../src/types";
+import {K_META_CONTEXT_ARGS} from "../../../src/libs/Constants";
 import {Helper} from "../../../src/libs/Helper";
 
 

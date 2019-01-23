@@ -1,21 +1,24 @@
 import {suite, test, timeout} from "mocha-typescript";
 import {Bootstrap, Container} from "@typexs/base";
 import {
-  API_SYSTEM_CONFIG,
-  API_SYSTEM_MODULES,
-  API_SYSTEM_ROUTES,
-  API_SYSTEM_STORAGES,
   K_ROUTE_CONTROLLER
-} from "../../../src/types";
+} from "../../../src/libs/Constants";
 import * as request from "request-promise";
 import {expect} from "chai";
-import {PERMISSION_ALLOW_ROUTES_VIEW, PERMISSION_ALLOW_STORAGE_ENTITY_VIEW, Server} from "../../../src";
+import {
+  API_SYSTEM_CONFIG, API_SYSTEM_MODULES, API_SYSTEM_ROUTES,
+  API_SYSTEM_STORAGES,
+  PERMISSION_ALLOW_ROUTES_VIEW,
+  PERMISSION_ALLOW_STORAGE_ENTITY_VIEW,
+  Server
+} from "../../../src";
 import * as _ from "lodash";
 
 
 const settingsTemplate: any = {
   storage: {
     default: {
+      connectOnStartup: false,
       synchronize: true,
       type: 'sqlite',
       database: ':memory:',
@@ -84,7 +87,9 @@ class System_info_controllerSpec {
   }
 
   static async after() {
-    await server.stop();
+    if(server){
+      await server.stop();
+    }
     Bootstrap.reset();
 
   }

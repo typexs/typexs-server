@@ -1,7 +1,7 @@
 import {suite, test} from "mocha-typescript";
 import {expect} from "chai";
 import {Config, IFileConfigOptions, PlatformUtils} from "@typexs/base";
-import {C_SERVER} from "../../../src/types";
+import {C_SERVER} from "../../../src/libs/Constants";
 import {ServerRegistry} from "../../../src/libs/server/ServerRegistry";
 import {ServerUtils} from "../../../src/libs/server/ServerUtils";
 import {WebServerUtils} from "../../../src/libs/web/WebServerUtils";
