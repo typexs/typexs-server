@@ -1,8 +1,15 @@
 import * as _ from "lodash";
-import {Inject} from 'typedi';
-import {Config} from 'commons-config';
-import {ClassLoader} from 'commons-base';
-import {IModule, Invoker, RuntimeLoader, Storage, TreeUtils, WalkValues} from "@typexs/base";
+import {
+  ClassLoader,
+  Config,
+  IModule,
+  Inject,
+  Invoker,
+  RuntimeLoader,
+  Storage,
+  TreeUtils,
+  WalkValues
+} from "@typexs/base";
 import {ContextGroup} from "../decorators/ContextGroup";
 import {Get, JsonController, Param} from "routing-controllers";
 import {Access} from "../decorators/Access";
@@ -86,7 +93,10 @@ export class SystemInfoController {
     // TODO cache this!
     let filterKeys = ['user', 'username', 'password'];
     let res: string[][] = <string[][]><any>this.invoker.use(SystemInfoApi).filterConfigKeys();
-    filterKeys = _.uniq(_.concat(filterKeys, ...res).filter(x => !_.isEmpty(x)));
+    if(res && _.isArray(res)){
+      filterKeys = _.uniq(_.concat(filterKeys, ...res.filter(x => _.isArray(x))).filter(x => !_.isEmpty(x)));
+    }
+
     return filterKeys;
   }
 
