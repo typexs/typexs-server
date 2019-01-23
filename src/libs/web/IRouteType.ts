@@ -1,4 +1,4 @@
-import {ROUTE_TYPE} from "../../types";
+import {ROUTE_TYPE} from "../Constants";
 
 
 export interface IRouteType {

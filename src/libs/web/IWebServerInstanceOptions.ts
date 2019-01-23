@@ -1,5 +1,5 @@
 import {IServerOptions} from "../server/IServerOptions";
-import {ROUTE} from "../../types";
+import {ROUTE} from "../Constants";
 import {IServerInstanceOptions} from "../server/IServerInstanceOptions";
 
 export interface IWebServerInstanceOptions extends IServerOptions, IServerInstanceOptions {

@@ -1,21 +1,22 @@
 // index.ts ingore
 
 import * as express from "express";
-
 import * as _ from "lodash";
 
 import {createExpressServer, getMetadataArgsStorage} from "routing-controllers";
 import {IStaticFiles} from "../../IStaticFiles";
 import {IRoutingController} from "../../IRoutingController";
 import {IFrameworkSupport} from "../IFrameworkSupport";
-
+import {Config} from "@typexs/base"
 import * as http from "http";
 import {IRoute} from "../../../server/IRoute";
-import {C_DEFAULT} from "../../../../types";
+import {C_DEFAULT} from "../../../Constants";
 import {IApplication} from "../../../../";
 import {ActionMetadataArgs} from "routing-controllers/metadata/args/ActionMetadataArgs";
 import {ActionType} from "routing-controllers/metadata/types/ActionType";
 import {RoutePermissionsHelper} from "../../../RoutePermissionsHelper";
+import * as path from 'path';
+
 //import * as bodyParser from "body-parser";
 
 interface ActionResolved {
@@ -54,8 +55,8 @@ export class Express implements IFrameworkSupport {
     // TODO create settings
     if (options.limit) {
       this.app().use(express.json({limit: options.limit}));
-     // this.app().use(bodyParser.urlencoded({limit: options.limit, extended: true}));
-     // this.app().use(bodyParser());
+      // this.app().use(bodyParser.urlencoded({limit: options.limit, extended: true}));
+      // this.app().use(bodyParser());
     }
 
     this.app().use(app);
@@ -66,10 +67,17 @@ export class Express implements IFrameworkSupport {
 
   useStaticRoute(options: IStaticFiles) {
     let app: express.Application = null;
-    if (options.routePrefix) {
-      app = <express.Application>this.app().use(options.routePrefix, express.static(options.path));
+    let resolvePath: string = null;
+    if (path.isAbsolute(options.path)) {
+      resolvePath = options.path;
     } else {
-      app = <express.Application>this.app().use(express.static(options.path));
+      let rootDir = Config.get('app.path');
+      resolvePath = path.resolve(rootDir, options.path);
+    }
+    if (options.routePrefix) {
+      app = <express.Application>this.app().use(options.routePrefix, express.static(resolvePath));
+    } else {
+      app = <express.Application>this.app().use(express.static(resolvePath));
     }
     this._mapOptions.push({options: options, mounted: app});
     return this;
