@@ -1,6 +1,6 @@
 import {Config, IBootstrap, Inject} from '@typexs/base';
 import * as _ from "lodash";
-import {C_SERVER} from "./types";
+import {C_SERVER} from "./libs/Constants";
 import {ServerRegistry} from "./libs/server/ServerRegistry";
 
 

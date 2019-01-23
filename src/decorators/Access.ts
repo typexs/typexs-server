@@ -1,7 +1,8 @@
 import {MetaArgs} from "@typexs/base";
-import {K_META_CONTEXT_ARGS, K_META_PERMISSIONS_ARGS} from "../types";
+import {K_META_CONTEXT_ARGS} from "../libs/Constants";
 import * as _ from "lodash";
 import {Authorized} from "routing-controllers";
+import {K_META_PERMISSIONS_ARGS} from "..";
 
 
 export function Access(permissions?: string | string[] | Function): Function {

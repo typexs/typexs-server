@@ -1,4 +1,5 @@
-import {Container, IActivator, IPermissions} from "@typexs/base";
+import { Container } from "typedi";
+import { IActivator, IPermissions} from "@typexs/base";
 import {ServerRegistry} from "./libs/server/ServerRegistry";
 import {
   PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW,
