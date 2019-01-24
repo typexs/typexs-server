@@ -1,4 +1,4 @@
-import {RoutingControllersOptions} from "routing-controllers";
+import {RoutingControllersOptions} from "routing-controllers/RoutingControllersOptions";
 import {IRouteType} from "./IRouteType";
 
 export interface IRoutingController extends RoutingControllersOptions,IRouteType {
