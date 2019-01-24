@@ -17,4 +17,6 @@ export interface IRoute {
   controllerMethod?: string;
 
   authorized?: boolean;
+
+  serveStatic?: boolean;
 }

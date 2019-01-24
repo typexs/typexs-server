@@ -10,7 +10,7 @@ import {IFrameworkSupport} from "../IFrameworkSupport";
 import {Config} from "@typexs/base"
 import * as http from "http";
 import {IRoute} from "../../../server/IRoute";
-import {C_DEFAULT} from "../../../Constants";
+import {C_DEFAULT, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from "../../../Constants";
 import {IApplication} from "../../../../";
 import {ActionMetadataArgs} from "routing-controllers/metadata/args/ActionMetadataArgs";
 import {ActionType} from "routing-controllers/metadata/types/ActionType";
@@ -36,7 +36,6 @@ export class Express implements IFrameworkSupport {
 
   _app: express.Application;
 
-
   _routes: IRoute[];
 
   _mapOptions: { options: IRoutingController, mounted: express.Application }[] = [];
@@ -54,7 +53,8 @@ export class Express implements IFrameworkSupport {
     app.disable('x-powered-by');
     // TODO create settings
     if (options.limit) {
-      this.app().use(express.json({limit: options.limit}));
+      app.use(express.json({limit: options.limit}));
+      //this.app().use(express.json({limit: options.limit}));
       // this.app().use(bodyParser.urlencoded({limit: options.limit, extended: true}));
       // this.app().use(bodyParser());
     }
@@ -74,8 +74,10 @@ export class Express implements IFrameworkSupport {
       let rootDir = Config.get('app.path');
       resolvePath = path.resolve(rootDir, options.path);
     }
+    express.static(resolvePath);
     if (options.routePrefix) {
-      app = <express.Application>this.app().use(options.routePrefix, express.static(resolvePath));
+      let slash = /^\//.test(options.routePrefix) ? '' : '/'
+      app = <express.Application>this.app().use(slash + options.routePrefix, express.static(resolvePath));
     } else {
       app = <express.Application>this.app().use(express.static(resolvePath));
     }
@@ -127,46 +129,57 @@ export class Express implements IFrameworkSupport {
         const app = appSetting.mounted;
         let prefix = options.routePrefix;
 
-        let actions = this.resolveMetadata();
+        if (options.type === K_ROUTE_CONTROLLER) {
+          let actions = this.resolveMetadata();
 
-        for (let entry of app._router.stack) {
-          if (entry.route) {
-            let r = entry.route;
-            let method = 'unknown';
-            let params = _.clone(entry.params);
+          for (let entry of app._router.stack) {
+            if (entry.route) {
+              let r = entry.route;
+              let method = 'unknown';
+              let params = _.clone(entry.params);
 
-            for (let handle of  r.stack) {
-              if (handle.name !== 'routeHandler') continue;
-              method = handle.method;
-              let action = _.find(actions, a => (prefix ? '/' + prefix + a.route === r.path : a.route === r.path) &&
-                a.type.toLowerCase() == method.toLowerCase());
+              for (let handle of  r.stack) {
+                if (handle.name !== 'routeHandler') continue;
+                method = handle.method;
+                let action = _.find(actions, a => (prefix ? '/' + prefix + a.route === r.path : a.route === r.path) &&
+                  a.type.toLowerCase() == method.toLowerCase());
 
-              if (action) {
+                if (action) {
 
-                this._routes.push({
-                  context: options.context ? options.context : C_DEFAULT,
-                  route: prefix ? '/' + prefix + action.route : action.route,
-                  method: method,
-                  params: action.params,
-                  controller: action.action.target.name,
-                  controllerMethod: action.action.method,
-                  permissions: action.permission ? action.permission : null,
-                  authorized: action.authorized
-                })
+                  this._routes.push({
+                    context: options.context ? options.context : C_DEFAULT,
+                    route: prefix ? '/' + prefix + action.route : action.route,
+                    method: method,
+                    params: action.params,
+                    controller: action.action.target.name,
+                    controllerMethod: action.action.method,
+                    permissions: action.permission ? action.permission : null,
+                    authorized: action.authorized
+                  })
 
-              } else {
-                this._routes.push({
-                  context: options.context ? options.context : C_DEFAULT,
-                  route: r.path,
-                  method: method,
-                  params: !_.isEmpty(params) ? params : null,
-                  authorized: false
-                })
+                } else {
+                  this._routes.push({
+                    context: options.context ? options.context : C_DEFAULT,
+                    route: r.path,
+                    method: method,
+                    params: !_.isEmpty(params) ? params : null,
+                    authorized: false
+                  })
+
+                }
 
               }
-
             }
           }
+        } else if (options.type === K_ROUTE_STATIC) {
+          this._routes.push({
+            context: options.context ? options.context : C_DEFAULT,
+            route: options.routePrefix ? (/^\//.test(options.routePrefix) ? options.routePrefix : '/' + options.routePrefix) : '/',
+            method: 'get',
+            serveStatic: true,
+            params: null,
+            authorized: false
+          })
         }
       }
       //this._routes = _.uniq(this._routes);
