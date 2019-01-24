@@ -1,5 +1,6 @@
 import {IApplication} from "./IApplication";
-import {ROUTE} from "../Constants";
+import {ROUTE} from "../..";
+
 
 
 export interface IMiddleware {
