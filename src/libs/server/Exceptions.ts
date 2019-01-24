@@ -1,4 +1,4 @@
-import {NestedException} from "@typexs/base";
+import {NestedException} from "@typexs/base/browser";
 
 export default class Exceptions {
 

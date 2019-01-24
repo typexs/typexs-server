@@ -1,4 +1,4 @@
-import {MetaArgs} from "@typexs/base";
+import {MetaArgs} from "@typexs/base/browser";
 import {K_META_CONTEXT_ARGS} from "../libs/Constants";
 
 
