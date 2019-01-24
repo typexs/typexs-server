@@ -7,12 +7,14 @@ import {expect} from "chai";
 import {IWebServerInstanceOptions, K_ROUTE_CONTROLLER} from "../../../src";
 import * as _ from "lodash";
 
+process.setMaxListeners(1000);
+Bootstrap._().activateErrorHandling();
 @suite('functional/controllers/body_parser_settings')
 class Body_parser_settingsSpec {
 
 
   before() {
-    Bootstrap._().activateErrorHandling();
+
     //(global as any).routingControllersMetadataArgsStorage = null;
     Container.reset();
 

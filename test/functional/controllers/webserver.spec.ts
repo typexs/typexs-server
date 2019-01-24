@@ -7,12 +7,14 @@ import {expect} from "chai";
 import {IStaticFiles} from "../../../src/libs/web/IStaticFiles";
 import {K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from "../../../src";
 
+process.setMaxListeners(1000);
+Bootstrap._().activateErrorHandling();
+
 @suite('functional/controllers/webserver')
 class WebserverSpec {
 
 
   before() {
-    Bootstrap._().activateErrorHandling();
     //(global as any).routingControllersMetadataArgsStorage = null;
     Container.reset();
 

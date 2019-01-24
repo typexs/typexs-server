@@ -53,7 +53,7 @@ export class Express implements IFrameworkSupport {
     app.disable('x-powered-by');
     // TODO create settings
     if (options.limit) {
-      app.use(express.json({limit: options.limit}));
+      this.app().use(express.json({limit: options.limit}));
       //this.app().use(express.json({limit: options.limit}));
       // this.app().use(bodyParser.urlencoded({limit: options.limit, extended: true}));
       // this.app().use(bodyParser());
