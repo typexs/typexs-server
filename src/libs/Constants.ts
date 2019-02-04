@@ -31,8 +31,8 @@ export const API_STORAGE_PREFIX = '/storage';
  */
 export const PERMISSION_ALLOW_ACCESS_STORAGE_METADATA = 'allow access storage metadata';
 export const API_STORAGE_METADATA = '/metadata';
-export const API_STORAGE_METADATA_ALL_STORES = API_STORAGE_METADATA ;
-export const API_STORAGE_METADATA_GET_STORE = API_STORAGE_METADATA + '/:name';
+export const API_STORAGE_METADATA_ALL_STORES = API_STORAGE_METADATA + '/schemas';
+export const API_STORAGE_METADATA_GET_STORE = API_STORAGE_METADATA + '/schema/:name';
 export const API_STORAGE_METADATA_ALL_ENTITIES = API_STORAGE_METADATA + '/entities';
 export const API_STORAGE_METADATA_CREATE_ENTITY = API_STORAGE_METADATA + '/entity';
 export const API_STORAGE_METADATA_GET_ENTITY = API_STORAGE_METADATA + '/entity/:name';

@@ -60,6 +60,8 @@ export * from "./decorators/ContextGroup";
 export * from "./decorators/Access";
 
 export * from "./libs/exceptions/ServerTypeIsNotSetError";
+export * from "./libs/exceptions/HttpResponseError";
+
 export * from "./libs/Helper";
 export * from "./libs/Constants";
 
