@@ -1,5 +1,5 @@
 import {suite, test, timeout} from "mocha-typescript";
-import {Bootstrap, Container} from "@typexs/base";
+import {Config,Bootstrap, Container} from "@typexs/base";
 import {
   K_ROUTE_CONTROLLER
 } from "../../../src/libs/Constants";
@@ -83,7 +83,8 @@ class System_info_controllerSpec {
       await server.stop();
     }
     Bootstrap.reset();
-
+    Container.reset();
+    Config.clear();
   }
 
 
@@ -130,8 +131,9 @@ class System_info_controllerSpec {
     let compare = _.clone(settingsTemplate);
 
     compare.storage.default.name = 'default';
-    compare.storage.default.entities = [];
-    expect(baseConfig.storage).to.have.deep.eq(compare.storage);
+    delete compare.storage.default.entities;
+    delete baseConfig.storage.default.entities;
+    expect(baseConfig.storage).to.deep.include(compare.storage);
 
     expect(baseConfig.server).to.have.deep.eq({
       "default": {
@@ -148,6 +150,7 @@ class System_info_controllerSpec {
             "classTransformer": false,
             "context": "api",
             "controllers": [
+              "StorageAPIController",
               "SystemInfoController"
             ],
             "currentUserChecker": "",
@@ -169,7 +172,8 @@ class System_info_controllerSpec {
   async 'list modules'() {
     const url = server.url();
     let res = await request.get(url + API_SYSTEM_MODULES, {json: true});
-    expect(_.map(res, r => r.name)).to.have.members(['@typexs/server', '@typexs/base', '@schematics/typexs']);
+    expect(_.map(res, r => r.name)).to.deep.include.members([
+      '@typexs/server', '@typexs/base', '@schematics/typexs']);
   }
 
 
@@ -181,8 +185,8 @@ class System_info_controllerSpec {
     res = res.shift()
     let compare = _.clone(settingsTemplate);
     compare.storage.default.name = 'default';
-    compare.storage.default.entities = [];
-    expect(res).to.have.deep.eq(compare.storage.default);
+    //compare.storage.default.entities = [];
+    expect(res).to.have.deep.include(compare.storage.default);
   }
 
 
