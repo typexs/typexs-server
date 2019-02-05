@@ -5,6 +5,7 @@
 export * from "./libs/Helper";
 export * from "./libs/Constants";
 
+export * from "./libs/storage_api/IStorageRefMetadata";
 export * from "./libs/server/Exceptions";
 export * from "./libs/server/IByteRange";
 export * from "./libs/server/IMediaType";

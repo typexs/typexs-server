@@ -1,8 +1,11 @@
 import {IEntityRefMetadata} from "commons-schema-api/browser";
+import {ICollection} from "@typexs/base/browser"
+
 
 export interface IStorageRefMetadata {
   name: string,
   type: string,
   synchronize: boolean,
   entities: IEntityRefMetadata[];
+  collections?:ICollection[];
 }
