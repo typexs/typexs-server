@@ -96,9 +96,11 @@ class Storage_api_controllerSpec {
 
 
   static async after() {
+
     if (server) {
       await server.stop();
     }
+    await bootstrap.shutdown();
     Bootstrap.reset();
     Container.reset();
     Config.clear();

@@ -82,6 +82,7 @@ class System_info_controllerSpec {
     if(server){
       await server.stop();
     }
+    await bootstrap.shutdown();
     Bootstrap.reset();
     Container.reset();
     Config.clear();
