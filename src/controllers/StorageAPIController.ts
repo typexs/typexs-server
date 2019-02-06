@@ -333,8 +333,8 @@ export class StorageAPIController {
       } else {
         ref = storageRef.getEntityRef((<EntitySchema<any>>fn).options.target);
       }
+      ref.setOption('storage',storageName);
       let entityMetadata = ref.toJson(true);
-      (<any>entityMetadata).storage = storageName;
       entry.entities.push(entityMetadata);
     });
 
