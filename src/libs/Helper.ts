@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import {C_DEFAULT} from "./Constants";
-import {MetaArgs} from "@typexs/base/base/MetaArgs";
+import {MetaArgs} from "commons-base/browser";
 import {K_META_CONTEXT_ARGS} from "./Constants";
 
 
