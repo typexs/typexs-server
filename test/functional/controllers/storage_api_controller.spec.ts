@@ -1,5 +1,5 @@
 import {suite, test, timeout} from "mocha-typescript";
-import {Config,Bootstrap, Container, IRuntimeLoaderOptions, IStorageOptions, ITypexsOptions} from "@typexs/base";
+import {Bootstrap, Config, Container, IRuntimeLoaderOptions, ITypexsOptions} from "@typexs/base";
 import {
   API_STORAGE_DELETE_ENTITY,
   API_STORAGE_FIND_ENTITY,
@@ -9,20 +9,14 @@ import {
   API_STORAGE_METADATA_GET_ENTITY,
   API_STORAGE_METADATA_GET_STORE,
   API_STORAGE_PREFIX,
-  API_STORAGE_SAVE_ENTITY, API_STORAGE_UPDATE_ENTITY,
+  API_STORAGE_SAVE_ENTITY,
+  API_STORAGE_UPDATE_ENTITY,
   K_ROUTE_CONTROLLER
 } from "../../../src/libs/Constants";
 import * as request from "request-promise";
 import {expect} from "chai";
-import {
-  API_SYSTEM_CONFIG, API_SYSTEM_MODULES, API_SYSTEM_ROUTES,
-  API_SYSTEM_STORAGES,
-  PERMISSION_ALLOW_ROUTES_VIEW,
-  PERMISSION_ALLOW_STORAGE_ENTITY_VIEW,
-  Server
-} from "../../../src";
+import {Server} from "../../../src";
 import * as _ from "lodash";
-import {inspect} from "util";
 import {Driver} from "./fake_app_storage/entities/Driver";
 
 
@@ -116,7 +110,7 @@ class Storage_api_controllerSpec {
     expect(res).to.have.length(1);
     expect(res[0].entities).to.have.length(2);
     expect(_.map(res[0].entities, e => e.name)).to.be.deep.members(['Driver', 'Car']);
-    let driver = _.find(res[0].entities,e => e.name == 'Driver');
+    let driver = _.find(res[0].entities, e => e.name == 'Driver');
     expect(driver.properties).to.have.length(4);
     expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
 
@@ -133,7 +127,7 @@ class Storage_api_controllerSpec {
     expect(res.name).to.be.eq('default');
     expect(res.entities).to.have.length(2);
     expect(_.map(res.entities, e => e.name)).to.be.deep.members(['Driver', 'Car']);
-    let driver = _.find(res.entities,e => e.name == 'Driver');
+    let driver = _.find(res.entities, e => e.name == 'Driver');
     expect(driver.properties).to.have.length(4);
     expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
 
@@ -146,9 +140,9 @@ class Storage_api_controllerSpec {
     let res = await request.get(url + '/api' + API_STORAGE_PREFIX +
       API_STORAGE_METADATA_ALL_ENTITIES, {json: true});
     expect(res).to.have.length(2);
-    expect(_.map(res, r => r.storage)).to.be.deep.eq(['default', 'default']);
+    expect(_.map(res, r => r.options.storage)).to.be.deep.eq(['default', 'default']);
     expect(_.map(res, e => e.name)).to.be.deep.members(['Driver', 'Car']);
-    let driver = _.find(res,e => e.name == 'Driver');
+    let driver = _.find(res, e => e.name == 'Driver');
     expect(driver.properties).to.have.length(4);
     expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
   }
