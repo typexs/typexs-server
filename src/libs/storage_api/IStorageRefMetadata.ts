@@ -6,6 +6,7 @@ export interface IStorageRefMetadata {
   name: string,
   type: string,
   synchronize: boolean,
+  options?: any,
   entities: IEntityRefMetadata[];
-  collections?:ICollection[];
+  collections?: ICollection[];
 }

@@ -2,7 +2,8 @@ import *as _ from 'lodash';
 import {Body, CurrentUser, Delete, Get, JsonController, Param, Post, QueryParam} from "routing-controllers";
 import {
   Inject, Invoker, NotYetImplementedError, Storage, StorageRef, Cache,
-  XS_P_$COUNT, XS_P_$LIMIT, XS_P_$OFFSET, Log, StorageEntityController, ICollection
+  XS_P_$COUNT, XS_P_$LIMIT, XS_P_$OFFSET, Log,
+  StorageEntityController, ICollection, TreeUtils, WalkValues, ClassLoader
 } from "@typexs/base";
 import {EntitySchema} from "typeorm";
 import {
@@ -33,6 +34,7 @@ import {HttpResponseError} from "../libs/exceptions/HttpResponseError";
 import {IEntityRef, IEntityRefMetadata} from 'commons-schema-api';
 import {Expressions} from 'commons-expressions';
 import {IStorageRefMetadata} from "../libs/storage_api/IStorageRefMetadata";
+import {SystemInfoApi} from "../api/SystemInfo.api";
 
 
 @ContextGroup('api')
@@ -310,6 +312,17 @@ export class StorageAPIController {
 
   }
 
+  private getFilterKeys(): string[] {
+    // TODO cache this!
+    let filterKeys = ['user', 'username', 'password'];
+    let res: string[][] = <string[][]><any>this.invoker.use(SystemInfoApi).filterConfigKeys();
+    if (res && _.isArray(res)) {
+      filterKeys = _.uniq(_.concat(filterKeys, ...res.filter(x => _.isArray(x))).filter(x => !_.isEmpty(x)));
+    }
+
+    return filterKeys;
+  }
+
   private async getStorageSchema(storageName: string, withCollections: boolean = false, refresh: boolean = false) {
     let cacheKey = 'storage-schema-' + storageName + (withCollections ? '-with-collection' : '');
     let cacheBin = 'storage-info';
@@ -318,12 +331,25 @@ export class StorageAPIController {
       return entry;
     }
 
-
     let storageRef = this.storage.get(storageName);
+    let options = _.cloneDeepWith(storageRef.getOptions());
+    const filterKeys = this.getFilterKeys();
+    TreeUtils.walk(options, (x: WalkValues) => {
+      if (_.isString(x.key) && filterKeys.indexOf(x.key) !== -1) {
+        delete x.parent[x.key];
+      }
+      if (_.isFunction(x.value)) {
+        if (_.isArray(x.parent)) {
+          x.parent[x.index] = ClassLoader.getClassName(x.value);
+        } else {
+          x.parent[x.key] = ClassLoader.getClassName(x.value);
+        }
+      }
+    });
     entry = {
       name: storageName,
       type: storageRef.dbType,
-      synchronize: storageRef.getOptions().synchronize,
+      synchronize: options.synchronize,
       entities: []
     };
     storageRef.getOptions().entities.forEach(fn => {
@@ -333,7 +359,7 @@ export class StorageAPIController {
       } else {
         ref = storageRef.getEntityRef((<EntitySchema<any>>fn).options.target);
       }
-      ref.setOption('storage',storageName);
+      ref.setOption('storage', storageName);
       let entityMetadata = ref.toJson(true);
       entry.entities.push(entityMetadata);
     });
