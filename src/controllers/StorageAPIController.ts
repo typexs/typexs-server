@@ -350,6 +350,7 @@ export class StorageAPIController {
       name: storageName,
       type: storageRef.dbType,
       synchronize: options.synchronize,
+      options: options,
       entities: []
     };
     storageRef.getOptions().entities.forEach(fn => {
