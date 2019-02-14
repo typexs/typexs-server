@@ -45,8 +45,8 @@ export const PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY = 'allow access storage enti
 export const PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN = 'allow access storage entity :name';
 
 export const API_STORAGE_SAVE_ENTITY = '/entity/:name';
-export const PERMISSION_ALLOW_SAVE_STORAGE_ENTITY = 'allow edit storage entity';
-export const PERMISSION_ALLOW_SAVE_STORAGE_ENTITY_PATTERN = 'allow edit storage entity :name';
+export const PERMISSION_ALLOW_SAVE_STORAGE_ENTITY = 'allow save storage entity';
+export const PERMISSION_ALLOW_SAVE_STORAGE_ENTITY_PATTERN = 'allow save storage entity :name';
 
 export const API_STORAGE_UPDATE_ENTITY = '/entity/:name/:id';
 export const PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY = 'allow edit storage entity';
