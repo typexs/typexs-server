@@ -1,0 +1,10 @@
+version: '3'
+services:
+
+  redis:
+    container_name: typexs_server_test_redis
+    image: redis
+    ports:
+      - 127.0.0.1:6379:6379
+    volumes:
+      - ./local/redis/db:/data
