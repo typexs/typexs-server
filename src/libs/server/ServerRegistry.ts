@@ -8,7 +8,7 @@ import {ServerUtils} from "./ServerUtils";
 
 
 export class ServerRegistry {
-
+  static NAME: string = "ServerRegistry";
 
   factory: ServerFactory;
 

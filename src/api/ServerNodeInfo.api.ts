@@ -1,9 +1,10 @@
 import {TableMetadataArgs} from 'typeorm/metadata-args/TableMetadataArgs';
-import {ISystemInfo} from "./ISystemInfo";
+
 import {IRoute} from "..";
 import {IModule, IStorageOptions} from "@typexs/base";
+import {IServerNodeInfo} from "./IServerNodeInfo";
 
-export class SystemInfoApi implements ISystemInfo {
+export class ServerNodeInfoApi implements IServerNodeInfo {
 
   /**
    * Return key list which should be removed before configuration

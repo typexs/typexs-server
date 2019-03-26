@@ -25,7 +25,7 @@ export class WebServer extends Server implements IServer {
 
   private __prepared: boolean = false;
 
-  @Inject('RuntimeLoader')
+  @Inject(RuntimeLoader.NAME)
   private loader: RuntimeLoader;
 
   private framework: IFrameworkSupport;
@@ -59,6 +59,8 @@ export class WebServer extends Server implements IServer {
 
     let opts = this.options();
     let classes = this.loader.getClasses(K_CORE_LIB_CONTROLLERS);
+    // TODO check if allowed?
+
     let classesByGroup = Helper.resolveGroups(classes);
 
     for (let entry of opts.routes) {

@@ -1,9 +1,21 @@
 import *as _ from 'lodash';
 import {Body, CurrentUser, Delete, Get, JsonController, Param, Post, QueryParam} from "routing-controllers";
 import {
-  Inject, Invoker, NotYetImplementedError, Storage, StorageRef, Cache,
-  XS_P_$COUNT, XS_P_$LIMIT, XS_P_$OFFSET, Log,
-  StorageEntityController, ICollection, TreeUtils, WalkValues, ClassLoader
+  Cache,
+  ClassLoader,
+  ICollection,
+  Inject,
+  Invoker,
+  Log,
+  NotYetImplementedError,
+  Storage,
+  StorageEntityController,
+  StorageRef,
+  TreeUtils,
+  WalkValues,
+  XS_P_$COUNT,
+  XS_P_$LIMIT,
+  XS_P_$OFFSET
 } from "@typexs/base";
 import {EntitySchema} from "typeorm";
 import {
@@ -28,13 +40,15 @@ import {
   PERMISSION_ALLOW_SAVE_STORAGE_ENTITY,
   PERMISSION_ALLOW_SAVE_STORAGE_ENTITY_PATTERN,
   PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY,
-  PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN, XS_P_LABEL, XS_P_URL
+  PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN,
+  XS_P_LABEL,
+  XS_P_URL
 } from "..";
 import {HttpResponseError} from "../libs/exceptions/HttpResponseError";
 import {IEntityRef, IEntityRefMetadata} from 'commons-schema-api';
 import {Expressions} from 'commons-expressions';
 import {IStorageRefMetadata} from "../libs/storage_api/IStorageRefMetadata";
-import {SystemInfoApi} from "../api/SystemInfo.api";
+import {ServerNodeInfoApi} from "../api/ServerNodeInfo.api";
 
 
 @ContextGroup('api')
@@ -312,14 +326,20 @@ export class StorageAPIController {
 
   }
 
-  private getFilterKeys(): string[] {
+  private async getFilterKeys(): Promise<string[]> {
     // TODO cache this!
-    let filterKeys = ['user', 'username', 'password'];
-    let res: string[][] = <string[][]><any>this.invoker.use(SystemInfoApi).filterConfigKeys();
+    const cacheKey = 'storage_filter_keys';
+    let filterKeys:string[] = await this.cache.get(cacheKey);
+    if(filterKeys){
+      return filterKeys;
+    }
+
+    filterKeys = ['user', 'username', 'password'];
+    let res: string[][] = <string[][]><any>this.invoker.use(ServerNodeInfoApi).filterConfigKeys();
     if (res && _.isArray(res)) {
       filterKeys = _.uniq(_.concat(filterKeys, ...res.filter(x => _.isArray(x))).filter(x => !_.isEmpty(x)));
     }
-
+    await this.cache.set(cacheKey,filterKeys);
     return filterKeys;
   }
 
@@ -333,7 +353,7 @@ export class StorageAPIController {
 
     let storageRef = this.storage.get(storageName);
     let options = _.cloneDeepWith(storageRef.getOptions());
-    const filterKeys = this.getFilterKeys();
+    const filterKeys = await this.getFilterKeys();
     TreeUtils.walk(options, (x: WalkValues) => {
       if (_.isString(x.key) && filterKeys.indexOf(x.key) !== -1) {
         delete x.parent[x.key];
