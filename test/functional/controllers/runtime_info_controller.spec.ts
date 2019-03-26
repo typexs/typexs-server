@@ -1,16 +1,16 @@
 import {suite, test, timeout} from "mocha-typescript";
-import {Config,Bootstrap, Container} from "@typexs/base";
-import {
-  K_ROUTE_CONTROLLER
-} from "../../../src/libs/Constants";
+import {Bootstrap, Config, Container} from "@typexs/base";
+import {K_ROUTE_CONTROLLER} from "../../../src/libs/Constants";
 import * as request from "request-promise";
 import {expect} from "chai";
 import {
-  API_SYSTEM_CONFIG, API_SYSTEM_MODULES, API_SYSTEM_ROUTES,
+  API_SYSTEM_CONFIG,
+  API_SYSTEM_MODULES,
+  API_SYSTEM_ROUTES,
   API_SYSTEM_STORAGES,
   PERMISSION_ALLOW_ROUTES_VIEW,
   PERMISSION_ALLOW_STORAGE_ENTITY_VIEW,
-  Server
+  WebServer
 } from "../../../src";
 import * as _ from "lodash";
 
@@ -27,7 +27,7 @@ const settingsTemplate: any = {
     }
   },
 
-  app: {name: 'demo', path: __dirname + '/../../..'},
+  app: {name: 'demo', path: __dirname + '/../../..', nodeId: 'server'},
 
   logging: {
     enable: true,
@@ -53,11 +53,11 @@ const settingsTemplate: any = {
 }
 
 let bootstrap: Bootstrap = null;
-let server: Server = null;
+let server: WebServer = null;
 
 
-@suite('functional/controllers/system_info_controller')
-class System_info_controllerSpec {
+@suite('functional/controllers/runtime_info_controller')
+class Runtime_info_controllerSpec {
 
 
   static async before() {
@@ -79,7 +79,7 @@ class System_info_controllerSpec {
   }
 
   static async after() {
-    if(server){
+    if (server) {
       await server.stop();
     }
     await bootstrap.shutdown();
@@ -99,7 +99,7 @@ class System_info_controllerSpec {
       route: API_SYSTEM_ROUTES,
       method: 'get',
       params: [],
-      controller: 'SystemInfoController',
+      controller: 'RuntimeInfoController',
       controllerMethod: 'listRoutes',
       permissions: [PERMISSION_ALLOW_ROUTES_VIEW],
       authorized: true
@@ -116,7 +116,7 @@ class System_info_controllerSpec {
           "required": true
         }
       ],
-      controller: 'SystemInfoController',
+      controller: 'RuntimeInfoController',
       controllerMethod: 'getStorageEntities',
       permissions: [PERMISSION_ALLOW_STORAGE_ENTITY_VIEW],
       authorized: true
@@ -151,8 +151,9 @@ class System_info_controllerSpec {
             "classTransformer": false,
             "context": "api",
             "controllers": [
-              "StorageAPIController",
-              "SystemInfoController"
+              "DistributedStorageAPIController",
+              "RuntimeInfoController",
+              "StorageAPIController"
             ],
             "currentUserChecker": "",
             "limit": "10mb",

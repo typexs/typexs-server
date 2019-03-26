@@ -108,8 +108,8 @@ class Storage_api_controllerSpec {
     let res = await request.get(url + '/api' + API_STORAGE_PREFIX + API_STORAGE_METADATA_ALL_STORES, {json: true});
     //console.log(inspect(res, false, 10));
     expect(res).to.have.length(1);
-    expect(res[0].entities).to.have.length(2);
-    expect(_.map(res[0].entities, e => e.name)).to.be.deep.members(['Driver', 'Car']);
+    expect(res[0].entities).to.have.length(4);
+    expect(_.map(res[0].entities, e => e.name)).to.contain.members(['Driver', 'Car']);
     let driver = _.find(res[0].entities, e => e.name == 'Driver');
     expect(driver.properties).to.have.length(4);
     expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
@@ -125,8 +125,8 @@ class Storage_api_controllerSpec {
     //console.log(inspect(res, false, 10));
     expect(res).to.exist;
     expect(res.name).to.be.eq('default');
-    expect(res.entities).to.have.length(2);
-    expect(_.map(res.entities, e => e.name)).to.be.deep.members(['Driver', 'Car']);
+    expect(res.entities).to.have.length(4);
+    expect(_.map(res.entities, e => e.name)).to.contain.members(['Driver', 'Car']);
     let driver = _.find(res.entities, e => e.name == 'Driver');
     expect(driver.properties).to.have.length(4);
     expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
@@ -139,9 +139,9 @@ class Storage_api_controllerSpec {
     const url = server.url();
     let res = await request.get(url + '/api' + API_STORAGE_PREFIX +
       API_STORAGE_METADATA_ALL_ENTITIES, {json: true});
-    expect(res).to.have.length(2);
-    expect(_.map(res, r => r.options.storage)).to.be.deep.eq(['default', 'default']);
-    expect(_.map(res, e => e.name)).to.be.deep.members(['Driver', 'Car']);
+    expect(res).to.have.length(4);
+    expect(_.map(res, r => r.options.storage)).to.contain.members([ 'default']);
+    expect(_.map(res, e => e.name)).to.contain.members(['Driver', 'Car']);
     let driver = _.find(res, e => e.name == 'Driver');
     expect(driver.properties).to.have.length(4);
     expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
