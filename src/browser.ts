@@ -2,7 +2,6 @@
 //export * from "./decorators/ContextGroup";
 //export * from "./decorators/Access";
 
-export * from "./libs/Helper";
 export * from "./libs/Constants";
 
 export * from "./libs/storage_api/IStorageRefMetadata";
