@@ -68,7 +68,7 @@
     "typescript-require": "^0.2.10"
   },
   "dependencies": {
-    "@typexs/base": "latest",
+    "@typexs/base": "^0.8.7",
     "routing-controllers": "^0.7.7"
   },
   "private": true,
