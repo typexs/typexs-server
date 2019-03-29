@@ -18,18 +18,12 @@ import {expect} from "chai";
 import {Server} from "../../../src";
 import * as _ from "lodash";
 import {Driver} from "./fake_app_storage/entities/Driver";
+import {TEST_STORAGE_OPTIONS} from "../config";
 
 
 const settingsTemplate: ITypexsOptions & any = {
   storage: {
-    default: {
-      connectOnStartup: false,
-      synchronize: true,
-      type: 'sqlite',
-      database: ':memory:',
-//      logging: 'all',
-//      logger: 'simple-console'
-    }
+    default: TEST_STORAGE_OPTIONS
   },
 
   app: {name: 'demo', path: __dirname + '/fake_app_storage'},

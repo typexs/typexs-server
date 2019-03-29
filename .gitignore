@@ -66,3 +66,6 @@ typings/
 .idea
 build
 package-lock.json
+
+config/typexs--*
+docker/*/local

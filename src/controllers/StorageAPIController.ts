@@ -141,7 +141,7 @@ export class StorageAPIController {
   async query(
     @Param('name') name: string,
     @QueryParam('query') query: string,
-    @QueryParam('sort') sort: string,
+    @QueryParam('sort') sort: string = null,
     @QueryParam('limit') limit: number = 50,
     @QueryParam('offset') offset: number = 0,
     @CurrentUser() user: any

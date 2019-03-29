@@ -89,8 +89,9 @@ export const PERMISSION_ALLOW_DELETE_STORAGE_ENTITY = 'allow delete storage enti
 export const PERMISSION_ALLOW_DELETE_STORAGE_ENTITY_PATTERN = 'allow delete storage entity :name';
 
 
+export const _API_DISTRIBUTED_STORAGE = '/distributed';
+export const API_DISTRIBUTED_STORAGE = '/api' + _API_DISTRIBUTED_STORAGE;
 
-export const API_DISTRIBUTED_STORAGE = '/distributed';
 
 export const _API_DISTRIBUTED_STORAGE_FIND_ENTITY = '/query/:name';
 export const API_DISTRIBUTED_STORAGE_FIND_ENTITY = API_DISTRIBUTED_STORAGE + _API_DISTRIBUTED_STORAGE_FIND_ENTITY;
@@ -104,3 +105,32 @@ export const PERMISSION_ALLOW_ACCESS_DISTRIBUTED_STORAGE_ENTITY_PATTERN = 'allow
 export const XS_P_URL = '$url';
 export const XS_P_LABEL = '$label';
 
+/**
+ * TasksController constants
+ */
+export const _API_TASKS = '/tasks';
+export const _API_TASKS_LIST = '/list';
+export const API_TASKS_LIST = _API_TASKS + _API_TASKS_LIST;
+export const PERMISSION_ALLOW_TASKS_LIST = 'tasks list view';
+
+export const _API_TASKS_METADATA = '/metadata';
+export const API_TASKS_METADATA = _API_TASKS + _API_TASKS_METADATA;
+export const PERMISSION_ALLOW_TASKS_METADATA = 'task metadata view';
+
+export const _API_TASK_GET_METADATA = '/metadata/:taskName';
+export const API_TASK_GET_METADATA = _API_TASKS + _API_TASK_GET_METADATA;
+export const PERMISSION_ALLOW_TASK_GET_METADATA = PERMISSION_ALLOW_TASKS_METADATA;
+export const PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN = 'task :taskName metadata view';
+
+export const _API_TASK_EXEC = '/exec/:taskName';
+export const API_TASK_EXEC = _API_TASKS + _API_TASK_EXEC;
+export const PERMISSION_ALLOW_TASK_EXEC = 'task execute';
+export const PERMISSION_ALLOW_TASK_EXEC_PATTERN = 'task :taskName execute';
+
+export const _API_TASK_LOG = '/log/:nodeId/:runnerId';
+export const API_TASK_LOG = _API_TASKS + _API_TASK_LOG;
+export const PERMISSION_ALLOW_TASK_LOG = 'task log view';
+
+export const _API_TASK_STATUS = '/status/:nodeId/:runnerId';
+export const API_TASK_STATUS = _API_TASKS + _API_TASK_STATUS;
+export const PERMISSION_ALLOW_TASK_STATUS = 'task status view';

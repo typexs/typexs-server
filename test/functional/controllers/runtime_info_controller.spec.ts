@@ -1,6 +1,11 @@
 import {suite, test, timeout} from "mocha-typescript";
 import {Bootstrap, Config, Container} from "@typexs/base";
-import {K_ROUTE_CONTROLLER} from "../../../src/libs/Constants";
+import {
+  API_SYSTEM_RUNTIME_INFO,
+  API_SYSTEM_RUNTIME_NODE,
+  API_SYSTEM_RUNTIME_NODES,
+  K_ROUTE_CONTROLLER
+} from "../../../src/libs/Constants";
 import * as request from "request-promise";
 import {expect} from "chai";
 import {
@@ -13,24 +18,21 @@ import {
   WebServer
 } from "../../../src";
 import * as _ from "lodash";
+import {TestHelper} from "../TestHelper";
+import {TEST_STORAGE_OPTIONS} from "../config";
 
+
+const LOG_EVENT = TestHelper.logEnable(false);
 
 const settingsTemplate: any = {
   storage: {
-    default: {
-      connectOnStartup: false,
-      synchronize: true,
-      type: 'sqlite',
-      database: ':memory:',
-      logging: 'all',
-      logger: 'simple-console'
-    }
+    default: TEST_STORAGE_OPTIONS
   },
 
   app: {name: 'demo', path: __dirname + '/../../..', nodeId: 'server'},
 
   logging: {
-    enable: true,
+    enable: LOG_EVENT,
     level: 'debug',
     transports: [{console: {}}],
   },
@@ -56,7 +58,7 @@ let bootstrap: Bootstrap = null;
 let server: WebServer = null;
 
 
-@suite('functional/controllers/runtime_info_controller')
+@suite('functional/controllers/runtime_info_controller') @timeout(300000)
 class Runtime_info_controllerSpec {
 
 
@@ -88,6 +90,36 @@ class Runtime_info_controllerSpec {
     Config.clear();
   }
 
+
+  @test
+  async 'get info'() {
+    const url = server.url();
+    let res = await request.get(url + API_SYSTEM_RUNTIME_INFO, {json: true});
+    expect(res).to.not.be.null;
+    expect(res.networks).to.not.be.null;
+    expect(_.keys(res.networks)).to.have.length.gt(0);
+    expect(res.cpus).to.not.be.null;
+    expect(res.cpus).to.have.length.gt(0);
+    expect(res.uptime).to.be.gt(0);
+  }
+
+
+  @test
+  async 'get node'() {
+    const url = server.url();
+    let res = await request.get(url + API_SYSTEM_RUNTIME_NODE, {json: true});
+    expect(res).to.not.be.null;
+    expect(res.hostname).to.not.be.null;
+  }
+
+  @test
+  async 'get nodes'() {
+    // empty
+    const url = server.url();
+    let res = await request.get(url + API_SYSTEM_RUNTIME_NODES, {json: true});
+    expect(res).to.not.be.null;
+    expect(res).to.have.length(0);
+  }
 
   @test @timeout(300000)
   async 'list routes'() {
@@ -153,7 +185,8 @@ class Runtime_info_controllerSpec {
             "controllers": [
               "DistributedStorageAPIController",
               "RuntimeInfoController",
-              "StorageAPIController"
+              "StorageAPIController",
+              "TasksController"
             ],
             "currentUserChecker": "",
             "limit": "10mb",

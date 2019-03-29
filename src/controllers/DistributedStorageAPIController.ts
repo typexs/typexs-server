@@ -5,6 +5,7 @@ import {
   DistributedStorageEntityController,
   Inject,
   Invoker,
+  Log,
   Storage,
   StorageRef,
   XS_P_$COUNT,
@@ -12,9 +13,9 @@ import {
   XS_P_$OFFSET
 } from "@typexs/base";
 import {
+  _API_DISTRIBUTED_STORAGE,
   _API_DISTRIBUTED_STORAGE_FIND_ENTITY,
   Access,
-  API_DISTRIBUTED_STORAGE,
   API_DISTRIBUTED_STORAGE_GET_ENTITY,
   ContextGroup,
   PERMISSION_ALLOW_ACCESS_DISTRIBUTED_STORAGE_ENTITY,
@@ -27,9 +28,8 @@ import {IEntityRef} from 'commons-schema-api';
 import {Expressions} from 'commons-expressions';
 
 
-
 @ContextGroup('api')
-@JsonController(API_DISTRIBUTED_STORAGE)
+@JsonController(_API_DISTRIBUTED_STORAGE)
 export class DistributedStorageAPIController {
 
   @Inject(Storage.NAME)
@@ -41,6 +41,9 @@ export class DistributedStorageAPIController {
   @Inject(Cache.NAME)
   cache: Cache;
 
+
+  @Inject()
+  controller: DistributedStorageEntityController;
   /**
    * Run a query for entity
    */
@@ -84,12 +87,17 @@ export class DistributedStorageAPIController {
       offset = 0;
     }
 
-    let result = await controller.find(entityRef.getClassRef().getClass(), conditions, {
-      limit: limit,
-      offset: offset,
-      sort: sortBy,
-      //hooks: {afterEntity: StorageAPIController._afterEntity}
-    });
+    let result: any[] = [];
+
+    try {
+      result = await controller.find(entityRef.getClassRef().getClass(), conditions, {
+        limit: limit,
+        offset: offset,
+        sort: sortBy,
+      });
+    } catch (err) {
+      Log.error(err);
+    }
 
     if (!_.isEmpty(result)) {
       DistributedStorageAPIController._afterEntity(entityRef, result);
@@ -108,7 +116,7 @@ export class DistributedStorageAPIController {
     entity.forEach(e => {
       const idStr = Expressions.buildLookupConditions(entityDef, e);
       const nodeId = e.__nodeId__;
-      let url = `api${API_DISTRIBUTED_STORAGE}${API_DISTRIBUTED_STORAGE_GET_ENTITY}`
+      let url = `${API_DISTRIBUTED_STORAGE_GET_ENTITY}`
         .replace(':name', entityDef.machineName)
         .replace(':id', idStr)
         .replace(':nodeId', nodeId);
@@ -120,9 +128,9 @@ export class DistributedStorageAPIController {
 
   private getControllerForEntityName(name: string): [IEntityRef, DistributedStorageEntityController] {
     const storageRef = this.getStorageRef(name);
-    let controller = new DistributedStorageEntityController()
+    //let controller = Container.get(DistributedStorageEntityController);
     let entityRef = this.getEntityRef(storageRef, name);
-    return [entityRef, controller];
+    return [entityRef, this.controller];
   }
 
 
