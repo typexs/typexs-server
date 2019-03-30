@@ -1,5 +1,7 @@
 import * as _ from "lodash";
-import {Inject, Container, StringOrFunction, PlatformUtils, ClassLoader} from "@typexs/base";
+import {Inject, Container, StringOrFunction, PlatformUtils, ClassLoader, Log} from "@typexs/base";
+import {ClassType} from "commons-schema-api";
+
 import {WebServer} from "../web/WebServer";
 import {IServer} from "./IServer";
 import {Helper} from "../Helper";
@@ -8,8 +10,9 @@ import {Helper} from "../Helper";
 export class ServerFactory {
 
 
-
-
+  static types: { [key: string]: ClassType<IServer> } = {
+    web: WebServer
+  };
 
   static checkFunction(fn: Function) {
     if (_.isFunction(fn)) {
@@ -19,6 +22,25 @@ export class ServerFactory {
       }
     }
     return false;
+  }
+
+  /**
+   * Register a server type
+   *
+   *
+   * @param name
+   * @param type
+   * @param force
+   */
+  static register(name: string, type: ClassType<IServer>, force: boolean = true) {
+    if (this.types[name]) {
+      if (force) {
+        Log.warn('overwrite server type ' + name + ' with ' + type.name);
+      } else {
+        throw new Error('cant overwrite server type ' + name + ' with ' + type.name);
+      }
+    }
+    this.types[name] = type;
   }
 
 
@@ -34,10 +56,10 @@ export class ServerFactory {
   static getServerClass(name: StringOrFunction): Function {
     let clazz = null;
     if (_.isString(name)) {
-      if (name === 'web') {
-        clazz = WebServer;
+      if (_.has(this.types, name)) {
+        clazz = this.types[name];
       } else if (Helper.FILEPATH_PATTERN.test(name)) {
-        let cls = ClassLoader.importClassesFromAny([name+'*']);
+        let cls = ClassLoader.importClassesFromAny([name + '*']);
         if (!_.isEmpty(cls)) {
           clazz = cls.shift();
         }
