@@ -10,9 +10,14 @@ import {Helper} from "../Helper";
 export class ServerFactory {
 
 
-  static types: { [key: string]: ClassType<IServer> } = {
-    web: WebServer
-  };
+  static types: { [key: string]: Function } = null;
+
+  constructor(){
+    if(!ServerFactory.types){
+      ServerFactory.types = {};
+      ServerFactory.register('web',WebServer);
+    }
+  }
 
   static checkFunction(fn: Function) {
     if (_.isFunction(fn)) {
@@ -33,14 +38,15 @@ export class ServerFactory {
    * @param force
    */
   static register(name: string, type: ClassType<IServer>, force: boolean = true) {
-    if (this.types[name]) {
+    if (ServerFactory.types[name]) {
       if (force) {
         Log.warn('overwrite server type ' + name + ' with ' + type.name);
       } else {
-        throw new Error('cant overwrite server type ' + name + ' with ' + type.name);
+        Log.error('cant overwrite server type ' + name + ' with ' + type.name);
+        return;
       }
     }
-    this.types[name] = type;
+    ServerFactory.types[name] = type;
   }
 
 
@@ -56,8 +62,8 @@ export class ServerFactory {
   static getServerClass(name: StringOrFunction): Function {
     let clazz = null;
     if (_.isString(name)) {
-      if (_.has(this.types, name)) {
-        clazz = this.types[name];
+      if (_.has(ServerFactory.types, name)) {
+        clazz = _.get(ServerFactory.types, name);
       } else if (Helper.FILEPATH_PATTERN.test(name)) {
         let cls = ClassLoader.importClassesFromAny([name + '*']);
         if (!_.isEmpty(cls)) {

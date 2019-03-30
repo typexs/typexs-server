@@ -87,6 +87,13 @@ export class RuntimeInfoController {
     return this.system.getNodeInfos(nodeIds);
   }
 
+  /* TODO impl worker statistics
+  @Access(PERMISSION_ALLOW_WORKERS_VIEW)
+  @Get(_API_SYSTEM_WORKERS)
+  listWorkers(): IModule[] {
+  }
+  */
+
 
   @Access(PERMISSION_ALLOW_ROUTES_VIEW)
   @Get(_API_SYSTEM_ROUTES)
