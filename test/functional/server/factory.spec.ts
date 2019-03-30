@@ -8,6 +8,7 @@ import {IServerInstanceOptions} from "../../../src/libs/server/IServerInstanceOp
 import {ServerFactory} from "../../../src/libs/server/ServerFactory";
 import {WebServer} from "../../../src/libs/web/WebServer";
 import {IRoute} from "../../../src";
+import {ServerTmpl} from "./classes/ServerTmpl";
 
 @suite('functional/server/factory')
 class FactorySpec {
@@ -79,6 +80,14 @@ class FactorySpec {
 
   }
 
+  @test
+  async 'define new type'() {
+    ServerFactory.register('testserver',ServerTmpl);
+    let r = new ServerFactory();
+    let web = r.get('testserver');
+    expect(web.name).to.eq('x');
+
+  }
 
   @test
   async 'check type'() {

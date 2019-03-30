@@ -2,13 +2,7 @@ import {suite, test} from "mocha-typescript";
 import {ServerRegistry} from "../../../src/libs/server/ServerRegistry";
 
 import {expect} from "chai";
-import {PlatformUtils, Container, RuntimeLoader} from "@typexs/base";
-import {IServer} from "../../../src/libs/server/IServer";
-import {IServerInstanceOptions} from "../../../src/libs/server/IServerInstanceOptions";
-import {ServerFactory} from "../../../src/libs/server/ServerFactory";
-import {WebServer} from "../../../src/libs/web/WebServer";
-import * as path from "path";
-import * as glob from "glob";
+import {Container, RuntimeLoader} from "@typexs/base";
 import {IWebServerInstanceOptions} from "../../../src/libs/web/IWebServerInstanceOptions";
 
 @suite('functional/server/registry')
