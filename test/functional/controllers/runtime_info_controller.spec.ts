@@ -3,7 +3,7 @@ import {Bootstrap, Config, Container} from "@typexs/base";
 import {
   API_SYSTEM_RUNTIME_INFO,
   API_SYSTEM_RUNTIME_NODE,
-  API_SYSTEM_RUNTIME_NODES,
+  API_SYSTEM_RUNTIME_NODES, API_SYSTEM_WORKERS, C_API,
   K_ROUTE_CONTROLLER
 } from "../../../src/libs/Constants";
 import * as request from "request-promise";
@@ -93,7 +93,7 @@ class Runtime_info_controllerSpec {
 
   @test
   async 'get info'() {
-    const url = server.url();
+    const url = server.url() + '/' + C_API;
     let res = await request.get(url + API_SYSTEM_RUNTIME_INFO, {json: true});
     expect(res).to.not.be.null;
     expect(res.networks).to.not.be.null;
@@ -106,7 +106,7 @@ class Runtime_info_controllerSpec {
 
   @test
   async 'get node'() {
-    const url = server.url();
+    const url = server.url() + '/' + C_API;
     let res = await request.get(url + API_SYSTEM_RUNTIME_NODE, {json: true});
     expect(res).to.not.be.null;
     expect(res.hostname).to.not.be.null;
@@ -115,20 +115,30 @@ class Runtime_info_controllerSpec {
   @test
   async 'get nodes'() {
     // empty
-    const url = server.url();
+    const url = server.url() + '/' + C_API;
     let res = await request.get(url + API_SYSTEM_RUNTIME_NODES, {json: true});
     expect(res).to.not.be.null;
     expect(res).to.have.length(0);
   }
 
+
+  @test
+  async 'list workers'() {
+    const url = server.url() + '/' + C_API;
+    let res = await request.get(url + API_SYSTEM_WORKERS, {json: true});
+    expect(res).to.not.be.null;
+    expect(res.hostname).to.not.be.null;
+  }
+
+
   @test @timeout(300000)
   async 'list routes'() {
-    const url = server.url();
+    const url = server.url() + '/' + C_API;
     let res = await request.get(url + API_SYSTEM_ROUTES, {json: true});
     expect(res).to.have.length.greaterThan(4);
     expect(_.find(res, {controllerMethod: 'listRoutes'})).to.deep.eq({
       context: 'api',
-      route: API_SYSTEM_ROUTES,
+      route: '/' + C_API + API_SYSTEM_ROUTES,
       method: 'get',
       params: [],
       controller: 'RuntimeInfoController',
@@ -158,7 +168,7 @@ class Runtime_info_controllerSpec {
 
   @test @timeout(300000)
   async 'list config'() {
-    const url = server.url();
+    const url = server.url() + '/' + C_API;
     let res = await request.get(url + API_SYSTEM_CONFIG, {json: true});
     let baseConfig = res.shift();
     let compare = _.clone(settingsTemplate);
@@ -205,7 +215,7 @@ class Runtime_info_controllerSpec {
 
   @test @timeout(300000)
   async 'list modules'() {
-    const url = server.url();
+    const url = server.url() + '/' + C_API;
     let res = await request.get(url + API_SYSTEM_MODULES, {json: true});
     expect(_.map(res, r => r.name)).to.deep.include.members([
       '@typexs/server', '@typexs/base', '@schematics/typexs']);
@@ -214,7 +224,7 @@ class Runtime_info_controllerSpec {
 
   @test @timeout(300000)
   async 'list storages'() {
-    const url = server.url();
+    const url = server.url() + '/' + C_API;
     let res = await request.get(url + API_SYSTEM_STORAGES, {json: true});
     expect(res).to.have.length(1);
     res = res.shift()

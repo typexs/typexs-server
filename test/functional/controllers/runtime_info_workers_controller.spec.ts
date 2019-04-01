@@ -1,6 +1,6 @@
 import {suite, test, timeout} from "mocha-typescript";
 import {Bootstrap, Config, Container} from "@typexs/base";
-import {API_SYSTEM_RUNTIME_NODES, C_API, K_ROUTE_CONTROLLER} from "../../../src/libs/Constants";
+import {API_SYSTEM_RUNTIME_NODES, API_SYSTEM_WORKERS, C_API, K_ROUTE_CONTROLLER} from "../../../src/libs/Constants";
 import * as request from "request-promise";
 import {expect} from "chai";
 import {WebServer} from "../../../src";
@@ -9,6 +9,7 @@ import {SpawnHandle} from "../SpawnHandle";
 import {TestHelper} from "../TestHelper";
 import {TEST_STORAGE_OPTIONS} from "../config";
 import {IEventBusConfiguration} from "commons-eventbus";
+import {inspect} from "util";
 
 const LOG_EVENT = TestHelper.logEnable(false);
 
@@ -40,14 +41,15 @@ const settingsTemplate: any = {
     }
   },
   eventbus: {default: <IEventBusConfiguration>{adapter: 'redis', extra: {host: '127.0.0.1', port: 6379}}},
+  workers: {access: [{name: 'TaskMonitorWorker', access: 'allow'}]}
 
-}
+};
 
 let bootstrap: Bootstrap = null;
 let server: WebServer = null;
 
 
-@suite('functional/controllers/runtime_info_node_controller') @timeout(300000)
+@suite('functional/controllers/runtime_info_workers_controller') @timeout(300000)
 class Runtime_info_controllerSpec {
 
 
@@ -81,20 +83,22 @@ class Runtime_info_controllerSpec {
 
 
   @test
-  async 'get nodes'() {
-    const url = server.url() + '/' + C_API;
-    let p = SpawnHandle.do(__dirname + '/fake_app_node/node.ts').start(LOG_EVENT);
-    await p.started;
-    await TestHelper.wait(50);
-
-    let res = await request.get(url + API_SYSTEM_RUNTIME_NODES, {json: true});
-
-    p.shutdown();
-    await p.done;
-
+  async 'list workers'() {
+    let url = server.url() + '/' + C_API;
+    let res = await request.get(url + API_SYSTEM_WORKERS, {json: true});
     expect(res).to.not.be.null;
     expect(res).to.have.length(1);
-    expect(res.map((x: any) => x.nodeId)).to.deep.eq(['fake_app_node']);
+    expect(res[0]).to.deep.eq({
+      name: 'task_monitor_worker',
+      className: 'TaskMonitorWorker',
+      statistics: {
+        stats: {all: 0, done: 0, running: 0, enqueued: 0, active: 0},
+        paused: false,
+        idle: true,
+        occupied: false,
+        running: false
+      }
+    });
   }
 
 
