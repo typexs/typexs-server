@@ -15,41 +15,46 @@ export const K_ROUTE_STATIC = 'static_files';
 export const K_ROUTE_CONTROLLER = 'routing_controller';
 export type ROUTE_TYPE = 'static_files' | 'routing_controller'
 
-
+export const C_API = 'api';
 export const _API_SYSTEM = '/system';
-export const API_SYSTEM = '/api' + _API_SYSTEM;
+//export const API_SYSTEM = '/api' + _API_SYSTEM;
 
 export const PERMISSION_ALLOW_MODULES_VIEW = 'allow modules view';
 export const _API_SYSTEM_MODULES = '/modules';
-export const API_SYSTEM_MODULES = API_SYSTEM + _API_SYSTEM_MODULES;
+export const API_SYSTEM_MODULES = _API_SYSTEM + _API_SYSTEM_MODULES;
 
 export const PERMISSION_ALLOW_ROUTES_VIEW = 'allow routes view';
 export const _API_SYSTEM_ROUTES = '/routes';
-export const API_SYSTEM_ROUTES = API_SYSTEM + _API_SYSTEM_ROUTES;
+export const API_SYSTEM_ROUTES = _API_SYSTEM + _API_SYSTEM_ROUTES;
 
 export const PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW = 'allow global config view';
 export const _API_SYSTEM_CONFIG = '/config';
-export const API_SYSTEM_CONFIG = API_SYSTEM + _API_SYSTEM_CONFIG;
+export const API_SYSTEM_CONFIG = _API_SYSTEM + _API_SYSTEM_CONFIG;
 
 export const PERMISSION_ALLOW_STORAGES_VIEW = 'allow storages view';
 export const _API_SYSTEM_STORAGES = '/storages';
-export const API_SYSTEM_STORAGES = API_SYSTEM + _API_SYSTEM_STORAGES;
+export const API_SYSTEM_STORAGES = _API_SYSTEM + _API_SYSTEM_STORAGES;
 
 export const PERMISSION_ALLOW_RUNTIME_INFO_VIEW = 'allow runtime info view';
 export const _API_SYSTEM_RUNTIME_INFO = '/info';
-export const API_SYSTEM_RUNTIME_INFO = API_SYSTEM + _API_SYSTEM_RUNTIME_INFO;
+export const API_SYSTEM_RUNTIME_INFO = _API_SYSTEM + _API_SYSTEM_RUNTIME_INFO;
 
 export const PERMISSION_ALLOW_RUNTIME_NODE_VIEW = 'allow runtime node view';
 export const _API_SYSTEM_RUNTIME_NODE = '/node';
-export const API_SYSTEM_RUNTIME_NODE = API_SYSTEM + _API_SYSTEM_RUNTIME_NODE;
+export const API_SYSTEM_RUNTIME_NODE = _API_SYSTEM + _API_SYSTEM_RUNTIME_NODE;
 
 export const PERMISSION_ALLOW_RUNTIME_NODES_VIEW = 'allow runtime nodes view';
 export const _API_SYSTEM_RUNTIME_NODES = '/nodes';
-export const API_SYSTEM_RUNTIME_NODES = API_SYSTEM + _API_SYSTEM_RUNTIME_NODES;
+export const API_SYSTEM_RUNTIME_NODES = _API_SYSTEM + _API_SYSTEM_RUNTIME_NODES;
 
 export const PERMISSION_ALLOW_RUNTIME_REMOTE_INFOS_VIEW = 'allow runtime remote infos view';
 export const _API_SYSTEM_RUNTIME_REMOTE_INFOS = '/remote_infos';
-export const API_SYSTEM_RUNTIME_REMOTE_INFOS = API_SYSTEM + _API_SYSTEM_RUNTIME_REMOTE_INFOS;
+export const API_SYSTEM_RUNTIME_REMOTE_INFOS = _API_SYSTEM + _API_SYSTEM_RUNTIME_REMOTE_INFOS;
+
+export const PERMISSION_ALLOW_WORKERS_INFO = 'list worker information';
+export const _API_SYSTEM_WORKERS = '/workers';
+export const API_SYSTEM_WORKERS = _API_SYSTEM + _API_SYSTEM_WORKERS;
+
 
 export const PERMISSION_ALLOW_STORAGE_ENTITY_VIEW = 'allow storages entity view';
 

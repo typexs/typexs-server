@@ -2,6 +2,7 @@ import * as _ from "lodash";
 import {
   ClassLoader,
   Config,
+  Container,
   IModule,
   Inject,
   Invoker,
@@ -9,7 +10,7 @@ import {
   Storage,
   System,
   TreeUtils,
-  WalkValues
+  WalkValues, Workers
 } from "@typexs/base";
 import {ContextGroup} from "../decorators/ContextGroup";
 import {Get, JsonController, Param, QueryParam} from "routing-controllers";
@@ -26,7 +27,7 @@ import {
   _API_SYSTEM_RUNTIME_NODE,
   _API_SYSTEM_RUNTIME_NODES,
   _API_SYSTEM_RUNTIME_REMOTE_INFOS,
-  _API_SYSTEM_STORAGES,
+  _API_SYSTEM_STORAGES, _API_SYSTEM_WORKERS,
   PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW,
   PERMISSION_ALLOW_MODULES_VIEW,
   PERMISSION_ALLOW_ROUTES_VIEW,
@@ -35,9 +36,10 @@ import {
   PERMISSION_ALLOW_RUNTIME_NODES_VIEW,
   PERMISSION_ALLOW_RUNTIME_REMOTE_INFOS_VIEW,
   PERMISSION_ALLOW_STORAGE_ENTITY_VIEW,
-  PERMISSION_ALLOW_STORAGES_VIEW
+  PERMISSION_ALLOW_STORAGES_VIEW, PERMISSION_ALLOW_WORKERS_INFO
 } from "../libs/Constants";
 import {ServerNodeInfoApi} from "../api/ServerNodeInfo.api";
+import {IWorkerInfo} from "@typexs/base/libs/worker/IWorkerInfo";
 
 
 @ContextGroup("api")
@@ -83,16 +85,18 @@ export class RuntimeInfoController {
 
   @Access(PERMISSION_ALLOW_RUNTIME_REMOTE_INFOS_VIEW)
   @Get(_API_SYSTEM_RUNTIME_REMOTE_INFOS)
-  nodeInfo(@QueryParam('nodeIds') nodeIds: string[] = []): any {
+  nodesInfo(@QueryParam('nodeIds') nodeIds: string[] = []): any {
     return this.system.getNodeInfos(nodeIds);
   }
 
-  /* TODO impl worker statistics
-  @Access(PERMISSION_ALLOW_WORKERS_VIEW)
+
+  //TODO impl worker statistics
+  @Access(PERMISSION_ALLOW_WORKERS_INFO)
   @Get(_API_SYSTEM_WORKERS)
-  listWorkers(): IModule[] {
+  listWorkers(): IWorkerInfo[] {
+    return (<Workers>Container.get(Workers.NAME)).infos();
   }
-  */
+
 
 
   @Access(PERMISSION_ALLOW_ROUTES_VIEW)
