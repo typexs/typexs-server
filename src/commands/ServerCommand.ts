@@ -1,11 +1,9 @@
-import {Inject, Log, Storage} from "@typexs/base";
+import {Inject, Log} from "@typexs/base";
 import {ServerRegistry} from "../";
 
 
 export class ServerCommand {
 
-  @Inject('Storage')
-  storage: Storage;
 
   @Inject('ServerRegistry')
   registry: ServerRegistry;
@@ -20,13 +18,16 @@ export class ServerCommand {
     return yargs
   }
 
-  async start(name:string){
+  async start(name: string) {
     let service = this.registry.get(name);
     let status = await service.start();
-    if(status) {
+    if (status) {
       Log.info('Server ' + name + ' started.');
-    }else{
-      Log.error('Failed to start server ' + name+'.');
+      await new Promise(resolve => {
+        process.on('exit', resolve);
+      })
+    } else {
+      Log.error('Failed to start server ' + name + '.');
     }
 
   }
@@ -34,10 +35,10 @@ export class ServerCommand {
   async handler(argv: any) {
     if (argv.name) {
       await this.start(argv.name);
-    }else{
+    } else {
       let instanceNames = this.registry.getInstanceNames();
       let p = []
-      for(let name of instanceNames){
+      for (let name of instanceNames) {
         await this.start(name);
       }
     }
