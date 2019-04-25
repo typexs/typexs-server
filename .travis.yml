@@ -19,6 +19,7 @@ compiler:
 
 
 before_install:
+  - sudo /bin/sh -c 'echo "127.0.0.11 proxy.local\n" >> /etc/hosts'
   - npm install -g nyc
   - npm install -g codecov
   - sudo rm /usr/local/bin/docker-compose
