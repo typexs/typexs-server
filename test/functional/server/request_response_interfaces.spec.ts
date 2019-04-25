@@ -25,14 +25,14 @@ class RegistrySpec {
   }
 
 
-  @test
+  @test.skip
   async 'request check '() {
 
     let req:IRequest = null;
     // TODO
   }
 
-  @test
+  @test.skip
   async 'response check '() {
 
     let res:IResponse = null;

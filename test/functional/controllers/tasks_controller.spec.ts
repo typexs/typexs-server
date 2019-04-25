@@ -4,7 +4,7 @@ import * as path from 'path';
 
 //process.env.SQL_LOG = '1';
 import {suite, test} from "mocha-typescript";
-import {Bootstrap, Config, Container} from "@typexs/base";
+import {Bootstrap, C_STORAGE_DEFAULT, Config, Container, StorageRef, TaskLog} from "@typexs/base";
 import {
   API_TASK_EXEC,
   API_TASK_GET_METADATA,
@@ -58,7 +58,7 @@ const settingsTemplate: any = {
       }]
     }
   },
-  workers: {access: [{name: 'TaskMonitorWorker', access: 'allow'}]},
+  //workers: {access: [{name: 'TaskMonitorWorker', access: 'allow'}]},
   eventbus: {default: <IEventBusConfiguration>{adapter: 'redis', extra: {host: '127.0.0.1', port: 6379}}},
 
 };
@@ -257,6 +257,7 @@ class Tasks_controllerSpec {
     let _urlStatus = url + '/api' + API_TASK_STATUS.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id);
 
     await TestHelper.waitFor(() => events.length >= 4, 10);
+    let s = await (<StorageRef>Container.get(C_STORAGE_DEFAULT)).getController().find(TaskLog);
     let taskStatus1 = await request.get(_urlStatus, {json: true});
 
 
@@ -306,7 +307,8 @@ class Tasks_controllerSpec {
     expect(taskEvent).to.be.deep.include({
       "state": "enqueue",
       "topic": "data",
-      "nodeId": "server", "name": [
+      "nodeId": "server",
+      "name": [
         "simple_task"
       ],
       "targetIds": [

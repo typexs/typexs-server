@@ -41,7 +41,7 @@ const settingsTemplate: any = {
     }
   },
   eventbus: {default: <IEventBusConfiguration>{adapter: 'redis', extra: {host: '127.0.0.1', port: 6379}}},
-  workers: {access: [{name: 'TaskMonitorWorker', access: 'allow'}]}
+  workers: {access: [{name: 'TaskQueueWorker', access: 'allow'}]}
 
 };
 
@@ -89,8 +89,8 @@ class Runtime_info_controllerSpec {
     expect(res).to.not.be.null;
     expect(res).to.have.length(1);
     expect(res[0]).to.deep.eq({
-      name: 'task_monitor_worker',
-      className: 'TaskMonitorWorker',
+      name: 'task_queue_worker',
+      className: 'TaskQueueWorker',
       statistics: {
         stats: {all: 0, done: 0, running: 0, enqueued: 0, active: 0},
         paused: false,
