@@ -121,10 +121,12 @@ export class Server {
     } else {
       let http_server = http.createServer(this.response.bind(this));
       http_server.setTimeout(
-        self._options.timeout, function () {
+        self._options.timeout,  (socket?:net.Socket) => {
           self.debug('server timeout reached: ' + self._options.timeout);
-          // socket.end()
-          // socket.destroy(Exceptions.newSocketTimeout());
+          if(socket){
+            socket.end();
+            socket.destroy(Exceptions.newSocketTimeout());
+          }
         });
       server = http_server;
     }
