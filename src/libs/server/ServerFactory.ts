@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import {Inject, Container, StringOrFunction, PlatformUtils, ClassLoader, Log} from "@typexs/base";
+import {ClassLoader, Container, Log, StringOrFunction} from "@typexs/base";
 import {ClassType} from "commons-schema-api";
 
 import {WebServer} from "../web/WebServer";
