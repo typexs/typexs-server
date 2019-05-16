@@ -3,7 +3,7 @@ import {Body, CurrentUser, Delete, Get, JsonController, Param, Post, QueryParam}
 import {
   Cache,
   ClassLoader,
-  ICollection,
+  ICollection, IFindOptions,
   Inject,
   Invoker,
   Log,
@@ -49,6 +49,7 @@ import {IEntityRef, IEntityRefMetadata} from 'commons-schema-api';
 import {Expressions} from 'commons-expressions';
 import {IStorageRefMetadata} from "../libs/storage_api/IStorageRefMetadata";
 import {ServerNodeInfoApi} from "../api/ServerNodeInfo.api";
+import {IFindOp} from "@typexs/base/libs/storage/framework/IFindOp";
 
 
 @ContextGroup('api')
@@ -144,6 +145,7 @@ export class StorageAPIController {
     @QueryParam('sort') sort: string = null,
     @QueryParam('limit') limit: number = 50,
     @QueryParam('offset') offset: number = 0,
+    @QueryParam('opts') opts: any = {},
     @CurrentUser() user: any
   ) {
 
@@ -172,12 +174,20 @@ export class StorageAPIController {
       offset = 0;
     }
 
-    let result = await controller.find(entityRef.getClassRef().getClass(), conditions, {
+    let options: IFindOptions = {
       limit: limit,
       offset: offset,
       sort: sortBy,
       //hooks: {afterEntity: StorageAPIController._afterEntity}
-    });
+    };
+
+    if (!_.isEmpty(opts)) {
+      let checked = {};
+      _.keys(opts).filter(k => ['raw', 'timeout'].indexOf(k) > -1 && (_.isString(opts[k]) || _.isNumber(opts[k]) || _.isBoolean(opts[k]))).map(k => checked[k] = opts[k]);
+      _.assign(options, opts);
+    }
+
+    let result = await controller.find(entityRef.getClassRef().getClass(), conditions, options);
 
     if (!_.isEmpty(result)) {
       StorageAPIController._afterEntity(entityRef, result);
@@ -329,8 +339,8 @@ export class StorageAPIController {
   private async getFilterKeys(): Promise<string[]> {
     // TODO cache this!
     const cacheKey = 'storage_filter_keys';
-    let filterKeys:string[] = await this.cache.get(cacheKey);
-    if(filterKeys){
+    let filterKeys: string[] = await this.cache.get(cacheKey);
+    if (filterKeys) {
       return filterKeys;
     }
 
@@ -339,7 +349,7 @@ export class StorageAPIController {
     if (res && _.isArray(res)) {
       filterKeys = _.uniq(_.concat(filterKeys, ...res.filter(x => _.isArray(x))).filter(x => !_.isEmpty(x)));
     }
-    await this.cache.set(cacheKey,filterKeys);
+    await this.cache.set(cacheKey, filterKeys);
     return filterKeys;
   }
 
