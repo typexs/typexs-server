@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import {Get, HttpError, JsonController, Param, QueryParam} from "routing-controllers";
+import {Get, HttpError, JsonController, Param, QueryParam} from 'routing-controllers';
 import {
   C_STORAGE_DEFAULT,
   Cache,
@@ -12,7 +12,7 @@ import {
   StorageRef,
   TaskLog,
   Tasks
-} from "@typexs/base";
+} from '@typexs/base';
 import {
   _API_TASK_EXEC,
   _API_TASK_GET_METADATA,
@@ -32,9 +32,9 @@ import {
   PERMISSION_ALLOW_TASK_STATUS,
   PERMISSION_ALLOW_TASKS_LIST,
   PERMISSION_ALLOW_TASKS_METADATA
-} from "..";
-import {TaskExecutionRequestFactory} from "@typexs/base/libs/tasks/worker/TaskExecutionRequestFactory";
-import {TasksHelper} from "@typexs/base/libs/tasks/TasksHelper";
+} from '..';
+import {TaskExecutionRequestFactory} from '@typexs/base/libs/tasks/worker/TaskExecutionRequestFactory';
+import {TasksHelper} from '@typexs/base/libs/tasks/TasksHelper';
 
 
 @ContextGroup('api')
@@ -53,6 +53,11 @@ export class TasksController {
 
   @Inject()
   taskFactory: TaskExecutionRequestFactory;
+
+
+  static getTaskLogFile(runnerId: string, nodeId: string) {
+    return TasksHelper.getTaskLogFile(runnerId, nodeId);
+  }
 
   @Access(PERMISSION_ALLOW_TASKS_LIST)
   @Get(_API_TASKS_LIST)
@@ -81,32 +86,56 @@ export class TasksController {
                 @QueryParam('parameters') parameters: any = {},
                 @QueryParam('targetIds') targetIds: string[] = []) {
     // arguments
-    let execReq = this.taskFactory.createRequest();
-    let taskEvent = await execReq.run([taskName], parameters, targetIds);
+    const execReq = this.taskFactory.createRequest();
+    const taskEvent = await execReq.run([taskName], parameters, targetIds);
     return taskEvent.shift();
   }
 
 
+  /**
+   * Return the content of the logfile. There are two variants of selecting
+   * the content first is by setting "from" with optional "offset" parameter which
+   * causes to return the file content between given scale. When "tail" is set you
+   * get the last lines passed.
+   *
+   * Default is 'tail' with 50 lines
+   *
+   * @param nodeId
+   * @param runnerId
+   * @param fromLine
+   * @param offsetLine
+   * @param number
+   */
   @Access(PERMISSION_ALLOW_TASK_LOG)
   @Get(_API_TASK_LOG)
   async log(@Param('nodeId') nodeId: string,
             @Param('runnerId') runnerId: string,
-            @QueryParam('tail') number: any = 50) {
+            @QueryParam('from') fromLine: number = null,
+            @QueryParam('offset') offsetLine: number = null,
+            @QueryParam('tail') tail: number = 50) {
 
     // if tail is lower then 1 then print all, this works only if monitor exists
-    let filename = TasksController.getTaskLogFile(runnerId, nodeId);
+    const filename = TasksController.getTaskLogFile(runnerId, nodeId);
     if (PlatformUtils.fileExist(filename)) {
-      let content = <string>await Helper.tail(filename, number);
+      let content: string = null;
+      if (_.isNumber(fromLine) && _.isNumber(offsetLine)) {
+        content = <string>await Helper.less(filename, fromLine, offsetLine);
+      } else if (_.isNumber(fromLine)) {
+        content = <string>await Helper.less(filename, fromLine, 0);
+      } else {
+        content = <string>await Helper.tail(filename, tail ? tail : 50);
+      }
+
+
       if (content) {
         try {
-          return content.split('\n').filter(x => !_.isEmpty(x)).map(x => JSON.parse(x.trim()))
+          return content.split('\n').filter(x => !_.isEmpty(x)).map(x => JSON.parse(x.trim()));
         } catch (err) {
           Log.error(err);
           throw new HttpError(500, err.message);
         }
-
       } else {
-        throw new HttpError(204, 'not content in logfile')
+        throw new HttpError(204, 'not content in logfile');
       }
     }
 
@@ -119,8 +148,8 @@ export class TasksController {
   @Get(_API_TASK_STATUS)
   async status(@Param('nodeId') nodeId: string,
                @Param('runnerId') runnerId: string) {
-    let storageRef: StorageRef = Container.get(C_STORAGE_DEFAULT);
-    let entry = <TaskLog>await storageRef.getController().findOne(TaskLog, {respId: nodeId, tasksId: runnerId});
+    const storageRef: StorageRef = Container.get(C_STORAGE_DEFAULT);
+    const entry = <TaskLog>await storageRef.getController().findOne(TaskLog, {respId: nodeId, tasksId: runnerId});
     if (entry) {
       if (_.isString(entry.data)) {
         try {
@@ -131,11 +160,6 @@ export class TasksController {
       return entry;
     }
     return null;
-  }
-
-
-  static getTaskLogFile(runnerId: string, nodeId: string) {
-    return TasksHelper.getTaskLogFile(runnerId,nodeId);
   }
 
 }
