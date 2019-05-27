@@ -17,7 +17,6 @@ import {IWebServerInstanceOptions} from './IWebServerInstanceOptions';
 import {IServer} from '../server/IServer';
 import {IMiddleware} from '../server/IMiddleware';
 import {IRoute, K_CORE_LIB_CONTROLLERS, K_ROUTE_CACHE, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from '../../';
-import {UserInfo} from 'os';
 
 
 useContainer(Container);
