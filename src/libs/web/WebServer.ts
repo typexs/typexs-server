@@ -17,6 +17,7 @@ import {IWebServerInstanceOptions} from './IWebServerInstanceOptions';
 import {IServer} from '../server/IServer';
 import {IMiddleware} from '../server/IMiddleware';
 import {IRoute, K_CORE_LIB_CONTROLLERS, K_ROUTE_CACHE, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from '../../';
+import {UserInfo} from 'os';
 
 
 useContainer(Container);
@@ -110,6 +111,12 @@ export class WebServer extends Server implements IServer {
     return null;
   }
 
+  /**
+   * Apply default checker operations if no given,
+   * the default ops allow bypass everything.
+   *
+   * @param options
+   */
   private applyDefaultOptionsIfNotGiven(options: IRoutingController) {
     if (!_.has(options, 'authorizationChecker')) {
       options.authorizationChecker = (action: Action, roles: any[]) => {
@@ -118,7 +125,7 @@ export class WebServer extends Server implements IServer {
     }
     if (!_.has(options, 'currentUserChecker')) {
       options.currentUserChecker = (action: Action) => {
-        return null;
+        return {};
       };
     }
   }
