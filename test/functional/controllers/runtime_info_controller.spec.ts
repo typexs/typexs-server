@@ -1,13 +1,13 @@
-import {suite, test, timeout} from "mocha-typescript";
-import {Bootstrap, Config, Container} from "@typexs/base";
+import {suite, test, timeout} from 'mocha-typescript';
+import {Bootstrap, Config, Container} from '@typexs/base';
 import {
   API_SYSTEM_RUNTIME_INFO,
   API_SYSTEM_RUNTIME_NODE,
   API_SYSTEM_RUNTIME_NODES, API_SYSTEM_WORKERS, C_API,
   K_ROUTE_CONTROLLER
-} from "../../../src/libs/Constants";
-import * as request from "request-promise";
-import {expect} from "chai";
+} from '../../../src/libs/Constants';
+import * as request from 'request-promise';
+import {expect} from 'chai';
 import {
   API_SYSTEM_CONFIG,
   API_SYSTEM_MODULES,
@@ -16,10 +16,10 @@ import {
   PERMISSION_ALLOW_ROUTES_VIEW,
   PERMISSION_ALLOW_STORAGE_ENTITY_VIEW,
   WebServer
-} from "../../../src";
-import * as _ from "lodash";
-import {TestHelper} from "../TestHelper";
-import {TEST_STORAGE_OPTIONS} from "../config";
+} from '../../../src';
+import * as _ from 'lodash';
+import {TestHelper} from '../TestHelper';
+import {TEST_STORAGE_OPTIONS} from '../config';
 
 
 const LOG_EVENT = TestHelper.logEnable(false);
@@ -52,18 +52,18 @@ const settingsTemplate: any = {
     }
   }
 
-}
+};
 
 let bootstrap: Bootstrap = null;
 let server: WebServer = null;
 
 
 @suite('functional/controllers/runtime_info_controller') @timeout(300000)
-class Runtime_info_controllerSpec {
+class RuntimeInfoControllerSpec {
 
 
   static async before() {
-    let settings = _.clone(settingsTemplate);
+    const settings = _.clone(settingsTemplate);
 
 
     bootstrap = Bootstrap
@@ -94,7 +94,7 @@ class Runtime_info_controllerSpec {
   @test
   async 'get info'() {
     const url = server.url() + '/' + C_API;
-    let res = await request.get(url + API_SYSTEM_RUNTIME_INFO, {json: true});
+    const res = await request.get(url + API_SYSTEM_RUNTIME_INFO, {json: true});
     expect(res).to.not.be.null;
     expect(res.networks).to.not.be.null;
     expect(_.keys(res.networks)).to.have.length.gt(0);
@@ -107,7 +107,7 @@ class Runtime_info_controllerSpec {
   @test
   async 'get node'() {
     const url = server.url() + '/' + C_API;
-    let res = await request.get(url + API_SYSTEM_RUNTIME_NODE, {json: true});
+    const res = await request.get(url + API_SYSTEM_RUNTIME_NODE, {json: true});
     expect(res).to.not.be.null;
     expect(res.hostname).to.not.be.null;
   }
@@ -116,7 +116,7 @@ class Runtime_info_controllerSpec {
   async 'get nodes'() {
     // empty
     const url = server.url() + '/' + C_API;
-    let res = await request.get(url + API_SYSTEM_RUNTIME_NODES, {json: true});
+    const res = await request.get(url + API_SYSTEM_RUNTIME_NODES, {json: true});
     expect(res).to.not.be.null;
     expect(res).to.have.length(0);
   }
@@ -125,7 +125,7 @@ class Runtime_info_controllerSpec {
   @test
   async 'list workers'() {
     const url = server.url() + '/' + C_API;
-    let res = await request.get(url + API_SYSTEM_WORKERS, {json: true});
+    const res = await request.get(url + API_SYSTEM_WORKERS, {json: true});
     expect(res).to.not.be.null;
     expect(res.hostname).to.not.be.null;
   }
@@ -134,7 +134,7 @@ class Runtime_info_controllerSpec {
   @test @timeout(300000)
   async 'list routes'() {
     const url = server.url() + '/' + C_API;
-    let res = await request.get(url + API_SYSTEM_ROUTES, {json: true});
+    const res = await request.get(url + API_SYSTEM_ROUTES, {json: true});
     expect(res).to.have.length.greaterThan(4);
     expect(_.find(res, {controllerMethod: 'listRoutes'})).to.deep.eq({
       context: 'api',
@@ -152,10 +152,10 @@ class Runtime_info_controllerSpec {
       method: 'get',
       params: [
         {
-          "index": 0,
-          "name": "name",
-          "parse": false,
-          "required": true
+          'index': 0,
+          'name': 'name',
+          'parse': false,
+          'required': true
         }
       ],
       controller: 'RuntimeInfoController',
@@ -169,9 +169,9 @@ class Runtime_info_controllerSpec {
   @test @timeout(300000)
   async 'list config'() {
     const url = server.url() + '/' + C_API;
-    let res = await request.get(url + API_SYSTEM_CONFIG, {json: true});
-    let baseConfig = res.shift();
-    let compare = _.clone(settingsTemplate);
+    const res = await request.get(url + API_SYSTEM_CONFIG, {json: true});
+    const baseConfig = res.shift();
+    const compare = _.clone(settingsTemplate);
 
     compare.storage.default.name = 'default';
     delete compare.storage.default.entities;
@@ -179,35 +179,35 @@ class Runtime_info_controllerSpec {
     expect(baseConfig.storage).to.deep.include(compare.storage);
 
     expect(baseConfig.server).to.have.deep.eq({
-      "default": {
-        "_debug": false,
-        "fn": "root",
-        "framework": "express",
-        "host": "localhost",
-        "ip": "127.0.0.1",
-        "port": 4500,
-        "protocol": "http",
-        "routes": [
+      'default': {
+        '_debug': false,
+        'fn': 'root',
+        'framework': 'express',
+        'host': 'localhost',
+        'ip': '127.0.0.1',
+        'port': 4500,
+        'protocol': 'http',
+        'routes': [
           {
-            "authorizationChecker": "",
-            "classTransformer": false,
-            "context": "api",
-            "controllers": [
-              "DistributedStorageAPIController",
-              "RuntimeInfoController",
-              "StorageAPIController",
-              "TasksController"
+            'authorizationChecker': '',
+            'classTransformer': false,
+            'context': 'api',
+            'controllers': [
+              'DistributedStorageAPIController',
+              'RuntimeInfoController',
+              'StorageAPIController',
+              'TasksController'
             ],
-            "currentUserChecker": "",
-            "limit": "10mb",
-            "middlewares": [],
-            "routePrefix": "api",
-            "type": "routing_controller",
+            'currentUserChecker': '',
+            'limit': '10mb',
+            'middlewares': [],
+            'routePrefix': 'api',
+            'type': 'routing_controller',
           }
         ],
-        "stall": 0,
-        "timeout": 60000,
-        "type": "web",
+        'stall': 0,
+        'timeout': 60000,
+        'type': 'web',
       }
     });
   }
@@ -216,9 +216,9 @@ class Runtime_info_controllerSpec {
   @test @timeout(300000)
   async 'list modules'() {
     const url = server.url() + '/' + C_API;
-    let res = await request.get(url + API_SYSTEM_MODULES, {json: true});
+    const res = await request.get(url + API_SYSTEM_MODULES, {json: true});
     expect(_.map(res, r => r.name)).to.deep.include.members([
-      '@typexs/server', '@typexs/base', '@schematics/typexs']);
+      '@typexs/server', '@typexs/base']);
   }
 
 
@@ -227,10 +227,10 @@ class Runtime_info_controllerSpec {
     const url = server.url() + '/' + C_API;
     let res = await request.get(url + API_SYSTEM_STORAGES, {json: true});
     expect(res).to.have.length(1);
-    res = res.shift()
-    let compare = _.clone(settingsTemplate);
+    res = res.shift();
+    const compare = _.clone(settingsTemplate);
     compare.storage.default.name = 'default';
-    //compare.storage.default.entities = [];
+    // compare.storage.default.entities = [];
     expect(res).to.have.deep.include(compare.storage.default);
   }
 

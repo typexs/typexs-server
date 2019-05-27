@@ -263,6 +263,9 @@ class TasksControllerSpec {
     const _urlLog = url + '/api' + API_TASK_LOG.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id);
     const taskLog = await request.get(_urlLog, {json: true});
 
+    const _urlLog2 = url + '/api' + API_TASK_LOG.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id) + '?from=0&offset=20';
+    const taskLog2 = await request.get(_urlLog2, {json: true});
+
     const taskStatus2 = await request.get(_urlStatus, {json: true});
 
     p.shutdown();
@@ -295,8 +298,14 @@ class TasksControllerSpec {
           error: null
         }
     });
+
     expect(taskLog.length).to.be.eq(1);
     expect(taskLog[0]).to.deep.include({
+      level: 'info',
+      message: 'task is running',
+    });
+    expect(taskLog2.length).to.be.eq(1);
+    expect(taskLog2[0]).to.deep.include({
       level: 'info',
       message: 'task is running',
     });
