@@ -13,11 +13,11 @@ export const K_META_CONTEXT_ARGS = 'controller.contexts';
 export const K_META_PERMISSIONS_ARGS = 'controller.permissions';
 export const K_ROUTE_STATIC = 'static_files';
 export const K_ROUTE_CONTROLLER = 'routing_controller';
-export type ROUTE_TYPE = 'static_files' | 'routing_controller'
+export type ROUTE_TYPE = 'static_files' | 'routing_controller';
 
 export const C_API = 'api';
 export const _API_SYSTEM = '/system';
-//export const API_SYSTEM = '/api' + _API_SYSTEM;
+// export const API_SYSTEM = '/api' + _API_SYSTEM;
 
 export const PERMISSION_ALLOW_MODULES_VIEW = 'allow modules view';
 export const _API_SYSTEM_MODULES = '/modules';

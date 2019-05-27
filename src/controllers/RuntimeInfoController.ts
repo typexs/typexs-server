@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import {
   ClassLoader,
   Config,
@@ -11,13 +11,13 @@ import {
   System,
   TreeUtils,
   WalkValues, Workers
-} from "@typexs/base";
-import {ContextGroup} from "../decorators/ContextGroup";
-import {Get, JsonController, Param, QueryParam} from "routing-controllers";
-import {Access} from "../decorators/Access";
-import {ServerRegistry} from "./../libs/server/ServerRegistry";
-import {IRoute} from "./../libs/server/IRoute";
-import {getMetadataArgsStorage as ormMetadataArgsStorage} from "typeorm"
+} from '@typexs/base';
+import {ContextGroup} from '../decorators/ContextGroup';
+import {Get, JsonController, Param, QueryParam} from 'routing-controllers';
+import {Access} from '../decorators/Access';
+import {ServerRegistry} from './../libs/server/ServerRegistry';
+import {IRoute} from './../libs/server/IRoute';
+import {getMetadataArgsStorage as ormMetadataArgsStorage} from 'typeorm';
 import {
   _API_SYSTEM,
   _API_SYSTEM_CONFIG,
@@ -37,12 +37,12 @@ import {
   PERMISSION_ALLOW_RUNTIME_REMOTE_INFOS_VIEW,
   PERMISSION_ALLOW_STORAGE_ENTITY_VIEW,
   PERMISSION_ALLOW_STORAGES_VIEW, PERMISSION_ALLOW_WORKERS_INFO
-} from "../libs/Constants";
-import {ServerNodeInfoApi} from "../api/ServerNodeInfo.api";
-import {IWorkerInfo} from "@typexs/base/libs/worker/IWorkerInfo";
+} from '../libs/Constants';
+import {ServerNodeInfoApi} from '../api/ServerNodeInfo.api';
+import {IWorkerInfo} from '@typexs/base/libs/worker/IWorkerInfo';
 
 
-@ContextGroup("api")
+@ContextGroup('api')
 @JsonController(_API_SYSTEM)
 export class RuntimeInfoController {
 
@@ -90,7 +90,7 @@ export class RuntimeInfoController {
   }
 
 
-  //TODO impl worker statistics
+  // TODO impl worker statistics
   @Access(PERMISSION_ALLOW_WORKERS_INFO)
   @Get(_API_SYSTEM_WORKERS)
   listWorkers(): IWorkerInfo[] {
@@ -98,14 +98,13 @@ export class RuntimeInfoController {
   }
 
 
-
   @Access(PERMISSION_ALLOW_ROUTES_VIEW)
   @Get(_API_SYSTEM_ROUTES)
   listRoutes(): IRoute[] {
     let routes: IRoute[] = [];
-    let instanceNames = this.serverRegistry.getInstanceNames();
-    for (let instanceName of instanceNames) {
-      let instance = this.serverRegistry.get(instanceName);
+    const instanceNames = this.serverRegistry.getInstanceNames();
+    for (const instanceName of instanceNames) {
+      const instance = this.serverRegistry.get(instanceName);
       routes = _.concat(routes, instance.getRoutes());
     }
     this.invoker.use(ServerNodeInfoApi).prepareRoutes(routes);
@@ -116,7 +115,7 @@ export class RuntimeInfoController {
   @Access(PERMISSION_ALLOW_MODULES_VIEW)
   @Get(_API_SYSTEM_MODULES)
   listModules(): IModule[] {
-    let modules = this.loader.registry.modules();
+    const modules = this.loader.registry.modules();
     this.invoker.use(ServerNodeInfoApi).prepareModules(modules);
     return modules;
   }
@@ -125,9 +124,9 @@ export class RuntimeInfoController {
   @Access(PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW)
   @Get(_API_SYSTEM_CONFIG)
   getConfig(): any {
-    let _orgCfg = Config.get();
-    let cfg = _.cloneDeepWith(_orgCfg);
-    let filterKeys = this.getFilterKeys();
+    const _orgCfg = Config.get();
+    const cfg = _.cloneDeepWith(_orgCfg);
+    const filterKeys = this.getFilterKeys();
 
     TreeUtils.walk(cfg, (x: WalkValues) => {
       // TODO make this list configurable! system.info.hide.keys!
@@ -150,7 +149,7 @@ export class RuntimeInfoController {
   getFilterKeys(): string[] {
     // TODO cache this!
     let filterKeys = ['user', 'username', 'password'];
-    let res: string[][] = <string[][]><any>this.invoker.use(ServerNodeInfoApi).filterConfigKeys();
+    const res: string[][] = <string[][]><any>this.invoker.use(ServerNodeInfoApi).filterConfigKeys();
     if (res && _.isArray(res)) {
       filterKeys = _.uniq(_.concat(filterKeys, ...res.filter(x => _.isArray(x))).filter(x => !_.isEmpty(x)));
     }
@@ -161,8 +160,8 @@ export class RuntimeInfoController {
   @Access(PERMISSION_ALLOW_STORAGES_VIEW)
   @Get(_API_SYSTEM_STORAGES)
   getStorageInfo(): any {
-    let options = _.cloneDeepWith(this.storage.getAllOptions());
-    let filterKeys = this.getFilterKeys();
+    const options = _.cloneDeepWith(this.storage.getAllOptions());
+    const filterKeys = this.getFilterKeys();
     TreeUtils.walk(options, (x: WalkValues) => {
       if (_.isString(x.key) && filterKeys.indexOf(x.key) !== -1) {
         delete x.parent[x.key];
@@ -183,18 +182,19 @@ export class RuntimeInfoController {
   @Access(PERMISSION_ALLOW_STORAGE_ENTITY_VIEW)
   @Get('/storage/:name/entities')
   getStorageEntities(@Param('name') name: string): any[] {
-    let ref = this.storage.get(name);
-    let entityNames = _.map(ref.getOptions().entities, e => {
+    const ref = this.storage.get(name);
+    const entityNames = _.map(ref.getOptions().entities, e => {
       if (_.isString(e)) {
-        return e
+        return e;
       } else if (_.isFunction(e)) {
-        return ClassLoader.getClassName(e)
+        return ClassLoader.getClassName(e);
       } else {
         return (<any>e).options.name;
       }
     });
 
-    let tables = _.cloneDeepWith(ormMetadataArgsStorage().tables.filter(t => entityNames.indexOf(ClassLoader.getClassName(t.target)) !== -1));
+    const tables = _.cloneDeepWith(ormMetadataArgsStorage().tables
+      .filter(t => entityNames.indexOf(ClassLoader.getClassName(t.target)) !== -1));
 
     TreeUtils.walk(tables, (x: WalkValues) => {
       if (_.isFunction(x.value)) {

@@ -1,5 +1,5 @@
 import *as _ from 'lodash';
-import {HttpError} from "routing-controllers/http-error/HttpError";
+import {HttpError} from 'routing-controllers/http-error/HttpError';
 
 export class HttpResponseError extends HttpError {
 
@@ -21,6 +21,6 @@ export class HttpResponseError extends HttpError {
       context: this.context.join('.'),
       message: this.message,
       data: this.objects
-    }
+    };
   }
 }

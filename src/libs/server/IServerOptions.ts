@@ -2,37 +2,37 @@ export interface IServerOptions {
 
     // url?: string
 
-    protocol?: string
+    protocol?: string;
 
-    ip?: string,
+    ip?: string;
 
-    port?: number,
+    port?: number;
 
-    fn?: string,
+    fn?: string;
 
-    stall?: number
+    stall?: number;
 
-    cert_file?: string
+    cert_file?: string;
 
-    cert?: string | Buffer
+    cert?: string | Buffer;
 
-    key_file?: string
+    key_file?: string;
 
-    key?: string | Buffer,
+    key?: string | Buffer;
 
-    ca_file?: string
+    ca_file?: string;
 
-    ca?: string | Buffer
+    ca?: string | Buffer;
 
-    ca_key_file?: string
+    ca_key_file?: string;
 
-    ca_key?: string | Buffer,
+    ca_key?: string | Buffer;
 
-    strictSSL?: boolean,
+    strictSSL?: boolean;
 
-    timeout?: number
+    timeout?: number;
 
-    _debug?: boolean
+    _debug?: boolean;
 }
 
 

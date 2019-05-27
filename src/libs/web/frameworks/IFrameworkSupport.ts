@@ -1,8 +1,8 @@
-import {IRoutingController} from "../IRoutingController";
-import {IStaticFiles} from "../IStaticFiles";
-import {IApplication} from "../../server/IApplication";
-import * as http from "http";
-import {IRoute} from "../../server/IRoute";
+import {IRoutingController} from '../IRoutingController';
+import {IStaticFiles} from '../IStaticFiles';
+import {IApplication} from '../../server/IApplication';
+import * as http from 'http';
+import {IRoute} from '../../server/IRoute';
 
 
 export interface IFrameworkSupport {

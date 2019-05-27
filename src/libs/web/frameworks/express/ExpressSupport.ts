@@ -1,10 +1,10 @@
-import {IFrameworkSupport} from "../IFrameworkSupport";
-import {IStaticFiles} from "../../IStaticFiles";
-import {IRoutingController} from "../../IRoutingController";
+import {IFrameworkSupport} from '../IFrameworkSupport';
+import {IStaticFiles} from '../../IStaticFiles';
+import {IRoutingController} from '../../IRoutingController';
 
-import * as http from "http";
-import {IRoute} from "../../../server/IRoute";
-import {IApplication} from "../../../../";
+import * as http from 'http';
+import {IRoute} from '../../../server/IRoute';
+import {IApplication} from '../../../../';
 
 
 export class ExpressSupport implements IFrameworkSupport {

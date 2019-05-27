@@ -1,5 +1,5 @@
-import {Inject, Log} from "@typexs/base";
-import {ServerRegistry} from "../";
+import {Inject, Log} from '@typexs/base';
+import {ServerRegistry} from '../libs/server/ServerRegistry';
 
 
 export class ServerCommand {
@@ -8,24 +8,25 @@ export class ServerCommand {
   @Inject('ServerRegistry')
   registry: ServerRegistry;
 
+  command = 'server [name] [op]';
 
-  command = "server [name] [op]";
-  aliases = "s";
-  describe = "Commands to server";
+  aliases = 's';
+
+  describe = 'Commands to server';
 
 
   builder(yargs: any) {
-    return yargs
+    return yargs;
   }
 
   async start(name: string) {
-    let service = this.registry.get(name);
-    let status = await service.start();
+    const service = this.registry.get(name);
+    const status = await service.start();
     if (status) {
       Log.info('Server ' + name + ' started.');
       await new Promise(resolve => {
         process.on('exit', resolve);
-      })
+      });
     } else {
       Log.error('Failed to start server ' + name + '.');
     }
@@ -36,9 +37,9 @@ export class ServerCommand {
     if (argv.name) {
       await this.start(argv.name);
     } else {
-      let instanceNames = this.registry.getInstanceNames();
-      let p = []
-      for (let name of instanceNames) {
+      const instanceNames = this.registry.getInstanceNames();
+      const p = [];
+      for (const name of instanceNames) {
         await this.start(name);
       }
     }

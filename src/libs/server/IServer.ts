@@ -1,5 +1,5 @@
-import {IServerInstanceOptions} from "./IServerInstanceOptions";
-import {IRoute} from "./IRoute";
+import {IServerInstanceOptions} from './IServerInstanceOptions';
+import {IRoute} from './IRoute';
 
 export interface IServer {
 

@@ -1,10 +1,10 @@
-import * as _ from "lodash";
-import {ClassLoader, Container, Log, StringOrFunction} from "@typexs/base";
-import {ClassType} from "commons-schema-api";
+import * as _ from 'lodash';
+import {ClassLoader, Container, Log, StringOrFunction} from '@typexs/base';
+import {ClassType} from 'commons-schema-api';
 
-import {WebServer} from "../web/WebServer";
-import {IServer} from "./IServer";
-import {Helper} from "../Helper";
+import {WebServer} from '../web/WebServer';
+import {IServer} from './IServer';
+import {Helper} from '../Helper';
 
 
 export class ServerFactory {
@@ -12,16 +12,16 @@ export class ServerFactory {
 
   static types: { [key: string]: Function } = null;
 
-  constructor(){
-    if(!ServerFactory.types){
+  constructor() {
+    if (!ServerFactory.types) {
       ServerFactory.types = {};
-      ServerFactory.register('web',WebServer);
+      ServerFactory.register('web', WebServer);
     }
   }
 
   static checkFunction(fn: Function) {
     if (_.isFunction(fn)) {
-      let names = Object.getOwnPropertyNames(fn.prototype);
+      const names = Object.getOwnPropertyNames(fn.prototype);
       if (_.intersection(names, ['constructor', 'initialize', 'prepare', 'start', 'stop']).length === 5) {
         return true;
       }
@@ -51,7 +51,7 @@ export class ServerFactory {
 
 
   static checkType(name: StringOrFunction) {
-    let clazz = this.getServerClass(name);
+    const clazz = this.getServerClass(name);
     if (clazz) {
       return this.checkFunction(clazz);
     }
@@ -65,7 +65,7 @@ export class ServerFactory {
       if (_.has(ServerFactory.types, name)) {
         clazz = _.get(ServerFactory.types, name);
       } else if (Helper.FILEPATH_PATTERN.test(name)) {
-        let cls = ClassLoader.importClassesFromAny([name + '*']);
+        const cls = ClassLoader.importClassesFromAny([name + '*']);
         if (!_.isEmpty(cls)) {
           clazz = cls.shift();
         }
@@ -82,7 +82,7 @@ export class ServerFactory {
 
 
   get(name: StringOrFunction): IServer {
-    let instance = ServerFactory.getServerClass(name);
+    const instance = ServerFactory.getServerClass(name);
     if (instance) {
       return Container.get(instance);
     }

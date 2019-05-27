@@ -1,14 +1,14 @@
-import * as _ from "lodash";
-import {StringOrFunction, Container, Inject} from "@typexs/base";
-import {ServerFactory} from "./ServerFactory";
-import {IServer} from "./IServer";
-import {IServerInstanceOptions} from "./IServerInstanceOptions";
-import {ServerTypeIsNotSetError} from "../exceptions/ServerTypeIsNotSetError";
-import {ServerUtils} from "./ServerUtils";
+import * as _ from 'lodash';
+import {StringOrFunction, Container, Inject} from '@typexs/base';
+import {ServerFactory} from './ServerFactory';
+import {IServer} from './IServer';
+import {IServerInstanceOptions} from './IServerInstanceOptions';
+import {ServerTypeIsNotSetError} from '../exceptions/ServerTypeIsNotSetError';
+import {ServerUtils} from './ServerUtils';
 
 
 export class ServerRegistry {
-  static NAME: string = "ServerRegistry";
+  static NAME = 'ServerRegistry';
 
   factory: ServerFactory;
 
@@ -21,9 +21,9 @@ export class ServerRegistry {
 
 
   async load(options: any) {
-    let servers = {};
-    for (let name in options) {
-      let opts = options[name];
+    const servers = {};
+    for (const name in options) {
+      const opts = options[name];
       servers[name] = await this.create(name, opts);
     }
     return servers;
@@ -34,7 +34,7 @@ export class ServerRegistry {
     if (!ServerUtils.checkIfTypeIsSet(options)) {
       throw new ServerTypeIsNotSetError();
     }
-    let server: IServer = this.factory.get(options.type);
+    const server: IServer = this.factory.get(options.type);
     server.name = name;
     Container.set('server.' + name, server);
     server.initialize(options);
@@ -47,7 +47,7 @@ export class ServerRegistry {
   getInstanceNames(): string[] {
     return _.map(this.registry, (x) => {
       return x.name;
-    })
+    });
   }
 
 

@@ -1,15 +1,15 @@
-import * as http from 'http'
-import * as tls from 'tls'
-import * as https from 'https'
-import * as net from 'net'
-import * as fs from 'fs'
-import * as _ from "lodash"
-import {Log, TodoException} from "@typexs/base";
+import * as http from 'http';
+import * as tls from 'tls';
+import * as https from 'https';
+import * as net from 'net';
+import * as fs from 'fs';
+import * as _ from 'lodash';
+import {Log, TodoException} from '@typexs/base';
 
-import {DEFAULT_SERVER_OPTIONS, IServerOptions} from "./IServerOptions";
+import {DEFAULT_SERVER_OPTIONS, IServerOptions} from './IServerOptions';
 
 import Timer = NodeJS.Timer;
-import Exceptions from "./Exceptions";
+import Exceptions from './Exceptions';
 
 
 export interface IServerApi {
@@ -25,13 +25,13 @@ export class Server {
 
   // _url: url.Url = null;
 
-  _abort: boolean = false;
+  _abort = false;
 
-  _secured: boolean = true;
+  _secured = true;
 
-  _both: boolean = false;
+  _both = false;
 
-  inc: number = 0;
+  inc = 0;
 
   cache: { [key: number]: { t: Timer, s: net.Socket } } = {};
 
@@ -49,47 +49,47 @@ export class Server {
     this._secured = /^https/.test(this._options.protocol);
 
     if (this._options.cert_file) {
-      this._options.cert = fs.readFileSync(this._options.cert_file)
+      this._options.cert = fs.readFileSync(this._options.cert_file);
     }
 
     if (this._options.key_file) {
-      this._options.key = fs.readFileSync(this._options.key_file)
+      this._options.key = fs.readFileSync(this._options.key_file);
     }
 
     if (this._options.ca_file) {
-      this._options.ca = fs.readFileSync(this._options.ca_file)
+      this._options.ca = fs.readFileSync(this._options.ca_file);
     }
 
     if (this._options.fn) {
       if (typeof this._options.fn === 'function') {
-        this.fn = this._options.fn
+        this.fn = this._options.fn;
       } else if (typeof this._options.fn === 'string' && this[this._options.fn] && typeof this[this._options.fn] === 'function') {
-        this.fn = this[this._options.fn]
+        this.fn = this[this._options.fn];
       } else {
-        throw new TodoException('wrong callback')
+        throw new TodoException('wrong callback');
       }
     } else {
-      this.fn = this.root
+      this.fn = this.root;
     }
 
-    this.wrapper = wrapper
+    this.wrapper = wrapper;
   }
 
 
   url(): string {
-    return this._options.protocol + '://' + this._options.ip + ':' + this._options.port
+    return this._options.protocol + '://' + this._options.ip + ':' + this._options.port;
   }
 
   get protocol(): string {
-    return this._options.protocol
+    return this._options.protocol;
   }
 
   get stall(): number {
-    return this._options.stall
+    return this._options.stall;
   }
 
   set stall(n: number) {
-    this._options.stall = n
+    this._options.stall = n;
   }
 
   get isSecured(): boolean {
@@ -98,32 +98,32 @@ export class Server {
 
 
   response(req: http.IncomingMessage, res: http.ServerResponse) {
-    let inc = this.inc++;
-    let self = this;
-    let t = setTimeout(function () {
+    const inc = this.inc++;
+    const self = this;
+    const t = setTimeout(function () {
       self._options.fn;
       self.fn(req, res);
       clearTimeout(self.cache[inc].t);
-      delete self.cache[inc]
+      delete self.cache[inc];
     }, this.stall);
-    this.cache[inc] = {t: t, s: req.socket}
+    this.cache[inc] = {t: t, s: req.socket};
   }
 
 
   createServer(): net.Server {
-    let self = this;
+    const self = this;
     let server: net.Server = null;
     self.$connections = {};
 
     if (this._secured) {
-      let https_server = https.createServer(this._options, this.response.bind(this));
-      server = https_server
+      const https_server = https.createServer(this._options, this.response.bind(this));
+      server = https_server;
     } else {
-      let http_server = http.createServer(this.response.bind(this));
+      const http_server = http.createServer(this.response.bind(this));
       http_server.setTimeout(
-        self._options.timeout,  (socket?:net.Socket) => {
+        self._options.timeout,  (socket?: net.Socket) => {
           self.debug('server timeout reached: ' + self._options.timeout);
-          if(socket){
+          if (socket) {
             socket.end();
             socket.destroy(Exceptions.newSocketTimeout());
           }
@@ -136,25 +136,25 @@ export class Server {
 
   root(req: http.IncomingMessage, res: http.ServerResponse) {
     this.debug('process');
-    res.writeHead(200, {"Content-Type": "application/json"});
-    let data = {time: (new Date()).getTime(), headers: req.headers, rawHeaders: req.rawHeaders};
-    let json = JSON.stringify(data);
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    const data = {time: (new Date()).getTime(), headers: req.headers, rawHeaders: req.rawHeaders};
+    const json = JSON.stringify(data);
     res.end(json);
   }
 
 
   shutdown(): Promise<any> {
     this._abort = true;
-    for (let x in this.cache) {
+    for (const x in this.cache) {
       if (this.cache[x].t) {
-        clearTimeout(this.cache[x].t)
+        clearTimeout(this.cache[x].t);
       }
       if (this.cache[x].s) {
-        this.cache[x].s.destroy()
+        this.cache[x].s.destroy();
       }
-      delete this.cache[x]
+      delete this.cache[x];
     }
-    return this.stop()
+    return this.stop();
   }
 
   /**
@@ -167,7 +167,7 @@ export class Server {
    * @param head
    */
   onServerConnect(request: http.IncomingMessage, upstream: net.Socket, head: Buffer): void {
-    //this.debug('onServerConnect ' + this.url + '\n' + head.toString('utf8'));
+    // this.debug('onServerConnect ' + this.url + '\n' + head.toString('utf8'));
     /*
             let self = this;
             let rurl: url.Url = url.parse(`https://${request.url}`);
@@ -200,12 +200,12 @@ export class Server {
   onServerClientError(exception: Error, socket: net.Socket): void {
     // this.debug('onServerClientError ' + this._options.url)
     this.debug('Server->onServerClientError ' + this.url() + ' [' + socket['handle_id'] + ']', exception);
-    socket.destroy(exception)
+    socket.destroy(exception);
 
   }
 
   onServerError(exception: Error, socket: net.Socket): void {
-    this.debug('Server->onServerError ' + this.url(), exception)
+    this.debug('Server->onServerError ' + this.url(), exception);
   }
 
   onServerClose(): void {
@@ -215,31 +215,31 @@ export class Server {
   onServerConnection(socket: net.Socket, secured: boolean = false): void {
     // this.debug('Server->onServerConnection secured=' + secured + ' ' + this.url());
     // register connection
-    let self = this;
-    let key = socket.remoteAddress + ':' + socket.remotePort;
+    const self = this;
+    const key = socket.remoteAddress + ':' + socket.remotePort;
     this.$connections[key] = socket;
     socket.once('close', function () {
       delete self.$connections[key];
-    })
+    });
 
   }
 
   onSecureConnection(socket: tls.TLSSocket): void {
-    this.onServerConnection(socket, true)
+    this.onServerConnection(socket, true);
 
   }
 
   // private onServerConnection(socket: net.Socket): void {  }
 
   async start(done?: Function): Promise<boolean> {
-    let self = this;
+    const self = this;
     this.prepare();
     this.server = this.createServer();
 
     if (this.isSecured) {
-      this.server.on('secureConnection', this.onSecureConnection.bind(this))
+      this.server.on('secureConnection', this.onSecureConnection.bind(this));
     } else {
-      this.server.on('connection', this.onServerConnection.bind(this))
+      this.server.on('connection', this.onServerConnection.bind(this));
     }
 
     // this.server.on('upgrade', this.onServerUpgrade.bind(this));
@@ -249,27 +249,27 @@ export class Server {
     this.server.on('error', this.onServerError.bind(this));
 
     if (this.wrapper && this.wrapper.beforeStart) {
-      await this.wrapper.beforeStart(this)
+      await this.wrapper.beforeStart(this);
     }
 
-    let p = new Promise<boolean>((resolve, reject) => {
+    const p = new Promise<boolean>((resolve, reject) => {
       self.server.once('error', (err) => {
-        let nErr = Exceptions.handle(err);
+        const nErr = Exceptions.handle(err);
         if (nErr.code === Exceptions.EADDRINUSE) {
-          reject(err)
+          reject(err);
         } else {
-          Log.error('server error:', err)
+          Log.error('server error:', err);
         }
       });
 
       self.server = self.server.listen(self._options.port, self._options.ip, () => {
         self.debug('start server on ' + self.url() + ' (SSL: ' + self.isSecured + ')');
-        resolve(true)
+        resolve(true);
       });
     });
 
     if (done) {
-      let res = await p;
+      const res = await p;
       done(res);
       return res;
     } else {
@@ -279,30 +279,30 @@ export class Server {
 
 
   async stop(done?: Function): Promise<boolean> {
-    let self = this;
+    const self = this;
     await this.preFinalize();
-    let p = new Promise<boolean>((resolve) => {
+    const p = new Promise<boolean>((resolve) => {
       if (self.server) {
         self.server.removeAllListeners();
 
-        for (let conn in self.$connections) {
-          self.$connections[conn].destroy()
+        for (const conn in self.$connections) {
+          self.$connections[conn].destroy();
         }
 
         self.server.close(function () {
           self.server = null;
           self.debug('stop server ' + self.url());
-          resolve(true)
-        })
+          resolve(true);
+        });
       } else {
-        resolve(false)
+        resolve(false);
       }
     });
 
     if (done) {
-      let res = await p;
+      const res = await p;
       await self.finalize();
-      done(res)
+      done(res);
       return res;
     } else {
       await self.finalize();
@@ -321,7 +321,7 @@ export class Server {
 
 
   debug(...msg: any[]) {
-    Log.debug.apply(Log, msg)
+    Log.debug.apply(Log, msg);
   }
 
 }

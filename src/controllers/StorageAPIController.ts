@@ -1,5 +1,5 @@
-import *as _ from 'lodash';
-import {Body, CurrentUser, Delete, Get, JsonController, Param, Post, QueryParam} from "routing-controllers";
+import * as _ from 'lodash';
+import {Body, CurrentUser, Delete, Get, JsonController, Param, Post, QueryParam} from 'routing-controllers';
 import {
   Cache,
   ClassLoader,
@@ -17,8 +17,8 @@ import {
   XS_P_$COUNT,
   XS_P_$LIMIT,
   XS_P_$OFFSET
-} from "@typexs/base";
-import {EntitySchema} from "typeorm";
+} from '@typexs/base';
+import {EntitySchema} from 'typeorm';
 import {
   Access,
   API_STORAGE_DELETE_ENTITY,
@@ -44,12 +44,12 @@ import {
   PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN,
   XS_P_LABEL,
   XS_P_URL
-} from "..";
-import {HttpResponseError} from "../libs/exceptions/HttpResponseError";
+} from '..';
+import {HttpResponseError} from '../libs/exceptions/HttpResponseError';
 import {IEntityRef, IEntityRefMetadata} from 'commons-schema-api';
 import {Expressions} from 'commons-expressions';
-import {IStorageRefMetadata} from "../libs/storage_api/IStorageRefMetadata";
-import {ServerNodeInfoApi} from "../api/ServerNodeInfo.api";
+import {IStorageRefMetadata} from '../libs/storage_api/IStorageRefMetadata';
+import {ServerNodeInfoApi} from '../api/ServerNodeInfo.api';
 
 
 @ContextGroup('api')
@@ -65,6 +65,23 @@ export class StorageAPIController {
   @Inject(Cache.NAME)
   cache: Cache;
 
+  static _beforeBuild(entityDef: IEntityRef, from: any, to: any) {
+    _.keys(from).filter(k => k.startsWith('$')).map(k => {
+      to[k] = from[k];
+    });
+  }
+
+  static _afterEntity(entityDef: IEntityRef, entity: any[]): void {
+    const props = entityDef.getPropertyRefs().filter(id => id.isIdentifier());
+    entity.forEach(e => {
+      const idStr = Expressions.buildLookupConditions(entityDef, e);
+      const url = `api${API_STORAGE_PREFIX}${API_STORAGE_GET_ENTITY}`.replace(':name', entityDef.machineName).replace(':id', idStr);
+      e[XS_P_URL] = url;
+      e[XS_P_LABEL] = _.isFunction(e.label) ? e.label() : _.map(props, p => p.get(e)).join(' ');
+    });
+
+  }
+
   /**
    * Return list of schemas with their entities
    */
@@ -73,8 +90,8 @@ export class StorageAPIController {
   @Access(PERMISSION_ALLOW_ACCESS_STORAGE_METADATA)
   @Get(API_STORAGE_METADATA_ALL_STORES)
   async getMetadatas(@CurrentUser() user: any): Promise<any> {
-    let storageNames = this.storage.getNames();
-    let data = await Promise.all(_.map(storageNames, storageName => {
+    const storageNames = this.storage.getNames();
+    const data = await Promise.all(_.map(storageNames, storageName => {
       return this.getStorageSchema(storageName);
     }));
     return data;
@@ -90,7 +107,7 @@ export class StorageAPIController {
                     @QueryParam('withCollections') withCollections: boolean,
                     @QueryParam('refresh') refresh: boolean,
                     @CurrentUser() user: any) {
-    return this.getStorageSchema(storageName, withCollections, refresh)
+    return this.getStorageSchema(storageName, withCollections, refresh);
   }
 
 
@@ -100,11 +117,11 @@ export class StorageAPIController {
   @Access(PERMISSION_ALLOW_ACCESS_STORAGE_METADATA)
   @Get(API_STORAGE_METADATA_ALL_ENTITIES)
   async getMetadataEntities(@CurrentUser() user: any) {
-    let storageNames = this.storage.getNames();
+    const storageNames = this.storage.getNames();
     let data: IEntityRefMetadata[] = [];
-    let arrs = await Promise.all(_.map(storageNames, storageName => {
+    const arrs = await Promise.all(_.map(storageNames, storageName => {
       return this.getStorageSchema(storageName).then(e => e.entities);
-    }))
+    }));
     data = _.concat([], ...arrs);
     return data;
   }
@@ -116,9 +133,9 @@ export class StorageAPIController {
   @Access(PERMISSION_ALLOW_ACCESS_STORAGE_METADATA)
   @Get(API_STORAGE_METADATA_GET_ENTITY)
   async getMetadataEntity(@Param('name') entityName: string, @CurrentUser() user: any) {
-    let ref = this.getStorageRef(entityName);
-    let entityRef = this.getEntityRef(ref, entityName);
-    let entry = entityRef.toJson(true);
+    const ref = this.getStorageRef(entityName);
+    const entityRef = this.getEntityRef(ref, entityName);
+    const entry = entityRef.toJson(true);
     (<any>entry).storage = ref.name;
     return entry;
   }
@@ -130,7 +147,7 @@ export class StorageAPIController {
   @Access(PERMISSION_ALLOW_ACCESS_STORAGE_METADATA)
   @Post(API_STORAGE_METADATA_CREATE_ENTITY)
   async entityCreate(@Body() data: any, @CurrentUser() user: any) {
-    throw new NotYetImplementedError()
+    throw new NotYetImplementedError();
   }
 
 
@@ -149,7 +166,7 @@ export class StorageAPIController {
     @CurrentUser() user: any
   ) {
 
-    let [entityRef, controller] = this.getControllerForEntityName(name);
+    const [entityRef, controller] = this.getControllerForEntityName(name);
 
     let conditions = null;
     if (query) {
@@ -174,20 +191,22 @@ export class StorageAPIController {
       offset = 0;
     }
 
-    let options: IFindOptions = {
+    const options: IFindOptions = {
       limit: limit,
       offset: offset,
       sort: sortBy,
-      //hooks: {afterEntity: StorageAPIController._afterEntity}
+      // hooks: {afterEntity: StorageAPIController._afterEntity}
     };
 
     if (!_.isEmpty(opts)) {
-      let checked = {};
-      _.keys(opts).filter(k => ['raw', 'timeout'].indexOf(k) > -1 && (_.isString(opts[k]) || _.isNumber(opts[k]) || _.isBoolean(opts[k]))).map(k => checked[k] = opts[k]);
+      const checked = {};
+      _.keys(opts).filter(k => ['raw', 'timeout'].indexOf(k) > -1 &&
+        (_.isString(opts[k]) || _.isNumber(opts[k]) || _.isBoolean(opts[k])))
+        .map(k => checked[k] = opts[k]);
       _.assign(options, opts);
     }
 
-    let result = await controller.find(entityRef.getClassRef().getClass(), conditions, options);
+    const result = await controller.find(entityRef.getClassRef().getClass(), conditions, options);
 
     if (!_.isEmpty(result)) {
       StorageAPIController._afterEntity(entityRef, result);
@@ -198,7 +217,7 @@ export class StorageAPIController {
       $count: result[XS_P_$COUNT],
       $limit: result[XS_P_$LIMIT],
       $offset: result[XS_P_$OFFSET]
-    }
+    };
   }
 
 
@@ -215,12 +234,12 @@ export class StorageAPIController {
     if (_.isArray(conditions)) {
       result = await controller.find(entityRef.getClassRef().getClass(), conditions, {});
       StorageAPIController._afterEntity(entityRef, result);
-      let results = {
+      const results = {
         entities: result,
         $count: result[XS_P_$COUNT],
         $limit: result[XS_P_$LIMIT],
         $offset: result[XS_P_$OFFSET]
-      }
+      };
       result = results;
     } else {
       result = await controller.find(entityRef.getClassRef().getClass(), conditions, {
@@ -242,14 +261,14 @@ export class StorageAPIController {
   async save(@Param('name') name: string, @Body() data: any, @CurrentUser() user: any): Promise<any> {
 
     const [entityDef, controller] = this.getControllerForEntityName(name);
-    //await this.invoker.use(EntityControllerApi).beforeEntityBuild(entityDef, data, user, controller);
+    // await this.invoker.use(EntityControllerApi).beforeEntityBuild(entityDef, data, user, controller);
     let entities;
     if (_.isArray(data)) {
       entities = _.map(data, d => entityDef.build(d, {beforeBuild: StorageAPIController._beforeBuild}));
     } else {
       entities = entityDef.build(data, {beforeBuild: StorageAPIController._beforeBuild});
     }
-    //await this.invoker.use(EntityControllerApi).afterEntityBuild(entityDef, entities, user, controller);
+    // await this.invoker.use(EntityControllerApi).afterEntityBuild(entityDef, entities, user, controller);
     return controller.save(entities).catch((e: Error) => {
       Log.error(e);
       throw new HttpResponseError(['storage', 'save'], e.message);
@@ -265,14 +284,14 @@ export class StorageAPIController {
   async update(@Param('name') name: string, @Param('id') id: string, @Body() data: any, @CurrentUser() user: any) {
 
     const [entityDef, controller] = this.getControllerForEntityName(name);
-    //await this.invoker.use(EntityControllerApi).beforeEntityBuild(entityDef, data, user, controller);
+    // await this.invoker.use(EntityControllerApi).beforeEntityBuild(entityDef, data, user, controller);
     let entities;
     if (_.isArray(data)) {
       entities = _.map(data, d => entityDef.build(d, {beforeBuild: StorageAPIController._beforeBuild}));
     } else {
       entities = entityDef.build(data, {beforeBuild: StorageAPIController._beforeBuild});
     }
-    //await this.invoker.use(EntityControllerApi).afterEntityBuild(entityDef, entities, user, controller);
+    // await this.invoker.use(EntityControllerApi).afterEntityBuild(entityDef, entities, user, controller);
     return controller.save(entities).catch((e: Error) => {
       Log.error(e);
       throw new HttpResponseError(['storage', 'save'], e.message);
@@ -288,7 +307,7 @@ export class StorageAPIController {
   async delete(@Param('name') name: string, @Param('id') id: string, @Body() data: any, @CurrentUser() user: any) {
     const [entityDef, controller] = this.getControllerForEntityName(name);
     const conditions = Expressions.parseLookupConditions(entityDef, id);
-    let results = await controller.find(entityDef.getClassRef().getClass(), conditions);
+    const results = await controller.find(entityDef.getClassRef().getClass(), conditions);
     if (results.length > 0) {
       return controller.remove(results);
     }
@@ -298,42 +317,25 @@ export class StorageAPIController {
 
   private getControllerForEntityName(name: string): [IEntityRef, StorageEntityController] {
     const storageRef = this.getStorageRef(name);
-    let controller = storageRef.getController();
-    let entityRef = this.getEntityRef(storageRef, name);
+    const controller = storageRef.getController();
+    const entityRef = this.getEntityRef(storageRef, name);
     return [entityRef, controller];
   }
 
   private getEntityRef(storageRef: StorageRef, entityName: string): IEntityRef {
-    let entityRef = storageRef.getEntityRef(entityName);
+    const entityRef = storageRef.getEntityRef(entityName);
     if (!entityRef) {
-      throw new HttpResponseError(['storage', 'entity_ref_not_found'], 'Entity reference not found for ' + name)
+      throw new HttpResponseError(['storage', 'entity_ref_not_found'], 'Entity reference not found for ' + name);
     }
     return entityRef;
   }
 
   private getStorageRef(entityName: string): StorageRef {
-    let storageRef = this.storage.forClass(entityName);
+    const storageRef = this.storage.forClass(entityName);
     if (!storageRef) {
-      throw new HttpResponseError(['storage', 'reference_not_found'], 'Storage containing entity ' + name + ' not found')
+      throw new HttpResponseError(['storage', 'reference_not_found'], 'Storage containing entity ' + name + ' not found');
     }
     return storageRef;
-  }
-
-  static _beforeBuild(entityDef: IEntityRef, from: any, to: any) {
-    _.keys(from).filter(k => k.startsWith('$')).map(k => {
-      to[k] = from[k];
-    })
-  }
-
-  static _afterEntity(entityDef: IEntityRef, entity: any[]): void {
-    let props = entityDef.getPropertyRefs().filter(id => id.isIdentifier());
-    entity.forEach(e => {
-      let idStr = Expressions.buildLookupConditions(entityDef, e);
-      let url = `api${API_STORAGE_PREFIX}${API_STORAGE_GET_ENTITY}`.replace(':name', entityDef.machineName).replace(':id', idStr);
-      e[XS_P_URL] = url;
-      e[XS_P_LABEL] = _.isFunction(e.label) ? e.label() : _.map(props, p => p.get(e)).join(' ');
-    });
-
   }
 
   private async getFilterKeys(): Promise<string[]> {
@@ -345,7 +347,7 @@ export class StorageAPIController {
     }
 
     filterKeys = ['user', 'username', 'password'];
-    let res: string[][] = <string[][]><any>this.invoker.use(ServerNodeInfoApi).filterConfigKeys();
+    const res: string[][] = <string[][]><any>this.invoker.use(ServerNodeInfoApi).filterConfigKeys();
     if (res && _.isArray(res)) {
       filterKeys = _.uniq(_.concat(filterKeys, ...res.filter(x => _.isArray(x))).filter(x => !_.isEmpty(x)));
     }
@@ -354,15 +356,15 @@ export class StorageAPIController {
   }
 
   private async getStorageSchema(storageName: string, withCollections: boolean = false, refresh: boolean = false) {
-    let cacheKey = 'storage-schema-' + storageName + (withCollections ? '-with-collection' : '');
-    let cacheBin = 'storage-info';
+    const cacheKey = 'storage-schema-' + storageName + (withCollections ? '-with-collection' : '');
+    const cacheBin = 'storage-info';
     let entry: IStorageRefMetadata = await this.cache.get(cacheKey, cacheBin);
     if (entry && !refresh) {
       return entry;
     }
 
-    let storageRef = this.storage.get(storageName);
-    let options = _.cloneDeepWith(storageRef.getOptions());
+    const storageRef = this.storage.get(storageName);
+    const options = _.cloneDeepWith(storageRef.getOptions());
     const filterKeys = await this.getFilterKeys();
     TreeUtils.walk(options, (x: WalkValues) => {
       if (_.isString(x.key) && filterKeys.indexOf(x.key) !== -1) {
@@ -391,7 +393,7 @@ export class StorageAPIController {
         ref = storageRef.getEntityRef((<EntitySchema<any>>fn).options.target);
       }
       ref.setOption('storage', storageName);
-      let entityMetadata = ref.toJson(true);
+      const entityMetadata = ref.toJson(true);
       entry.entities.push(entityMetadata);
     });
 
@@ -407,7 +409,7 @@ export class StorageAPIController {
 
     try {
       const schemaHandler = ref.getSchemaHandler();
-      let collectionNames = await schemaHandler.getCollectionNames();
+      const collectionNames = await schemaHandler.getCollectionNames();
       return await schemaHandler.getCollections(collectionNames);
 
     } catch (e) {

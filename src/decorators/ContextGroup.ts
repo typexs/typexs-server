@@ -1,5 +1,5 @@
-import {MetaArgs} from "commons-base/browser";
-import {K_META_CONTEXT_ARGS} from "../libs/Constants";
+import {MetaArgs} from 'commons-base/browser';
+import {K_META_CONTEXT_ARGS} from '../libs/Constants';
 
 
 export function ContextGroup(name: string): Function {

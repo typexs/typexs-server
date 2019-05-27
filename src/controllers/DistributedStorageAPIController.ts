@@ -1,5 +1,5 @@
-import *as _ from 'lodash';
-import {CurrentUser, Get, JsonController, Param, QueryParam} from "routing-controllers";
+import * as _ from 'lodash';
+import {CurrentUser, Get, JsonController, Param, QueryParam} from 'routing-controllers';
 import {
   Cache,
   DistributedStorageEntityController,
@@ -11,7 +11,7 @@ import {
   XS_P_$COUNT,
   XS_P_$LIMIT,
   XS_P_$OFFSET
-} from "@typexs/base";
+} from '@typexs/base';
 import {
   _API_DISTRIBUTED_STORAGE,
   _API_DISTRIBUTED_STORAGE_FIND_ENTITY,
@@ -22,8 +22,8 @@ import {
   PERMISSION_ALLOW_ACCESS_DISTRIBUTED_STORAGE_ENTITY_PATTERN,
   XS_P_LABEL,
   XS_P_URL
-} from "..";
-import {HttpResponseError} from "../libs/exceptions/HttpResponseError";
+} from '..';
+import {HttpResponseError} from '../libs/exceptions/HttpResponseError';
 import {IEntityRef} from 'commons-schema-api';
 import {Expressions} from 'commons-expressions';
 
@@ -44,6 +44,21 @@ export class DistributedStorageAPIController {
 
   @Inject()
   controller: DistributedStorageEntityController;
+
+  static _afterEntity(entityDef: IEntityRef, entity: any[]): void {
+    const props = entityDef.getPropertyRefs().filter(id => id.isIdentifier());
+    entity.forEach(e => {
+      const idStr = Expressions.buildLookupConditions(entityDef, e);
+      const nodeId = e.__nodeId__;
+      const url = `${API_DISTRIBUTED_STORAGE_GET_ENTITY}`
+        .replace(':name', entityDef.machineName)
+        .replace(':id', idStr)
+        .replace(':nodeId', nodeId);
+      e[XS_P_URL] = url;
+      e[XS_P_LABEL] = _.isFunction(e.label) ? e.label() : _.map(props, p => p.get(e)).join(' ');
+    });
+
+  }
   /**
    * Run a query for entity
    */
@@ -62,7 +77,7 @@ export class DistributedStorageAPIController {
     @CurrentUser() user: any
   ) {
 
-    let [entityRef, controller] = this.getControllerForEntityName(name);
+    const [entityRef, controller] = this.getControllerForEntityName(name);
 
     let conditions = null;
     if (query) {
@@ -108,45 +123,30 @@ export class DistributedStorageAPIController {
       $count: result[XS_P_$COUNT],
       $limit: result[XS_P_$LIMIT],
       $offset: result[XS_P_$OFFSET]
-    }
-  }
-
-  static _afterEntity(entityDef: IEntityRef, entity: any[]): void {
-    let props = entityDef.getPropertyRefs().filter(id => id.isIdentifier());
-    entity.forEach(e => {
-      const idStr = Expressions.buildLookupConditions(entityDef, e);
-      const nodeId = e.__nodeId__;
-      let url = `${API_DISTRIBUTED_STORAGE_GET_ENTITY}`
-        .replace(':name', entityDef.machineName)
-        .replace(':id', idStr)
-        .replace(':nodeId', nodeId);
-      e[XS_P_URL] = url;
-      e[XS_P_LABEL] = _.isFunction(e.label) ? e.label() : _.map(props, p => p.get(e)).join(' ');
-    });
-
+    };
   }
 
   private getControllerForEntityName(name: string): [IEntityRef, DistributedStorageEntityController] {
     const storageRef = this.getStorageRef(name);
-    //let controller = Container.get(DistributedStorageEntityController);
-    let entityRef = this.getEntityRef(storageRef, name);
+    // let controller = Container.get(DistributedStorageEntityController);
+    const entityRef = this.getEntityRef(storageRef, name);
     return [entityRef, this.controller];
   }
 
 
   private getEntityRef(storageRef: StorageRef, entityName: string): IEntityRef {
-    let entityRef = storageRef.getEntityRef(entityName);
+    const entityRef = storageRef.getEntityRef(entityName);
     if (!entityRef) {
-      throw new HttpResponseError(['storage', 'entity_ref_not_found'], 'Entity reference not found for ' + name)
+      throw new HttpResponseError(['storage', 'entity_ref_not_found'], 'Entity reference not found for ' + name);
     }
     return entityRef;
   }
 
 
   private getStorageRef(entityName: string): StorageRef {
-    let storageRef = this.storage.forClass(entityName);
+    const storageRef = this.storage.forClass(entityName);
     if (!storageRef) {
-      throw new HttpResponseError(['storage', 'reference_not_found'], 'Storage containing entity ' + name + ' not found')
+      throw new HttpResponseError(['storage', 'reference_not_found'], 'Storage containing entity ' + name + ' not found');
     }
     return storageRef;
   }

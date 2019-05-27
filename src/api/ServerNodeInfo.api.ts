@@ -1,8 +1,8 @@
 import {TableMetadataArgs} from 'typeorm/metadata-args/TableMetadataArgs';
 
-import {IRoute} from "..";
-import {IModule, IStorageOptions} from "@typexs/base";
-import {IServerNodeInfo} from "./IServerNodeInfo";
+import {IRoute} from '..';
+import {IModule, IStorageOptions} from '@typexs/base';
+import {IServerNodeInfo} from './IServerNodeInfo';
 
 export class ServerNodeInfoApi implements IServerNodeInfo {
 

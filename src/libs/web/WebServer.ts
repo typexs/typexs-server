@@ -1,29 +1,29 @@
-import * as http from "http";
-import * as _ from 'lodash'
-import {MetaArgs} from "commons-base/browser";
-import {ClassLoader, Container, Inject, RuntimeLoader, TodoException} from "@typexs/base";
-import {Action, getMetadataArgsStorage, useContainer} from "routing-controllers";
+import * as http from 'http';
+import * as _ from 'lodash';
+import {MetaArgs} from 'commons-base/browser';
+import {ClassLoader, Container, Inject, RuntimeLoader, TodoException} from '@typexs/base';
+import {Action, getMetadataArgsStorage, useContainer} from 'routing-controllers';
 
-import {Server} from "./../server/Server";
+import {Server} from './../server/Server';
 
 
-import {IFrameworkSupport} from "./frameworks/IFrameworkSupport";
-import {C_DEFAULT} from "../Constants";
-import {FrameworkSupportFactory} from "./frameworks/FrameworkSupportFactory";
-import {IStaticFiles} from "./IStaticFiles";
-import {IRoutingController} from "./IRoutingController";
-import {Helper} from "./../Helper";
-import {IWebServerInstanceOptions} from "./IWebServerInstanceOptions";
-import {IServer} from "../server/IServer";
-import {IMiddleware} from "../server/IMiddleware";
-import {IRoute, K_CORE_LIB_CONTROLLERS, K_ROUTE_CACHE, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from "../../";
+import {IFrameworkSupport} from './frameworks/IFrameworkSupport';
+import {C_DEFAULT} from '../Constants';
+import {FrameworkSupportFactory} from './frameworks/FrameworkSupportFactory';
+import {IStaticFiles} from './IStaticFiles';
+import {IRoutingController} from './IRoutingController';
+import {Helper} from './../Helper';
+import {IWebServerInstanceOptions} from './IWebServerInstanceOptions';
+import {IServer} from '../server/IServer';
+import {IMiddleware} from '../server/IMiddleware';
+import {IRoute, K_CORE_LIB_CONTROLLERS, K_ROUTE_CACHE, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from '../../';
 
 
 useContainer(Container);
 
 export class WebServer extends Server implements IServer {
 
-  private __prepared: boolean = false;
+  private __prepared = false;
 
   @Inject(RuntimeLoader.NAME)
   private loader: RuntimeLoader;
@@ -57,17 +57,17 @@ export class WebServer extends Server implements IServer {
     await this.prepareMiddleware();
     await this.useMiddleware();
 
-    let opts = this.options();
-    let classes = this.loader.getClasses(K_CORE_LIB_CONTROLLERS);
+    const opts = this.options();
+    const classes = this.loader.getClasses(K_CORE_LIB_CONTROLLERS);
     // TODO check if allowed?
 
-    let classesByGroup = Helper.resolveGroups(classes);
+    const classesByGroup = Helper.resolveGroups(classes);
 
-    for (let entry of opts.routes) {
-      let key = entry.type;
+    for (const entry of opts.routes) {
+      const key = entry.type;
 
       if (key === K_ROUTE_CONTROLLER) {
-        let routing = <IRoutingController>entry;
+        const routing = <IRoutingController>entry;
 
         routing.classTransformer = false;
 
@@ -83,7 +83,7 @@ export class WebServer extends Server implements IServer {
 
         if (!_.isEmpty(routing.controllers)) {
           if (_.isString(routing.controllers[0])) {
-            let clz = ClassLoader.importClassesFromAny(routing.controllers);
+            const clz = ClassLoader.importClassesFromAny(routing.controllers);
             controllerClasses = controllerClasses.concat(clz);
           }
         }
@@ -101,25 +101,25 @@ export class WebServer extends Server implements IServer {
         await this.extendOptionsForMiddleware(entry);
         this.framework.useStaticRoute(<IStaticFiles>entry);
       } else {
-        throw  new TodoException()
+        throw  new TodoException();
       }
     }
 
-    let routes = MetaArgs.key(K_ROUTE_CACHE)
+    const routes = MetaArgs.key(K_ROUTE_CACHE);
     this.getRoutes().map(p => routes.push(p));
-    return null
+    return null;
   }
 
   private applyDefaultOptionsIfNotGiven(options: IRoutingController) {
     if (!_.has(options, 'authorizationChecker')) {
       options.authorizationChecker = (action: Action, roles: any[]) => {
         return true;
-      }
+      };
     }
     if (!_.has(options, 'currentUserChecker')) {
       options.currentUserChecker = (action: Action) => {
         return null;
-      }
+      };
     }
   }
 
@@ -129,7 +129,7 @@ export class WebServer extends Server implements IServer {
       if (this.options().framework) {
         this.framework = (FrameworkSupportFactory.get(this.options().framework));
       } else {
-        throw new Error('framework not present!')
+        throw new Error('framework not present!');
       }
     }
     return this.framework;
@@ -137,13 +137,13 @@ export class WebServer extends Server implements IServer {
 
 
   private loadMiddleware() {
-    let classes = this.loader.getClasses('server.middleware');
-    let routingMiddleware = getMetadataArgsStorage().middlewares;
+    const classes = this.loader.getClasses('server.middleware');
+    const routingMiddleware = getMetadataArgsStorage().middlewares;
 
-    for (let cls of classes) {
-      let skip = routingMiddleware.find(m => m.target == cls);
+    for (const cls of classes) {
+      const skip = routingMiddleware.find(m => m.target === cls);
       if (!skip) {
-        let instance = <IMiddleware>Container.get(cls);
+        const instance = <IMiddleware>Container.get(cls);
         if (instance['validate'] && instance.validate(_.clone(this.options()))) {
           this._middlewares.push(instance);
         }
@@ -187,7 +187,7 @@ export class WebServer extends Server implements IServer {
 
 
   getUri() {
-    let o = this.options();
+    const o = this.options();
     return o.protocol + '://' + o.ip + (o.port ? ':' + o.port : '');
   }
 

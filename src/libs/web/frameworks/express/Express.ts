@@ -1,27 +1,27 @@
 // index.ts ingore
 
-import * as express from "express";
-import * as _ from "lodash";
+import * as express from 'express';
+import * as _ from 'lodash';
 
-import {createExpressServer, getMetadataArgsStorage} from "routing-controllers";
-import {IStaticFiles} from "../../IStaticFiles";
-import {IRoutingController} from "../../IRoutingController";
-import {IFrameworkSupport} from "../IFrameworkSupport";
-import {Config} from "@typexs/base"
-import * as http from "http";
-import {IRoute} from "../../../server/IRoute";
-import {C_DEFAULT, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from "../../../Constants";
-import {IApplication} from "../../../../";
-import {ActionMetadataArgs} from "routing-controllers/metadata/args/ActionMetadataArgs";
-import {ActionType} from "routing-controllers/metadata/types/ActionType";
-import {RoutePermissionsHelper} from "../../../RoutePermissionsHelper";
+import {createExpressServer, getMetadataArgsStorage} from 'routing-controllers';
+import {IStaticFiles} from '../../IStaticFiles';
+import {IRoutingController} from '../../IRoutingController';
+import {IFrameworkSupport} from '../IFrameworkSupport';
+import {Config} from '@typexs/base';
+import * as http from 'http';
+import {IRoute} from '../../../server/IRoute';
+import {C_DEFAULT, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from '../../../Constants';
+import {IApplication} from '../../../../';
+import {ActionMetadataArgs} from 'routing-controllers/metadata/args/ActionMetadataArgs';
+import {ActionType} from 'routing-controllers/metadata/types/ActionType';
+import {RoutePermissionsHelper} from '../../../RoutePermissionsHelper';
 import * as path from 'path';
 
-//import * as bodyParser from "body-parser";
+// import * as bodyParser from "body-parser";
 
 interface ActionResolved {
   route: string;
-  type: ActionType,
+  type: ActionType;
   action: ActionMetadataArgs;
   authorized: boolean;
   permission: string | string[];
@@ -30,7 +30,7 @@ interface ActionResolved {
 
 const DEFAULT_ROUTE_OPTIONS = {
   limit: '10mb'
-}
+};
 
 export class Express implements IFrameworkSupport {
 
@@ -54,7 +54,7 @@ export class Express implements IFrameworkSupport {
     // TODO create settings
     if (options.limit) {
       this.app().use(express.json({limit: options.limit}));
-      //this.app().use(express.json({limit: options.limit}));
+      // this.app().use(express.json({limit: options.limit}));
       // this.app().use(bodyParser.urlencoded({limit: options.limit, extended: true}));
       // this.app().use(bodyParser());
     }
@@ -71,12 +71,12 @@ export class Express implements IFrameworkSupport {
     if (path.isAbsolute(options.path)) {
       resolvePath = options.path;
     } else {
-      let rootDir = Config.get('app.path');
+      const rootDir = Config.get('app.path');
       resolvePath = path.resolve(rootDir, options.path);
     }
     express.static(resolvePath);
     if (options.routePrefix) {
-      let slash = /^\//.test(options.routePrefix) ? '' : '/'
+      const slash = /^\//.test(options.routePrefix) ? '' : '/';
       app = <express.Application>this.app().use(slash + options.routePrefix, express.static(resolvePath));
     } else {
       app = <express.Application>this.app().use(express.static(resolvePath));
@@ -86,35 +86,35 @@ export class Express implements IFrameworkSupport {
   }
 
   resolveMetadata(): ActionResolved[] {
-    let res: ActionResolved[] = [];
+    const res: ActionResolved[] = [];
     const metadataStore = getMetadataArgsStorage();
     const authHandlers = metadataStore.responseHandlers.filter(r => r.type === 'authorized');
 
     metadataStore.controllers.forEach(controller => {
-      const controllerActions = _.filter(metadataStore.actions, a => a.target == controller.target)
+      const controllerActions = _.filter(metadataStore.actions, a => a.target == controller.target);
       controllerActions.forEach(action => {
         let route = action.route instanceof RegExp ? action.route.source : action.route;
         if (controller.route) {
           route = controller.route + route;
         }
 
-        const params = metadataStore.params.filter(param => param.method == action.method && param.object.constructor == action.target)
+        const params = metadataStore.params.filter(param => param.method == action.method && param.object.constructor == action.target);
 
         // TODO handle regex
         const permissions = RoutePermissionsHelper.getPermissionFor(action.target, action.method);
         const authorized = !!_.find(authHandlers, a => a.target === action.target && a.method === action.method);
-        let entry: ActionResolved = {
+        const entry: ActionResolved = {
           route: route,
           type: action.type,
           action: action,
           permission: permissions ? permissions.accessPermissions : null,
           authorized: authorized,
           params: params.map(p => {
-            return {name: p.name, required: p.required, index: p.index, parse: p.parse}
+            return {name: p.name, required: p.required, index: p.index, parse: p.parse};
           })
         };
         res.push(entry);
-      })
+      });
 
     });
     return res;
@@ -124,24 +124,24 @@ export class Express implements IFrameworkSupport {
     if (!this._routes) {
       this._routes = [];
 
-      for (let appSetting of this._mapOptions) {
+      for (const appSetting of this._mapOptions) {
         const options = appSetting.options;
         const app = appSetting.mounted;
-        let prefix = options.routePrefix;
+        const prefix = options.routePrefix;
 
         if (options.type === K_ROUTE_CONTROLLER) {
-          let actions = this.resolveMetadata();
+          const actions = this.resolveMetadata();
 
-          for (let entry of app._router.stack) {
+          for (const entry of app._router.stack) {
             if (entry.route) {
-              let r = entry.route;
+              const r = entry.route;
               let method = 'unknown';
-              let params = _.clone(entry.params);
+              const params = _.clone(entry.params);
 
-              for (let handle of  r.stack) {
-                if (handle.name !== 'routeHandler') continue;
+              for (const handle of  r.stack) {
+                if (handle.name !== 'routeHandler') { continue; }
                 method = handle.method;
-                let action = _.find(actions, a => (prefix ? '/' + prefix + a.route === r.path : a.route === r.path) &&
+                const action = _.find(actions, a => (prefix ? '/' + prefix + a.route === r.path : a.route === r.path) &&
                   a.type.toLowerCase() == method.toLowerCase());
 
                 if (action) {
@@ -155,7 +155,7 @@ export class Express implements IFrameworkSupport {
                     controllerMethod: action.action.method,
                     permissions: action.permission ? action.permission : null,
                     authorized: action.authorized
-                  })
+                  });
 
                 } else {
                   this._routes.push({
@@ -164,7 +164,7 @@ export class Express implements IFrameworkSupport {
                     method: method,
                     params: !_.isEmpty(params) ? params : null,
                     authorized: false
-                  })
+                  });
 
                 }
 
@@ -179,10 +179,10 @@ export class Express implements IFrameworkSupport {
             serveStatic: true,
             params: null,
             authorized: false
-          })
+          });
         }
       }
-      //this._routes = _.uniq(this._routes);
+      // this._routes = _.uniq(this._routes);
     }
 
     return _.clone(this._routes);

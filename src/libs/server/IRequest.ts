@@ -1,13 +1,124 @@
-import * as http from "http";
-import {IApplication} from "./IApplication";
-import {IRequestRanges} from "./IRequestRanges";
-import {IMediaType} from "./IMediaType";
+import * as http from 'http';
+import {IApplication} from './IApplication';
+import {IRequestRanges} from './IRequestRanges';
+import {IMediaType} from './IMediaType';
 
 
 /**
  * Copy from core.Request of express
  */
 export interface IRequest extends http.IncomingMessage {
+
+  /**
+   * Return an array of Accepted media types
+   * ordered from highest quality to lowest.
+   */
+  accepted: IMediaType[];
+
+  /**
+   * Return the protocol string "http" or "https"
+   * when requested with TLS. When the "trust proxy"
+   * setting is enabled the "X-Forwarded-Proto" header
+   * field will be trusted. If you're running behind
+   * a reverse proxy that supplies https for you this
+   * may be enabled.
+   */
+  protocol: string;
+
+  /**
+   * Short-hand for:
+   *
+   *    req.protocol == 'https'
+   */
+  secure: boolean;
+
+  /**
+   * Return the remote address, or when
+   * "trust proxy" is `true` return
+   * the upstream addr.
+   */
+  ip: string;
+
+  /**
+   * When "trust proxy" is `true`, parse
+   * the "X-Forwarded-For" ip address list.
+   *
+   * For example if the value were "client, proxy1, proxy2"
+   * you would receive the array `["client", "proxy1", "proxy2"]`
+   * where "proxy2" is the furthest down-stream.
+   */
+  ips: string[];
+
+  /**
+   * Return subdomains as an array.
+   *
+   * Subdomains are the dot-separated parts of the host before the main domain of
+   * the app. By default, the domain of the app is assumed to be the last two
+   * parts of the host. This can be changed by setting "subdomain offset".
+   *
+   * For example, if the domain is "tobi.ferrets.example.com":
+   * If "subdomain offset" is not set, req.subdomains is `["ferrets", "tobi"]`.
+   * If "subdomain offset" is 3, req.subdomains is `["tobi"]`.
+   */
+  subdomains: string[];
+
+  /**
+   * Short-hand for `url.parse(req.url).pathname`.
+   */
+  path: string;
+
+  /**
+   * Parse the "Host" header field hostname.
+   */
+  hostname: string;
+
+  /**
+   * @deprecated Use hostname instead.
+   */
+  host: string;
+
+  /**
+   * Check if the request is fresh, aka
+   * Last-Modified and/or the ETag
+   * still match.
+   */
+  fresh: boolean;
+
+  /**
+   * Check if the request is stale, aka
+   * "Last-Modified" and / or the "ETag" for the
+   * resource has changed.
+   */
+  stale: boolean;
+
+  /**
+   * Check if the request was an _XMLHttpRequest_.
+   */
+  xhr: boolean;
+
+  // body: { username: string; password: string; remember: boolean; title: string; };
+  body: any;
+
+  // cookies: { string; remember: boolean; };
+  cookies: any;
+
+  method: string;
+
+  params: any;
+
+  query: any;
+
+  route: any;
+
+  signedCookies: any;
+
+  originalUrl: string;
+
+  url: string;
+
+  baseUrl: string;
+
+  app: IApplication;
   /**
    * Return request header.
    *
@@ -27,11 +138,11 @@ export interface IRequest extends http.IncomingMessage {
    *
    * Aliased as `req.header()`.
    */
-  get(name: "set-cookie"): string[] | undefined;
+  get(name: 'set-cookie'): string[] | undefined;
 
   get(name: string): string | undefined;
 
-  header(name: "set-cookie"): string[] | undefined;
+  header(name: 'set-cookie'): string[] | undefined;
 
   header(name: string): string | undefined;
 
@@ -143,12 +254,6 @@ export interface IRequest extends http.IncomingMessage {
   range(size: number): IRequestRanges | null | -1 | -2;
 
   /**
-   * Return an array of Accepted media types
-   * ordered from highest quality to lowest.
-   */
-  accepted: IMediaType[];
-
-  /**
    * @deprecated since 4.11 Use either req.params, req.body or req.query, as applicable.
    *
    * Return the value of param `name` when present or `defaultValue`.
@@ -186,113 +291,8 @@ export interface IRequest extends http.IncomingMessage {
    */
   is(type: string): string | false;
 
-  /**
-   * Return the protocol string "http" or "https"
-   * when requested with TLS. When the "trust proxy"
-   * setting is enabled the "X-Forwarded-Proto" header
-   * field will be trusted. If you're running behind
-   * a reverse proxy that supplies https for you this
-   * may be enabled.
-   */
-  protocol: string;
-
-  /**
-   * Short-hand for:
-   *
-   *    req.protocol == 'https'
-   */
-  secure: boolean;
-
-  /**
-   * Return the remote address, or when
-   * "trust proxy" is `true` return
-   * the upstream addr.
-   */
-  ip: string;
-
-  /**
-   * When "trust proxy" is `true`, parse
-   * the "X-Forwarded-For" ip address list.
-   *
-   * For example if the value were "client, proxy1, proxy2"
-   * you would receive the array `["client", "proxy1", "proxy2"]`
-   * where "proxy2" is the furthest down-stream.
-   */
-  ips: string[];
-
-  /**
-   * Return subdomains as an array.
-   *
-   * Subdomains are the dot-separated parts of the host before the main domain of
-   * the app. By default, the domain of the app is assumed to be the last two
-   * parts of the host. This can be changed by setting "subdomain offset".
-   *
-   * For example, if the domain is "tobi.ferrets.example.com":
-   * If "subdomain offset" is not set, req.subdomains is `["ferrets", "tobi"]`.
-   * If "subdomain offset" is 3, req.subdomains is `["tobi"]`.
-   */
-  subdomains: string[];
-
-  /**
-   * Short-hand for `url.parse(req.url).pathname`.
-   */
-  path: string;
-
-  /**
-   * Parse the "Host" header field hostname.
-   */
-  hostname: string;
-
-  /**
-   * @deprecated Use hostname instead.
-   */
-  host: string;
-
-  /**
-   * Check if the request is fresh, aka
-   * Last-Modified and/or the ETag
-   * still match.
-   */
-  fresh: boolean;
-
-  /**
-   * Check if the request is stale, aka
-   * "Last-Modified" and / or the "ETag" for the
-   * resource has changed.
-   */
-  stale: boolean;
-
-  /**
-   * Check if the request was an _XMLHttpRequest_.
-   */
-  xhr: boolean;
-
-  //body: { username: string; password: string; remember: boolean; title: string; };
-  body: any;
-
-  //cookies: { string; remember: boolean; };
-  cookies: any;
-
-  method: string;
-
-  params: any;
-
   /** Clear cookie `name`. */
   clearCookie(name: string, options?: any): Response;
-
-  query: any;
-
-  route: any;
-
-  signedCookies: any;
-
-  originalUrl: string;
-
-  url: string;
-
-  baseUrl: string;
-
-  app: IApplication;
 
 
   next(...args: any[]): void;

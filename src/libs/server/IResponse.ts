@@ -1,6 +1,6 @@
-import * as http from "http";
-import {IApplication} from "./IApplication";
-import {ICookieOptions} from "./ICookieOptions";
+import * as http from 'http';
+import {IApplication} from './IApplication';
+import {ICookieOptions} from './ICookieOptions';
 
 
 export type ISend = (body?: any) => IResponse;
@@ -10,35 +10,6 @@ export type IErrback = (err: Error) => void;
  * Copy from core.Response of express
  */
 export interface IResponse extends http.ServerResponse {
-  /**
-   * Set status `code`.
-   */
-  status(code: number): IResponse;
-
-  /**
-   * Set the response HTTP status code to `statusCode` and send its string representation as the response body.
-   * @link http://expressjs.com/4x/api.html#res.sendStatus
-   *
-   * Examples:
-   *
-   *    res.sendStatus(200); // equivalent to res.status(200).send('OK')
-   *    res.sendStatus(403); // equivalent to res.status(403).send('Forbidden')
-   *    res.sendStatus(404); // equivalent to res.status(404).send('Not Found')
-   *    res.sendStatus(500); // equivalent to res.status(500).send('Internal Server Error')
-   */
-  sendStatus(code: number): IResponse;
-
-  /**
-   * Set Link header field with the given `links`.
-   *
-   * Examples:
-   *
-   *    res.links({
-     *      next: 'http://api.example.com/users?page=2',
-     *      last: 'http://api.example.com/users?page=5'
-     *    });
-   */
-  links(links: any): IResponse;
 
   /**
    * ISend a response.
@@ -76,6 +47,44 @@ export interface IResponse extends http.ServerResponse {
    *     res.jsonp(404, 'I dont have that');
    */
   jsonp: ISend;
+
+  // Property indicating if HTTP headers has been sent for the response.
+  headersSent: boolean;
+
+  locals: any;
+
+  charset: string;
+
+  app: IApplication;
+  /**
+   * Set status `code`.
+   */
+  status(code: number): IResponse;
+
+  /**
+   * Set the response HTTP status code to `statusCode` and send its string representation as the response body.
+   * @link http://expressjs.com/4x/api.html#res.sendStatus
+   *
+   * Examples:
+   *
+   *    res.sendStatus(200); // equivalent to res.status(200).send('OK')
+   *    res.sendStatus(403); // equivalent to res.status(403).send('Forbidden')
+   *    res.sendStatus(404); // equivalent to res.status(404).send('Not Found')
+   *    res.sendStatus(500); // equivalent to res.status(500).send('Internal Server Error')
+   */
+  sendStatus(code: number): IResponse;
+
+  /**
+   * Set Link header field with the given `links`.
+   *
+   * Examples:
+   *
+   *    res.links({
+     *      next: 'http://api.example.com/users?page=2',
+     *      last: 'http://api.example.com/users?page=5'
+     *    });
+   */
+  links(links: any): IResponse;
 
   /**
    * Transfer the file at the given `path`.
@@ -259,9 +268,6 @@ export interface IResponse extends http.ServerResponse {
   header(field: any): IResponse;
   header(field: string, value?: string): IResponse;
 
-  // Property indicating if HTTP headers has been sent for the response.
-  headersSent: boolean;
-
   /** Get value for header `field`. */
   get(field: string): string;
 
@@ -350,10 +356,6 @@ export interface IResponse extends http.ServerResponse {
   render(view: string, options?: Object, callback?: (err: Error, html: string) => void): void;
   render(view: string, callback?: (err: Error, html: string) => void): void;
 
-  locals: any;
-
-  charset: string;
-
   /**
    * Adds the field to the Vary response header, if it is not there already.
    * Examples:
@@ -362,8 +364,6 @@ export interface IResponse extends http.ServerResponse {
    *
    */
   vary(field: string): IResponse;
-
-  app: IApplication;
 
   /**
    * Appends the specified value to the HTTP response header field.
