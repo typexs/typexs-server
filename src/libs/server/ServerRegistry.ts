@@ -23,8 +23,10 @@ export class ServerRegistry {
   async load(options: any) {
     const servers = {};
     for (const name in options) {
-      const opts = options[name];
-      servers[name] = await this.create(name, opts);
+      if (options.hasOwnProperty(name)) {
+        const opts = options[name];
+        servers[name] = await this.create(name, opts);
+      }
     }
     return servers;
   }

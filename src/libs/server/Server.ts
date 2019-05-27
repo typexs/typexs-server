@@ -7,8 +7,6 @@ import * as _ from 'lodash';
 import {Log, TodoException} from '@typexs/base';
 
 import {DEFAULT_SERVER_OPTIONS, IServerOptions} from './IServerOptions';
-
-import Timer = NodeJS.Timer;
 import Exceptions from './Exceptions';
 
 
@@ -33,7 +31,7 @@ export class Server {
 
   inc = 0;
 
-  cache: { [key: number]: { t: Timer, s: net.Socket } } = {};
+  cache: { [key: number]: { t: any, s: net.Socket } } = {};
 
   server: net.Server = null;
 
@@ -101,7 +99,7 @@ export class Server {
     const inc = this.inc++;
     const self = this;
     const t = setTimeout(function () {
-      self._options.fn;
+      // self._options.fn;
       self.fn(req, res);
       clearTimeout(self.cache[inc].t);
       delete self.cache[inc];
@@ -121,7 +119,7 @@ export class Server {
     } else {
       const http_server = http.createServer(this.response.bind(this));
       http_server.setTimeout(
-        self._options.timeout,  (socket?: net.Socket) => {
+        self._options.timeout, (socket?: net.Socket) => {
           self.debug('server timeout reached: ' + self._options.timeout);
           if (socket) {
             socket.end();
@@ -146,13 +144,15 @@ export class Server {
   shutdown(): Promise<any> {
     this._abort = true;
     for (const x in this.cache) {
-      if (this.cache[x].t) {
-        clearTimeout(this.cache[x].t);
+      if (this.cache.hasOwnProperty(x)) {
+        if (this.cache[x].t) {
+          clearTimeout(this.cache[x].t);
+        }
+        if (this.cache[x].s) {
+          this.cache[x].s.destroy();
+        }
+        delete this.cache[x];
       }
-      if (this.cache[x].s) {
-        this.cache[x].s.destroy();
-      }
-      delete this.cache[x];
     }
     return this.stop();
   }
@@ -286,7 +286,9 @@ export class Server {
         self.server.removeAllListeners();
 
         for (const conn in self.$connections) {
-          self.$connections[conn].destroy();
+          if (self.$connections.hasOwnProperty(conn)) {
+            self.$connections[conn].destroy();
+          }
         }
 
         self.server.close(function () {
