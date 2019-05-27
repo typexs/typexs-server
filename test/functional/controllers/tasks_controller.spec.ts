@@ -1,31 +1,28 @@
 import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
-
-//process.env.SQL_LOG = '1';
-import {suite, test} from "mocha-typescript";
-import {Bootstrap, C_STORAGE_DEFAULT, Config, Container, StorageRef, TaskLog} from "@typexs/base";
+// process.env.SQL_LOG = '1';
+import {suite, test} from 'mocha-typescript';
+import {Bootstrap, C_STORAGE_DEFAULT, Config, Container, StorageRef, TaskLog} from '@typexs/base';
 import {
   API_TASK_EXEC,
   API_TASK_GET_METADATA,
   API_TASK_LOG,
-  API_TASK_STATUS, API_TASKS_METADATA,
+  API_TASK_STATUS,
+  API_TASKS_LIST,
+  API_TASKS_METADATA,
   K_ROUTE_CONTROLLER
-} from "../../../src/libs/Constants";
-import * as request from "request-promise";
-import {expect} from "chai";
-import {Helper, WebServer} from "../../../src";
-import * as _ from "lodash";
-import {SpawnHandle} from "../SpawnHandle";
-import {TestHelper} from "../TestHelper";
-import {TEST_STORAGE_OPTIONS} from "../config";
-import {EventBus, IEventBusConfiguration} from "commons-eventbus";
-import {
-  API_TASKS_LIST} from "../../../src/libs/Constants";
-import {TaskEvent} from "@typexs/base/libs/tasks/worker/TaskEvent";
-
-import subscribe from "commons-eventbus/decorator/subscribe";
-import {inspect} from "util";
+} from '../../../src/libs/Constants';
+import * as request from 'request-promise';
+import {expect} from 'chai';
+import {Helper, WebServer} from '../../../src';
+import * as _ from 'lodash';
+import {SpawnHandle} from '../SpawnHandle';
+import {TestHelper} from '../TestHelper';
+import {TEST_STORAGE_OPTIONS} from '../config';
+import {EventBus, IEventBusConfiguration} from 'commons-eventbus';
+import {TaskEvent} from '@typexs/base/libs/tasks/worker/TaskEvent';
+import {subscribe} from 'commons-eventbus';
 
 const LOG_EVENT = TestHelper.logEnable(true);
 
@@ -58,7 +55,7 @@ const settingsTemplate: any = {
       }]
     }
   },
-  //workers: {access: [{name: 'TaskMonitorWorker', access: 'allow'}]},
+  // workers: {access: [{name: 'TaskMonitorWorker', access: 'allow'}]},
   eventbus: {default: <IEventBusConfiguration>{adapter: 'redis', extra: {host: '127.0.0.1', port: 6379}}},
 
 };
@@ -68,11 +65,11 @@ let server: WebServer = null;
 
 
 @suite('functional/controllers/tasks_controller')
-class Tasks_controllerSpec {
+class TasksControllerSpec {
 
 
   static async before() {
-    let settings = _.clone(settingsTemplate);
+    const settings = _.clone(settingsTemplate);
 
 
     bootstrap = Bootstrap
@@ -104,21 +101,21 @@ class Tasks_controllerSpec {
   async 'get tasks list and metadata (local and remote)'() {
     const url = server.url();
 
-    let _url = (url + '/api' + API_TASKS_LIST);
-    let _urlTaskLocal = (url + '/api' + API_TASK_GET_METADATA.replace(':taskName', 'local_simple_task'));
-    let _urlTaskRemote = (url + '/api' + API_TASK_GET_METADATA.replace(':taskName', 'simple_task'));
-    let _urlTasks = (url + '/api' + API_TASKS_METADATA);
-    let rBefore = await request.get(_url, {json: true});
+    const _url = (url + '/api' + API_TASKS_LIST);
+    const _urlTaskLocal = (url + '/api' + API_TASK_GET_METADATA.replace(':taskName', 'local_simple_task'));
+    const _urlTaskRemote = (url + '/api' + API_TASK_GET_METADATA.replace(':taskName', 'simple_task'));
+    const _urlTasks = (url + '/api' + API_TASKS_METADATA);
+    const rBefore = await request.get(_url, {json: true});
 
-    let p = SpawnHandle.do(__dirname + '/fake_app_node_tasks/node_tasks.ts').start(LOG_EVENT);
+    const p = SpawnHandle.do(__dirname + '/fake_app_node_tasks/node_tasks.ts').start(LOG_EVENT);
     await p.started;
     await TestHelper.wait(50);
 
-    let rAfter = await request.get(_url, {json: true});
+    const rAfter = await request.get(_url, {json: true});
 
-    let rTasks = await request.get(_urlTasks, {json: true});
-    let rTaskLocal = await request.get(_urlTaskLocal, {json: true});
-    let rTaskRemote = await request.get(_urlTaskRemote, {json: true});
+    const rTasks = await request.get(_urlTasks, {json: true});
+    const rTaskLocal = await request.get(_urlTaskLocal, {json: true});
+    const rTaskRemote = await request.get(_urlTaskRemote, {json: true});
 
 
     p.shutdown();
@@ -126,80 +123,80 @@ class Tasks_controllerSpec {
     await p.done;
     await TestHelper.wait(50);
 
-    let rFinished = await request.get(_url, {json: true});
+    const rFinished = await request.get(_url, {json: true});
 
     expect(rTasks).to.have.length(3);
     expect(rTaskLocal).to.deep.include({
-        "id": "local_simple_task",
-        "name": "local_simple_task",
-        "type": "entity",
-        "machineName": "local_simple_task",
-        "options": {},
-        "mode": "1",
-        "hasWorker": false,
-        "permissions": null,
-        "description": null,
-        "remote": null,
-        "groups": [],
-        "nodeIds": [
-          "server"
+        'id': 'local_simple_task',
+        'name': 'local_simple_task',
+        'type': 'entity',
+        'machineName': 'local_simple_task',
+        'options': {},
+        'mode': '1',
+        'hasWorker': false,
+        'permissions': null,
+        'description': null,
+        'remote': null,
+        'groups': [],
+        'nodeIds': [
+          'server'
         ],
-        "target": {
-          "schema": "default",
-          "className": "LocalSimpleTask",
-          "isEntity": false,
-          "options": {}
+        'target': {
+          'schema': 'default',
+          'className': 'LocalSimpleTask',
+          'isEntity': false,
+          'options': {}
         },
-        "properties": [
+        'properties': [
           {
-            "id": "r",
-            "name": "r",
-            "type": "property",
-            "machineName": "r",
-            "options": {},
-            "descriptor": {
-              "target": "LocalSimpleTask",
-              "propertyName": "r",
-              "type": "runtime"
+            'id': 'r',
+            'name': 'r',
+            'type': 'property',
+            'machineName': 'r',
+            'options': {},
+            'descriptor': {
+              'target': 'LocalSimpleTask',
+              'propertyName': 'r',
+              'type': 'runtime'
             }
           }
         ]
       }
     );
     expect(rTaskRemote).to.deep.include({
-      "id": "simple_task",
-      "name": "simple_task",
-      "type": "entity",
-      "machineName": "simple_task",
-      "options": {
-        "remote": true
+      'id': 'simple_task',
+      'name': 'simple_task',
+      'type': 'entity',
+      'machineName': 'simple_task',
+      'options': {
+        'remote': true
       },
-      "mode": "4",
-      "hasWorker": false,
-      "permissions": null,
-      "description": null,
-      "remote": true,
-      "groups": [],
-      "nodeIds": [
-        "fake_app_node_tasks"
+      'mode': '4',
+      'hasWorker': false,
+      'permissions': null,
+      'description': null,
+      'remote': true,
+      'groups': [],
+      'nodeIds': [
+        'fake_app_node_tasks'
       ],
-      "target": {
-        "schema": "default",
-        "className": "Object",
-        "isEntity": false,
-        "options": {}
+      'target': {
+        'schema': 'default',
+        'className': 'Object',
+        'isEntity': false,
+        'options': {}
       },
-      "properties": []
+      'properties': []
     });
 
 
     expect(rBefore).to.have.length(1);
     expect(rAfter).to.have.length(3);
-    expect(rAfter.find((x: any) => x.name == 'local_simple_task')).to.deep.include({
+    expect(rAfter.find((x: any) => x.name === 'local_simple_task')).to.deep.include({
       name: 'local_simple_task',
       nodeIds: ['server']
     });
-    expect(rAfter.find((x: any) => x.name == 'simple_task')).to.deep.include({
+    expect(rAfter.find((x: any) => x.name === 'simple_task')).to.deep.include({
       name: 'simple_task',
       nodeIds: ['fake_app_node_tasks'],
       remote: true
@@ -211,12 +208,12 @@ class Tasks_controllerSpec {
 
   @test
   async 'tail file content'() {
-    let tmpdir = os.tmpdir();
-    let content = "";
-    for (let x of _.range(1, 500)) {
-      content += x + "\n";
+    const tmpdir = os.tmpdir();
+    let content = '';
+    for (const x of _.range(1, 500)) {
+      content += x + '\n';
     }
-    let file = path.join(tmpdir, 'tail_test_file');
+    const file = path.join(tmpdir, 'tail_test_file');
     if (fs.existsSync(file)) {
       fs.unlinkSync(file);
     }
@@ -233,40 +230,40 @@ class Tasks_controllerSpec {
   async 'start remote task, monitor, log'() {
     const url = server.url();
 
-    let events: TaskEvent[] = [];
+    const events: TaskEvent[] = [];
 
     class T02 {
       @subscribe(TaskEvent) on(e: TaskEvent) {
-        let _e = _.cloneDeep(e);
+        const _e = _.cloneDeep(e);
         events.push(_e);
       }
     }
 
-    let z = new T02();
+    const z = new T02();
     await EventBus.register(z);
 
 
-    let p = SpawnHandle.do(__dirname + '/fake_app_node_tasks/node_tasks.ts').start(LOG_EVENT);
+    const p = SpawnHandle.do(__dirname + '/fake_app_node_tasks/node_tasks.ts').start(LOG_EVENT);
     await p.started;
     await TestHelper.wait(50);
 
 
-    let _url = url + '/api' + API_TASK_EXEC.replace(':taskName', 'simple_task');
-    let taskEvent: TaskEvent = await request.get(_url, {json: true});
+    const _url = url + '/api' + API_TASK_EXEC.replace(':taskName', 'simple_task');
+    const taskEvent: TaskEvent = await request.get(_url, {json: true});
 
-    let _urlStatus = url + '/api' + API_TASK_STATUS.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id);
+    const _urlStatus = url + '/api' + API_TASK_STATUS.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id);
 
     await TestHelper.waitFor(() => events.length >= 4, 10);
-    let s = await (<StorageRef>Container.get(C_STORAGE_DEFAULT)).getController().find(TaskLog);
-    let taskStatus1 = await request.get(_urlStatus, {json: true});
+    const s = await (<StorageRef>Container.get(C_STORAGE_DEFAULT)).getController().find(TaskLog);
+    const taskStatus1 = await request.get(_urlStatus, {json: true});
 
 
     await TestHelper.waitFor(() => events.length >= 6);
 
-    let _urlLog = url + '/api' + API_TASK_LOG.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id);
-    let taskLog = await request.get(_urlLog, {json: true});
+    const _urlLog = url + '/api' + API_TASK_LOG.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id);
+    const taskLog = await request.get(_urlLog, {json: true});
 
-    let taskStatus2 = await request.get(_urlStatus, {json: true});
+    const taskStatus2 = await request.get(_urlStatus, {json: true});
 
     p.shutdown();
 
@@ -305,16 +302,16 @@ class Tasks_controllerSpec {
     });
     expect(events.length).to.be.eq(6);
     expect(taskEvent).to.be.deep.include({
-      "state": "enqueue",
-      "topic": "data",
-      "nodeId": "server",
-      "name": [
-        "simple_task"
+      'state': 'enqueue',
+      'topic': 'data',
+      'nodeId': 'server',
+      'name': [
+        'simple_task'
       ],
-      "targetIds": [
-        "fake_app_node_tasks"
+      'targetIds': [
+        'fake_app_node_tasks'
       ],
-      "respId": "fake_app_node_tasks"
+      'respId': 'fake_app_node_tasks'
     });
   }
 
@@ -323,24 +320,27 @@ class Tasks_controllerSpec {
   async 'start remote task with parameters'() {
     const url = server.url();
 
-    let events: TaskEvent[] = [];
+    const events: TaskEvent[] = [];
 
     class T02 {
       @subscribe(TaskEvent) on(e: TaskEvent) {
-        let _e = _.cloneDeep(e);
+        const _e = _.cloneDeep(e);
         events.push(_e);
       }
     }
 
-    let z = new T02();
+    const z = new T02();
     await EventBus.register(z);
 
-    let p = SpawnHandle.do(__dirname + '/fake_app_node_tasks/node_tasks.ts').start(LOG_EVENT);
+    const p = SpawnHandle.do(__dirname + '/fake_app_node_tasks/node_tasks.ts').start(LOG_EVENT);
     await p.started;
     await TestHelper.wait(50);
 
-    let _url = url + '/api' + API_TASK_EXEC.replace(':taskName', 'simple_task_with_params') + '?parameters=' + JSON.stringify({need_this: {really: {important: 'data'}}}) + '&targetIds=' + JSON.stringify(['fake_app_node_tasks']);
-    let taskEvent: TaskEvent = await request.get(_url, {json: true});
+    const _url = url + '/api' + API_TASK_EXEC
+        .replace(':taskName', 'simple_task_with_params') + '?parameters=' +
+      JSON.stringify({need_this: {really: {important: 'data'}}}) + '&targetIds=' +
+      JSON.stringify(['fake_app_node_tasks']);
+    const taskEvent: TaskEvent = await request.get(_url, {json: true});
 
     await TestHelper.waitFor(() => events.length >= 6);
 
@@ -348,8 +348,8 @@ class Tasks_controllerSpec {
     await p.done;
     await EventBus.unregister(z);
 
-    let _urlStatus = url + '/api' + API_TASK_STATUS.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id);
-    let taskStatus1 = await request.get(_urlStatus, {json: true});
+    const _urlStatus = url + '/api' + API_TASK_STATUS.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id);
+    const taskStatus1 = await request.get(_urlStatus, {json: true});
 
     expect(taskEvent).to.be.deep.include({
       errors: [],
@@ -390,24 +390,25 @@ class Tasks_controllerSpec {
   async 'start remote task without necessary parameters'() {
     const url = server.url();
 
-    let events: TaskEvent[] = [];
+    const events: TaskEvent[] = [];
 
     class T02 {
       @subscribe(TaskEvent) on(e: TaskEvent) {
-        let _e = _.cloneDeep(e);
+        const _e = _.cloneDeep(e);
         events.push(_e);
       }
     }
 
-    let z = new T02();
+    const z = new T02();
     await EventBus.register(z);
 
-    let p = SpawnHandle.do(__dirname + '/fake_app_node_tasks/node_tasks.ts').start(LOG_EVENT);
+    const p = SpawnHandle.do(__dirname + '/fake_app_node_tasks/node_tasks.ts').start(LOG_EVENT);
     await p.started;
     await TestHelper.wait(50);
 
-    let _url = url + '/api' + API_TASK_EXEC.replace(':taskName', 'simple_task_with_params') + '?targetIds=' + JSON.stringify(['fake_app_node_tasks']);
-    let taskEvent: TaskEvent = await request.get(_url, {json: true});
+    const _url = url + '/api' + API_TASK_EXEC
+      .replace(':taskName', 'simple_task_with_params') + '?targetIds=' + JSON.stringify(['fake_app_node_tasks']);
+    const taskEvent: TaskEvent = await request.get(_url, {json: true});
 
     p.shutdown();
     await p.done;
@@ -426,7 +427,7 @@ class Tasks_controllerSpec {
         targetIds: ['fake_app_node_tasks'],
         respId: 'fake_app_node_tasks'
       }
-    )
+    );
 
   }
 
