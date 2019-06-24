@@ -234,7 +234,7 @@ export class StorageAPIController {
     const [entityRef, controller] = this.getControllerForEntityName(name);
 
     const options: IFindOptions = {
-      limit: 1
+      limit: 0
     };
 
     StorageAPIController.checkOptions(opts, options);
@@ -252,6 +252,7 @@ export class StorageAPIController {
       };
       result = results;
     } else {
+      options.limit = 1;
       result = await controller.find(entityRef.getClassRef().getClass(), conditions, options);
       StorageAPIController._afterEntity(entityRef, result);
       result = result.shift();
@@ -278,7 +279,7 @@ export class StorageAPIController {
     }
 
 
-    const options: ISaveOptions = {};
+    const options: ISaveOptions = {validate: true};
 
     StorageAPIController.checkOptions(opts, options);
 
@@ -309,7 +310,7 @@ export class StorageAPIController {
     } else {
       entities = entityDef.build(data, {beforeBuild: StorageAPIController._beforeBuild});
     }
-    const options: ISaveOptions = {};
+    const options: ISaveOptions = {validate: true};
 
     StorageAPIController.checkOptions(opts, options);
 
