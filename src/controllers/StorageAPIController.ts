@@ -7,6 +7,7 @@ import {
   IFindOptions,
   Inject,
   Invoker,
+  ISaveOptions,
   Log,
   NotYetImplementedError,
   Storage,
@@ -80,6 +81,16 @@ export class StorageAPIController {
       e[XS_P_LABEL] = _.isFunction(e.label) ? e.label() : _.map(props, p => p.get(e)).join(' ');
     });
 
+  }
+
+  static checkOptions(opts: any, options: any) {
+    if (!_.isEmpty(opts)) {
+      const checked = {};
+      _.keys(opts).filter(k => ['raw', 'timeout'].indexOf(k) > -1 &&
+        (_.isString(opts[k]) || _.isNumber(opts[k]) || _.isBoolean(opts[k])))
+        .map(k => checked[k] = opts[k]);
+      _.assign(options, opts);
+    }
   }
 
   /**
@@ -197,14 +208,7 @@ export class StorageAPIController {
       sort: sortBy,
       // hooks: {afterEntity: StorageAPIController._afterEntity}
     };
-
-    if (!_.isEmpty(opts)) {
-      const checked = {};
-      _.keys(opts).filter(k => ['raw', 'timeout'].indexOf(k) > -1 &&
-        (_.isString(opts[k]) || _.isNumber(opts[k]) || _.isBoolean(opts[k])))
-        .map(k => checked[k] = opts[k]);
-      _.assign(options, opts);
-    }
+    StorageAPIController.checkOptions(opts, options);
 
     const result = await controller.find(entityRef.getClassRef().getClass(), conditions, options);
 
@@ -226,13 +230,19 @@ export class StorageAPIController {
    */
   @Access([PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY, PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN])
   @Get(API_STORAGE_GET_ENTITY)
-  async get(@Param('name') name: string, @Param('id') id: string, @CurrentUser() user: any) {
+  async get(@Param('name') name: string, @Param('id') id: string, @QueryParam('opts') opts: any = {}, @CurrentUser() user: any) {
     const [entityRef, controller] = this.getControllerForEntityName(name);
+
+    const options: IFindOptions = {
+      limit: 1
+    };
+
+    StorageAPIController.checkOptions(opts, options);
 
     const conditions = Expressions.parseLookupConditions(entityRef, id);
     let result = null;
     if (_.isArray(conditions)) {
-      result = await controller.find(entityRef.getClassRef().getClass(), conditions, {});
+      result = await controller.find(entityRef.getClassRef().getClass(), conditions, options);
       StorageAPIController._afterEntity(entityRef, result);
       const results = {
         entities: result,
@@ -242,9 +252,7 @@ export class StorageAPIController {
       };
       result = results;
     } else {
-      result = await controller.find(entityRef.getClassRef().getClass(), conditions, {
-        limit: 1
-      });
+      result = await controller.find(entityRef.getClassRef().getClass(), conditions, options);
       StorageAPIController._afterEntity(entityRef, result);
       result = result.shift();
     }
@@ -258,7 +266,7 @@ export class StorageAPIController {
    */
   @Access([PERMISSION_ALLOW_SAVE_STORAGE_ENTITY, PERMISSION_ALLOW_SAVE_STORAGE_ENTITY_PATTERN])
   @Post(API_STORAGE_SAVE_ENTITY)
-  async save(@Param('name') name: string, @Body() data: any, @CurrentUser() user: any): Promise<any> {
+  async save(@Param('name') name: string, @Body() data: any, @QueryParam('opts') opts: any = {}, @CurrentUser() user: any): Promise<any> {
 
     const [entityDef, controller] = this.getControllerForEntityName(name);
     // await this.invoker.use(EntityControllerApi).beforeEntityBuild(entityDef, data, user, controller);
@@ -268,8 +276,14 @@ export class StorageAPIController {
     } else {
       entities = entityDef.build(data, {beforeBuild: StorageAPIController._beforeBuild});
     }
+
+
+    const options: ISaveOptions = {};
+
+    StorageAPIController.checkOptions(opts, options);
+
     // await this.invoker.use(EntityControllerApi).afterEntityBuild(entityDef, entities, user, controller);
-    return controller.save(entities).catch((e: Error) => {
+    return controller.save(entities, options).catch((e: Error) => {
       Log.error(e);
       throw new HttpResponseError(['storage', 'save'], e.message);
     });
@@ -281,7 +295,11 @@ export class StorageAPIController {
    */
   @Access([PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY, PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN])
   @Post(API_STORAGE_UPDATE_ENTITY)
-  async update(@Param('name') name: string, @Param('id') id: string, @Body() data: any, @CurrentUser() user: any) {
+  async update(@Param('name') name: string,
+               @Param('id') id: string,
+               @QueryParam('opts') opts: any = {},
+               @Body() data: any,
+               @CurrentUser() user: any) {
 
     const [entityDef, controller] = this.getControllerForEntityName(name);
     // await this.invoker.use(EntityControllerApi).beforeEntityBuild(entityDef, data, user, controller);
@@ -291,8 +309,12 @@ export class StorageAPIController {
     } else {
       entities = entityDef.build(data, {beforeBuild: StorageAPIController._beforeBuild});
     }
+    const options: ISaveOptions = {};
+
+    StorageAPIController.checkOptions(opts, options);
+
     // await this.invoker.use(EntityControllerApi).afterEntityBuild(entityDef, entities, user, controller);
-    return controller.save(entities).catch((e: Error) => {
+    return controller.save(entities, options).catch((e: Error) => {
       Log.error(e);
       throw new HttpResponseError(['storage', 'save'], e.message);
     });
@@ -304,10 +326,16 @@ export class StorageAPIController {
    */
   @Access([PERMISSION_ALLOW_DELETE_STORAGE_ENTITY, PERMISSION_ALLOW_DELETE_STORAGE_ENTITY_PATTERN])
   @Delete(API_STORAGE_DELETE_ENTITY)
-  async delete(@Param('name') name: string, @Param('id') id: string, @Body() data: any, @CurrentUser() user: any) {
+  async delete(@Param('name') name: string,
+               @Param('id') id: string,
+               @QueryParam('opts') opts: any = {},
+               @Body() data: any,
+               @CurrentUser() user: any) {
     const [entityDef, controller] = this.getControllerForEntityName(name);
     const conditions = Expressions.parseLookupConditions(entityDef, id);
-    const results = await controller.find(entityDef.getClassRef().getClass(), conditions);
+    const options: ISaveOptions = {};
+    StorageAPIController.checkOptions(opts, options);
+    const results = await controller.find(entityDef.getClassRef().getClass(), conditions, options);
     if (results.length > 0) {
       return controller.remove(results);
     }
