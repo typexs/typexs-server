@@ -1,5 +1,5 @@
-import {suite, test, timeout} from "mocha-typescript";
-import {Bootstrap, Config, Container, IRuntimeLoaderOptions, ITypexsOptions} from "@typexs/base";
+import {suite, test, timeout} from 'mocha-typescript';
+import {Bootstrap, Config, Container, IRuntimeLoaderOptions, ITypexsOptions} from '@typexs/base';
 import {
   API_STORAGE_DELETE_ENTITY,
   API_STORAGE_FIND_ENTITY,
@@ -12,13 +12,13 @@ import {
   API_STORAGE_SAVE_ENTITY,
   API_STORAGE_UPDATE_ENTITY,
   K_ROUTE_CONTROLLER
-} from "../../../src/libs/Constants";
-import * as request from "request-promise";
-import {expect} from "chai";
-import {Server} from "../../../src";
-import * as _ from "lodash";
-import {Driver} from "./fake_app_storage/entities/Driver";
-import {TEST_STORAGE_OPTIONS} from "../config";
+} from '../../../src/libs/Constants';
+import * as request from 'request-promise';
+import {expect} from 'chai';
+import {Server} from '../../../src';
+import * as _ from 'lodash';
+import {Driver} from './fake_app_storage/entities/Driver';
+import {TEST_STORAGE_OPTIONS} from '../config';
 
 
 const settingsTemplate: ITypexsOptions & any = {
@@ -53,7 +53,7 @@ const settingsTemplate: ITypexsOptions & any = {
     }
   }
 
-}
+};
 
 let bootstrap: Bootstrap = null;
 let server: Server = null;
@@ -61,11 +61,12 @@ let server: Server = null;
 
 @suite('functional/controllers/storage_api_controller')
 @timeout(300000)
+// tslint:disable-next-line:class-name
 class Storage_api_controllerSpec {
 
 
   static async before() {
-    let settings = _.clone(settingsTemplate);
+    const settings = _.clone(settingsTemplate);
 
 
     bootstrap = Bootstrap
@@ -99,12 +100,12 @@ class Storage_api_controllerSpec {
   @test
   async 'list storages'() {
     const url = server.url();
-    let res = await request.get(url + '/api' + API_STORAGE_PREFIX + API_STORAGE_METADATA_ALL_STORES, {json: true});
-    //console.log(inspect(res, false, 10));
+    const res = await request.get(url + '/api' + API_STORAGE_PREFIX + API_STORAGE_METADATA_ALL_STORES, {json: true});
+    // console.log(inspect(res, false, 10));
     expect(res).to.have.length(1);
     expect(res[0].entities).to.have.length(4);
     expect(_.map(res[0].entities, e => e.name)).to.contain.members(['Driver', 'Car']);
-    let driver = _.find(res[0].entities, e => e.name == 'Driver');
+    const driver = _.find(res[0].entities, e => e.name == 'Driver');
     expect(driver.properties).to.have.length(4);
     expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
 
@@ -114,14 +115,14 @@ class Storage_api_controllerSpec {
   @test
   async 'list storage default'() {
     const url = server.url();
-    let res = await request.get(url + '/api' + API_STORAGE_PREFIX +
+    const res = await request.get(url + '/api' + API_STORAGE_PREFIX +
       API_STORAGE_METADATA_GET_STORE.replace(':name', 'default'), {json: true});
-    //console.log(inspect(res, false, 10));
+    // console.log(inspect(res, false, 10));
     expect(res).to.exist;
     expect(res.name).to.be.eq('default');
     expect(res.entities).to.have.length(4);
     expect(_.map(res.entities, e => e.name)).to.contain.members(['Driver', 'Car']);
-    let driver = _.find(res.entities, e => e.name == 'Driver');
+    const driver = _.find(res.entities, e => e.name == 'Driver');
     expect(driver.properties).to.have.length(4);
     expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
 
@@ -131,12 +132,12 @@ class Storage_api_controllerSpec {
   @test
   async 'list all entities'() {
     const url = server.url();
-    let res = await request.get(url + '/api' + API_STORAGE_PREFIX +
+    const res = await request.get(url + '/api' + API_STORAGE_PREFIX +
       API_STORAGE_METADATA_ALL_ENTITIES, {json: true});
     expect(res).to.have.length(4);
     expect(_.map(res, r => r.options.storage)).to.contain.members([ 'default']);
     expect(_.map(res, e => e.name)).to.contain.members(['Driver', 'Car']);
-    let driver = _.find(res, e => e.name == 'Driver');
+    const driver = _.find(res, e => e.name == 'Driver');
     expect(driver.properties).to.have.length(4);
     expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
   }
@@ -144,7 +145,7 @@ class Storage_api_controllerSpec {
   @test
   async 'list entity'() {
     const url = server.url();
-    let res = await request.get(url + '/api' +
+    const res = await request.get(url + '/api' +
       API_STORAGE_PREFIX +
       API_STORAGE_METADATA_GET_ENTITY.replace(':name', 'driver'), {json: true});
     expect(res).to.exist;
@@ -165,7 +166,7 @@ class Storage_api_controllerSpec {
   async 'lifecycle of entity create, get, find, update, remove'() {
     const url = server.url();
 
-    let d = new Driver();
+    const d = new Driver();
     d.lastName = 'Yellow';
     d.firstName = 'Blue';
 
@@ -182,11 +183,11 @@ class Storage_api_controllerSpec {
     expect(res).to.be.deep.include(d);
     expect(res.$state).to.be.deep.include({isValidated: true, isSuccessValidated: true});
 
-    let d2 = new Driver();
+    const d2 = new Driver();
     d2.lastName = 'Gray';
     d2.firstName = 'Green';
 
-    let d3 = new Driver();
+    const d3 = new Driver();
     d3.lastName = 'Red';
     d3.firstName = 'Dark';
 
