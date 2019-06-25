@@ -20,9 +20,9 @@ import * as _ from 'lodash';
 import {SpawnHandle} from '../SpawnHandle';
 import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
-import {EventBus, IEventBusConfiguration} from 'commons-eventbus';
+import {EventBus, IEventBusConfiguration, subscribe} from 'commons-eventbus';
 import {TaskEvent} from '@typexs/base/libs/tasks/worker/TaskEvent';
-import {subscribe} from 'commons-eventbus';
+import {IncomingMessage} from 'http';
 
 const LOG_EVENT = TestHelper.logEnable(true);
 
@@ -260,11 +260,30 @@ class TasksControllerSpec {
 
     await TestHelper.waitFor(() => events.length >= 6);
 
-    const _urlLog = url + '/api' + API_TASK_LOG.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id);
+    // default tailed 50 lines log
+    const _urlLog = url + '/api' + API_TASK_LOG
+      .replace(':nodeId', taskEvent.respId)
+      .replace(':runnerId', taskEvent.id);
     const taskLog = await request.get(_urlLog, {json: true});
 
-    const _urlLog2 = url + '/api' + API_TASK_LOG.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id) + '?from=0&offset=20';
+    // get first 20 lines
+    const _urlLog2 = url + '/api' + API_TASK_LOG
+      .replace(':nodeId', taskEvent.respId)
+      .replace(':runnerId', taskEvent.id) + '?from=0&offset=20';
     const taskLog2 = await request.get(_urlLog2, {json: true});
+
+    // get skip 20 lines
+    const _urlLog3 = url + '/api' + API_TASK_LOG
+      .replace(':nodeId', taskEvent.respId)
+      .replace(':runnerId', taskEvent.id) + '?from=20&offset=20';
+
+    let taskLog3: IncomingMessage;
+    try {
+      taskLog3 = await request.get(_urlLog3, {resolveWithFullResponse: true});
+    } catch (e) {
+
+    }
+
 
     const taskStatus2 = await request.get(_urlStatus, {json: true});
 
@@ -309,6 +328,8 @@ class TasksControllerSpec {
       level: 'info',
       message: 'task is running',
     });
+    expect(taskLog3.statusCode).to.be.eq(204);
+    expect(taskLog3.statusMessage).to.be.eq('No Content');
     expect(events.length).to.be.eq(6);
     expect(taskEvent).to.be.deep.include({
       'state': 'enqueue',
