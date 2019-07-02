@@ -7,6 +7,7 @@ import {Bootstrap, C_STORAGE_DEFAULT, Config, Container, StorageRef, TaskLog} fr
 import {
   API_TASK_EXEC,
   API_TASK_GET_METADATA,
+  API_TASK_GET_METADATA_VALUE,
   API_TASK_LOG,
   API_TASK_STATUS,
   API_TASKS_LIST,
@@ -70,8 +71,6 @@ class TasksControllerSpec {
 
   static async before() {
     const settings = _.clone(settingsTemplate);
-
-
     bootstrap = Bootstrap
       .setConfigSources([{type: 'system'}])
       .configure(settings)
@@ -85,6 +84,7 @@ class TasksControllerSpec {
     server = Container.get('server.default');
     await server.start();
   }
+
 
   static async after() {
     if (server) {
@@ -461,4 +461,32 @@ class TasksControllerSpec {
 
   }
 
+
+  @test
+  async 'get content from value providers'() {
+    const url = server.url();
+
+    const _url = url + '/api' + API_TASK_GET_METADATA_VALUE
+      .replace(':taskName', 'local_simple_task_with_params')
+      .replace(':incomingName', 'valueStatic');
+
+    const valueSuggestions1 = await request.get(_url, {json: true});
+    expect(valueSuggestions1).to.be.deep.eq(['One', 'Two', 'Tree']);
+
+    const _url3 = url + '/api' + API_TASK_GET_METADATA_VALUE
+      .replace(':taskName', 'local_simple_task_with_params')
+      .replace(':incomingName', 'valueClass');
+
+    const valueSuggestions3 = await request.get(_url3, {json: true});
+    expect(valueSuggestions3).to.be.deep.eq(['VP-One1', 'VP-Two2', 'VP-Tree3']);
+    const _url2 = url + '/api' + API_TASK_GET_METADATA_VALUE
+      .replace(':taskName', 'local_simple_task_with_params')
+      .replace(':incomingName', 'valueFunction');
+
+    const valueSuggestions2 = await request.get(_url2, {json: true});
+    expect(valueSuggestions2).to.be.deep.eq(['One1', 'Two2', 'Tree3']);
+
+
+
+  }
 }
