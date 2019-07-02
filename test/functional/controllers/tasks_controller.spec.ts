@@ -125,7 +125,7 @@ class TasksControllerSpec {
 
     const rFinished = await request.get(_url, {json: true});
 
-    expect(rTasks).to.have.length(3);
+    expect(rTasks).to.have.length(4);
     expect(rTaskLocal).to.deep.include({
         'id': 'local_simple_task',
         'name': 'local_simple_task',
@@ -190,8 +190,8 @@ class TasksControllerSpec {
     });
 
 
-    expect(rBefore).to.have.length(1);
-    expect(rAfter).to.have.length(3);
+    expect(rBefore).to.have.length(2);
+    expect(rAfter).to.have.length(4);
     expect(rAfter.find((x: any) => x.name === 'local_simple_task')).to.deep.include({
       name: 'local_simple_task',
       nodeIds: ['server']
@@ -201,7 +201,7 @@ class TasksControllerSpec {
       nodeIds: ['fake_app_node_tasks'],
       remote: true
     });
-    expect(rFinished).to.have.length(1);
+    expect(rFinished).to.have.length(2);
     expect(rBefore).to.be.deep.eq(rFinished);
   }
 
