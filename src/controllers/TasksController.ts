@@ -1,21 +1,11 @@
 import * as _ from 'lodash';
 
 import {Get, HttpError, JsonController, Param, QueryParam} from 'routing-controllers';
-import {
-  C_STORAGE_DEFAULT,
-  Cache,
-  Container,
-  Inject,
-  Invoker,
-  Log,
-  PlatformUtils,
-  StorageRef,
-  TaskLog,
-  Tasks
-} from '@typexs/base';
+import {C_STORAGE_DEFAULT, Cache, Container, Inject, Invoker, Log, PlatformUtils, StorageRef, TaskLog, Tasks} from '@typexs/base';
 import {
   _API_TASK_EXEC,
   _API_TASK_GET_METADATA,
+  _API_TASK_GET_METADATA_VALUE,
   _API_TASK_LOG,
   _API_TASK_STATUS,
   _API_TASKS,
@@ -35,7 +25,7 @@ import {
 } from '..';
 import {TaskExecutionRequestFactory} from '@typexs/base/libs/tasks/worker/TaskExecutionRequestFactory';
 import {TasksHelper} from '@typexs/base/libs/tasks/TasksHelper';
-
+import {IValueProvider} from '@typexs/base/libs/tasks/decorators/IValueProvider';
 
 @ContextGroup('api')
 @JsonController(_API_TASKS)
@@ -46,7 +36,6 @@ export class TasksController {
 
   @Inject(Invoker.NAME)
   invoker: Invoker;
-
 
   @Inject(Cache.NAME)
   cache: Cache;
@@ -79,6 +68,44 @@ export class TasksController {
     }
     return {};
   }
+
+
+  @Access([PERMISSION_ALLOW_TASK_GET_METADATA, PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN])
+  @Get(_API_TASK_GET_METADATA_VALUE)
+  taskMetadataValueProvider(@Param('taskName') taskName: string,
+                            @Param('incomingName') incomingName: string,
+                            @QueryParam('values') values: any = null,
+                            @QueryParam('hint') hint: any = null) {
+    if (!this.tasks.contains(taskName)) {
+      throw new HttpError(404, 'No task with this name found');
+    }
+    const snakeCaseIncoming = _.snakeCase(incomingName);
+    const taskRef = this.tasks.get(taskName);
+    const taskIncomingRef = taskRef.getIncomings().find(x => _.snakeCase(x.name) === snakeCaseIncoming);
+
+    if (!taskIncomingRef) {
+      throw new HttpError(404, 'No task incoming parameter with this name found');
+    }
+
+    const valueProvider = taskIncomingRef.getOptions('valueProvider');
+    if (!valueProvider) {
+      throw new HttpError(404, 'No value provider defined for task incoming parameter');
+    }
+
+    if (_.isFunction(valueProvider)) {
+      if (valueProvider.prototype && valueProvider.prototype.constructor) {
+        // is a class
+        const providerInstance = <IValueProvider<any>>Container.get(<any>valueProvider);
+        return providerInstance.get(values, taskIncomingRef, hint);
+      } else {
+        // is a function
+        return valueProvider(values, taskIncomingRef, hint);
+      }
+    } else {
+      return valueProvider;
+    }
+  }
+
 
   @Access([PERMISSION_ALLOW_TASK_EXEC, PERMISSION_ALLOW_TASK_EXEC_PATTERN])
   @Get(_API_TASK_EXEC)

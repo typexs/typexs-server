@@ -123,7 +123,9 @@ export const API_TASKS_METADATA = _API_TASKS + _API_TASKS_METADATA;
 export const PERMISSION_ALLOW_TASKS_METADATA = 'task metadata view';
 
 export const _API_TASK_GET_METADATA = '/metadata/:taskName';
+export const _API_TASK_GET_METADATA_VALUE = '/metadata/:taskName/provider/:incomingName';
 export const API_TASK_GET_METADATA = _API_TASKS + _API_TASK_GET_METADATA;
+export const API_TASK_GET_METADATA_VALUE = _API_TASKS + _API_TASK_GET_METADATA_VALUE;
 export const PERMISSION_ALLOW_TASK_GET_METADATA = PERMISSION_ALLOW_TASKS_METADATA;
 export const PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN = 'task :taskName metadata view';
 
