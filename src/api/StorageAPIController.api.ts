@@ -7,7 +7,7 @@ import {IEntityRef} from 'commons-schema-api/browser';
  *
  *
  * Usage:
- *
+ * ```
  * // Create a typescript file in "src/extend/" or "extend/" directory in your project
  * // and fill it with following content:
  *
@@ -23,6 +23,7 @@ import {IEntityRef} from 'commons-schema-api/browser';
  *      }
  *   }
  * }
+ * ```
  */
 export class StorageAPIControllerApi implements IStorageAPIController {
 
