@@ -4,6 +4,10 @@ import {IRoute} from '..';
 import {IModule, IStorageOptions} from '@typexs/base';
 import {IServerNodeInfo} from './IServerNodeInfo';
 
+
+/**
+ * Abstract declaration for the api used by invoker
+ */
 export class ServerNodeInfoApi implements IServerNodeInfo {
 
   /**

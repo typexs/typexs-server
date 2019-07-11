@@ -51,6 +51,7 @@ import {IEntityRef, IEntityRefMetadata} from 'commons-schema-api';
 import {Expressions} from 'commons-expressions';
 import {IStorageRefMetadata} from '../libs/storage_api/IStorageRefMetadata';
 import {ServerNodeInfoApi} from '../api/ServerNodeInfo.api';
+import {StorageAPIControllerApi} from '../api/StorageAPIController.api';
 
 
 @ContextGroup('api')
@@ -179,6 +180,19 @@ export class StorageAPIController {
 
     const [entityRef, controller] = this.getControllerForEntityName(name);
 
+    // try {
+    //   this.invoker.use(StorageAPIControllerApi).prepareParams('query', entityRef, {
+    //     name: name,
+    //     query: query,
+    //     sort: sort,
+    //     limit: limit,
+    //     opts: opts,
+    //     user: user,
+    //   });
+    // } catch (e) {
+    //   throw new HttpResponseError(['storage', 'query'], e.message);
+    // }
+
     let conditions = null;
     if (query) {
       conditions = JSON.parse(query);
@@ -216,12 +230,27 @@ export class StorageAPIController {
       StorageAPIController._afterEntity(entityRef, result);
     }
 
-    return {
+    const results = {
       entities: result,
       $count: result[XS_P_$COUNT],
       $limit: result[XS_P_$LIMIT],
       $offset: result[XS_P_$OFFSET]
     };
+
+    try {
+      this.invoker.use(StorageAPIControllerApi).postProcessResults('query', entityRef, results, {
+        name: name,
+        query: query,
+        sort: sort,
+        limit: limit,
+        opts: opts,
+        user: user,
+      });
+    } catch (e) {
+      throw new HttpResponseError(['storage', 'query'], e.message);
+    }
+
+    return results;
   }
 
 
@@ -232,6 +261,17 @@ export class StorageAPIController {
   @Get(API_STORAGE_GET_ENTITY)
   async get(@Param('name') name: string, @Param('id') id: string, @QueryParam('opts') opts: any = {}, @CurrentUser() user: any) {
     const [entityRef, controller] = this.getControllerForEntityName(name);
+
+    // try {
+    //   this.invoker.use(StorageAPIControllerApi).prepareParams('get', entityRef, {
+    //     name: name,
+    //     id: id,
+    //     opts: opts,
+    //     user: user,
+    //   });
+    // } catch (e) {
+    //   throw new HttpResponseError(['storage', 'get'], e.message);
+    // }
 
     const options: IFindOptions = {
       limit: 0
@@ -257,6 +297,17 @@ export class StorageAPIController {
       StorageAPIController._afterEntity(entityRef, result);
       result = result.shift();
     }
+
+    try {
+      this.invoker.use(StorageAPIControllerApi).postProcessResults('get', entityRef, result, {
+        name: name,
+        id: id,
+        opts: opts,
+        user: user,
+      });
+    } catch (e) {
+      throw new HttpResponseError(['storage', 'get'], e.message);
+    }
     return result;
 
   }
@@ -277,17 +328,19 @@ export class StorageAPIController {
     } else {
       entities = entityDef.build(data, {beforeBuild: StorageAPIController._beforeBuild});
     }
-
-
     const options: ISaveOptions = {validate: true};
-
     StorageAPIController.checkOptions(opts, options);
-
-    // await this.invoker.use(EntityControllerApi).afterEntityBuild(entityDef, entities, user, controller);
-    return controller.save(entities, options).catch((e: Error) => {
-      Log.error(e);
+    try {
+      const results = await controller.save(entities, options);
+      this.invoker.use(StorageAPIControllerApi).postProcessResults('save', entityDef, results, {
+        name: name,
+        opts: opts,
+        user: user,
+      });
+      return results;
+    } catch (e) {
       throw new HttpResponseError(['storage', 'save'], e.message);
-    });
+    }
   }
 
 
@@ -314,11 +367,18 @@ export class StorageAPIController {
 
     StorageAPIController.checkOptions(opts, options);
 
-    // await this.invoker.use(EntityControllerApi).afterEntityBuild(entityDef, entities, user, controller);
-    return controller.save(entities, options).catch((e: Error) => {
-      Log.error(e);
-      throw new HttpResponseError(['storage', 'save'], e.message);
-    });
+    try {
+      const results = await controller.save(entities, options);
+      this.invoker.use(StorageAPIControllerApi).postProcessResults('update', entityDef, results, {
+        name: name,
+        id: id,
+        opts: opts,
+        user: user,
+      });
+      return results;
+    } catch (e) {
+      throw new HttpResponseError(['storage', 'update'], e.message);
+    }
   }
 
 

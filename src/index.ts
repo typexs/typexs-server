@@ -59,6 +59,12 @@ export * from 'routing-controllers/http-error/UnauthorizedError';
 export * from './api/IServerNodeInfo';
 export * from './api/ServerNodeInfo.api';
 
+/**
+ * Used for results modifications returned by the controller
+ */
+export * from './api/IStorageAPIController';
+export * from './api/StorageAPIController.api';
+
 export * from './commands/ServerCommand';
 
 export * from './decorators/ContextGroup';
