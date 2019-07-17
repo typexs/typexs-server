@@ -114,7 +114,7 @@ export class TasksController {
                 @QueryParam('targetIds') targetIds: string[] = []) {
     // arguments
     const execReq = this.taskFactory.createRequest();
-    const taskEvent = await execReq.run([taskName], parameters, targetIds);
+    const taskEvent = await execReq.run([taskName], parameters, {targetIds: targetIds, skipTargetCheck: false});
     return taskEvent.shift();
   }
 
