@@ -335,7 +335,7 @@ class TasksControllerSpec {
       'state': 'enqueue',
       'topic': 'data',
       'nodeId': 'server',
-      'name': [
+      'taskSpec': [
         'simple_task'
       ],
       'targetIds': [
@@ -386,7 +386,7 @@ class TasksControllerSpec {
       state: 'enqueue',
       topic: 'data',
       nodeId: 'server',
-      name: ['simple_task_with_params'],
+      taskSpec: ['simple_task_with_params'],
       targetIds: ['fake_app_node_tasks'],
       parameters: {need_this: {really: {important: 'data'}}},
       respId: 'fake_app_node_tasks'
@@ -453,7 +453,7 @@ class TasksControllerSpec {
         state: 'request_error',
         topic: 'data',
         nodeId: 'server',
-        name: ['simple_task_with_params'],
+        taskSpec: ['simple_task_with_params'],
         targetIds: ['fake_app_node_tasks'],
         respId: 'fake_app_node_tasks'
       }
