@@ -1,54 +1,61 @@
+import {ILoggerApi} from '@typexs/base';
+
 export interface IServerOptions {
 
-    // url?: string
+  // url?: string
 
-    protocol?: string;
+  protocol?: string;
 
-    ip?: string;
+  ip?: string;
 
-    port?: number;
+  port?: number;
 
-    fn?: string;
+  fn?: string;
 
-    stall?: number;
+  stall?: number;
 
-    cert_file?: string;
+  cert_file?: string;
 
-    cert?: string | Buffer;
+  cert?: string | Buffer;
 
-    key_file?: string;
+  key_file?: string;
 
-    key?: string | Buffer;
+  key?: string | Buffer;
 
-    ca_file?: string;
+  ca_file?: string;
 
-    ca?: string | Buffer;
+  ca?: string | Buffer;
 
-    ca_key_file?: string;
+  ca_key_file?: string;
 
-    ca_key?: string | Buffer;
+  ca_key?: string | Buffer;
 
-    strictSSL?: boolean;
+  strictSSL?: boolean;
 
-    timeout?: number;
+  timeout?: number;
 
-    _debug?: boolean;
+  _debug?: boolean;
+
+  /**
+   * Inject a logger
+   */
+  logger?: ILoggerApi;
 }
 
 
 export const DEFAULT_SERVER_OPTIONS: IServerOptions = {
 
-    protocol: 'http',
+  protocol: 'http',
 
-    ip: '127.0.0.1',
+  ip: '127.0.0.1',
 
-    port: 3554,
+  port: 3554,
 
-    fn: 'root',
+  fn: 'root',
 
-    stall: 0,
+  stall: 0,
 
-    timeout: 60000,
+  timeout: 60000,
 
-    _debug: false
+  _debug: false
 };

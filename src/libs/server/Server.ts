@@ -4,7 +4,7 @@ import * as https from 'https';
 import * as net from 'net';
 import * as fs from 'fs';
 import * as _ from 'lodash';
-import {Log, TodoException} from '@typexs/base';
+import {ILoggerApi, Log, TodoException} from '@typexs/base';
 
 import {DEFAULT_SERVER_OPTIONS, IServerOptions} from './IServerOptions';
 import Exceptions from './Exceptions';
@@ -39,11 +39,14 @@ export class Server {
 
   fn: Function = null;
 
+  private logger: ILoggerApi;
+
   private $connections: { [key: string]: net.Socket } = {};
 
 
   initialize(options: IServerOptions, wrapper: IServerApi = null) {
     this._options = _.defaultsDeep(options, DEFAULT_SERVER_OPTIONS);
+    this.logger = _.get(options, 'logger', Log.getLoggerFor(Server));
     this._secured = /^https/.test(this._options.protocol);
 
     if (this._options.cert_file) {
@@ -199,27 +202,27 @@ export class Server {
 
   onServerClientError(exception: Error, socket: net.Socket): void {
     // this.debug('onServerClientError ' + this._options.url)
-    this.debug('Server->onServerClientError ' + this.url() + ' [' + socket['handle_id'] + ']', exception);
+    this.debug('onServerClientError ' + this.url() + ' [' + socket['handle_id'] + ']', exception);
     socket.destroy(exception);
 
   }
 
   onServerError(exception: Error, socket: net.Socket): void {
-    this.debug('Server->onServerError ' + this.url(), exception);
+    this.debug('onServerError ' + this.url(), exception);
+    socket.destroy(exception);
   }
 
   onServerClose(): void {
-    // this.debug('onServerClose ' + this._options.url)
+    this.debug('onServerClose ' + this.url());
   }
 
   onServerConnection(socket: net.Socket, secured: boolean = false): void {
     // this.debug('Server->onServerConnection secured=' + secured + ' ' + this.url());
     // register connection
-    const self = this;
     const key = socket.remoteAddress + ':' + socket.remotePort;
     this.$connections[key] = socket;
-    socket.once('close', function () {
-      delete self.$connections[key];
+    socket.once('close', () => {
+      delete this.$connections[key];
     });
 
   }
@@ -258,7 +261,7 @@ export class Server {
         if (nErr.code === Exceptions.EADDRINUSE) {
           reject(err);
         } else {
-          Log.error('server error:', err);
+          this.logger.error('server error:', err);
         }
       });
 
@@ -279,21 +282,26 @@ export class Server {
 
 
   async stop(done?: Function): Promise<boolean> {
-    const self = this;
     await this.preFinalize();
     const p = new Promise<boolean>((resolve) => {
-      if (self.server) {
-        self.server.removeAllListeners();
 
-        for (const conn in self.$connections) {
-          if (self.$connections.hasOwnProperty(conn)) {
-            self.$connections[conn].destroy();
+      // destroy and unref socket connections
+      this.debug('server-stop: ' + this.url() + ' ' + _.keys(this.$connections).length);
+      for (const conn in this.$connections) {
+        if (this.$connections.hasOwnProperty(conn)) {
+          try {
+            this.$connections[conn].unref();
+            this.$connections[conn].destroy();
+          } catch (e) {
           }
         }
+      }
 
-        self.server.close(function () {
-          self.server = null;
-          self.debug('stop server ' + self.url());
+      if (this.server) {
+        this.server.close(() => {
+          this.server.removeAllListeners();
+          this.server = null;
+          this.debug('server-stop: ' + this.url());
           resolve(true);
         });
       } else {
@@ -303,11 +311,11 @@ export class Server {
 
     if (done) {
       const res = await p;
-      await self.finalize();
+      await this.finalize();
       done(res);
       return res;
     } else {
-      await self.finalize();
+      await this.finalize();
       return p;
     }
   }
@@ -323,7 +331,7 @@ export class Server {
 
 
   debug(...msg: any[]) {
-    Log.debug.apply(Log, msg);
+    this.logger.debug.apply(this.logger, msg);
   }
 
 }

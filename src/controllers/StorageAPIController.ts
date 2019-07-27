@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {Body, CurrentUser, Delete, Get, JsonController, Param, Post, QueryParam} from 'routing-controllers';
+import {Body, CurrentUser, Delete, Get, HttpError, JsonController, Param, Post, QueryParam} from 'routing-controllers';
 import {
   Cache,
   ClassLoader,
@@ -260,6 +260,10 @@ export class StorageAPIController {
   @Access([PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY, PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN])
   @Get(API_STORAGE_GET_ENTITY)
   async get(@Param('name') name: string, @Param('id') id: string, @QueryParam('opts') opts: any = {}, @CurrentUser() user: any) {
+    if (_.isEmpty(name) || _.isEmpty(id)) {
+      throw new HttpError(400, 'entity name or id not set');
+    }
+
     const [entityRef, controller] = this.getControllerForEntityName(name);
 
     // try {
