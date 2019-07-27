@@ -1,6 +1,6 @@
 {
   "name": "@typexs/server",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "description": "Servers for typexs",
   "main": "index.js",
   "directories": {
