@@ -203,13 +203,17 @@ export class Server {
   onServerClientError(exception: Error, socket: net.Socket): void {
     // this.debug('onServerClientError ' + this._options.url)
     this.debug('onServerClientError ' + this.url() + ' [' + socket['handle_id'] + ']', exception);
-    socket.destroy(exception);
+    if (socket) {
+      socket.destroy(exception);
+    }
 
   }
 
   onServerError(exception: Error, socket: net.Socket): void {
     this.debug('onServerError ' + this.url(), exception);
-    socket.destroy(exception);
+    if (socket) {
+      socket.destroy(exception);
+    }
   }
 
   onServerClose(): void {
