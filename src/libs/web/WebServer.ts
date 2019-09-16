@@ -17,6 +17,7 @@ import {IWebServerInstanceOptions} from './IWebServerInstanceOptions';
 import {IServer} from '../server/IServer';
 import {IMiddleware} from '../server/IMiddleware';
 import {IRoute, K_CORE_LIB_CONTROLLERS, K_ROUTE_CACHE, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from '../../';
+import {MatchUtils} from '@typexs/base/libs/utils/MatchUtils';
 
 
 useContainer(Container);
@@ -42,8 +43,50 @@ export class WebServer extends Server implements IServer {
   }
 
 
+  get config() {
+    return this.options();
+  }
+
+
   options(): IWebServerInstanceOptions {
     return <IWebServerInstanceOptions>this._options;
+  }
+
+
+  access(key: string, name: string) {
+    const cfg = this.config[key];
+    if (_.has(cfg, 'access')) {
+      // if access empty then
+      let allow = cfg.access.length > 0 ? false : true;
+      let count = 0;
+      for (const a of cfg.access) {
+        if (_.isUndefined(a.match)) {
+          if (/\+|\.|\(|\\||\)|\*/.test(a.name)) {
+            a.match = a.name;
+          } else {
+            a.match = false;
+          }
+        }
+        if (_.isBoolean(a.match)) {
+          if (a.name === name) {
+            count++;
+            allow = a.access === 'allow';
+            return allow;
+          }
+        } else {
+          if (MatchUtils.miniMatch(a.match, name)) {
+            allow = allow || a.access === 'allow';
+            count++;
+          }
+        }
+      }
+      // no allowed or denied
+      if (count === 0) {
+        allow = true;
+      }
+      return allow;
+    }
+    return true;
   }
 
 
@@ -87,6 +130,8 @@ export class WebServer extends Server implements IServer {
             controllerClasses = controllerClasses.concat(clz);
           }
         }
+
+        controllerClasses = controllerClasses.filter(x => this.access(key, x.name));
 
         routing.controllers = controllerClasses;
         routing.middlewares = getMetadataArgsStorage().middlewares.map(x => x.target);
