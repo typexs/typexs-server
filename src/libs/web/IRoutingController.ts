@@ -7,6 +7,6 @@ export interface IRoutingController extends RoutingControllersOptions, IRouteTyp
 
   limit?: number | string;
 
-  access: { name: string, access: 'deny' | 'allow' }[];
+  access?: { name: string, access: 'deny' | 'allow' }[];
 
 }
