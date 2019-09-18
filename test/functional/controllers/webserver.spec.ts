@@ -1,11 +1,11 @@
-import {suite, test} from "mocha-typescript";
-import {Bootstrap, Container, RuntimeLoader, Config} from "@typexs/base";
-import {WebServer} from "../../../src/libs/web/WebServer";
-import {C_DEFAULT} from "../../../src/libs/Constants";
+import {suite, test} from 'mocha-typescript';
+import {Bootstrap, Container, RuntimeLoader, Config} from '@typexs/base';
+import {WebServer} from '../../../src/libs/web/WebServer';
+import {C_DEFAULT} from '../../../src/libs/Constants';
 import * as request from 'supertest';
-import {expect} from "chai";
-import {IStaticFiles} from "../../../src/libs/web/IStaticFiles";
-import {K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from "../../../src";
+import {expect} from 'chai';
+import {IStaticFiles} from '../../../src/libs/web/IStaticFiles';
+import {K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from '../../../src';
 
 process.setMaxListeners(1000);
 Bootstrap._().activateErrorHandling();
@@ -15,7 +15,7 @@ class WebserverSpec {
 
 
   before() {
-    //(global as any).routingControllersMetadataArgsStorage = null;
+    // (global as any).routingControllersMetadataArgsStorage = null;
     Container.reset();
 
   }
@@ -28,20 +28,20 @@ class WebserverSpec {
 
   @test
   async 'load default controllers routes'() {
-    let loader = new RuntimeLoader({
+    const loader = new RuntimeLoader({
       appdir: __dirname + '/fake_app',
       libs: [{
-        "topic": "server.controllers",
-        "refs": [
-          "controllers",
+        'topic': 'server.controllers',
+        'refs': [
+          'controllers',
         ]
       }]
     });
 
     await loader.prepare();
-    Container.set("RuntimeLoader", loader);
+    Container.set('RuntimeLoader', loader);
 
-    let web = Container.get(WebServer);
+    const web = Container.get(WebServer);
     await web.initialize({
       type: 'web', framework: 'express', routes: [{
         type: K_ROUTE_CONTROLLER,
@@ -50,29 +50,40 @@ class WebserverSpec {
     });
 
     await web.prepare();
-    let uri = web.getUri();
-    let routes = web.getRoutes();
+    const uri = web.getUri();
+    const routes = web.getRoutes();
 
-    let started = await web.start();
+    const started = await web.start();
 
 
     expect(started).to.be.true;
-    let res = await request(uri).get('/get')
+    const res = await request(uri).get('/get')
       .expect(200);
-    let stopped = await web.stop();
+    const stopped = await web.stop();
     expect(stopped).to.be.true;
     expect(res.body).to.deep.eq({json: 'test'});
     expect(routes).to.deep.eq([
       {
-        "authorized": false,
-        "context": "default",
-        "controller": "JsonDataDelivery",
-        "controllerMethod": "get",
-        "permissions": null,
-        "method": "get",
-        "params": [],
-        "route": "/get"
+        'authorized': false,
+        'context': 'default',
+        'controller': 'JsonDataDeliveryFourth',
+        'controllerMethod': 'get4',
+        'permissions': null,
+        'method': 'get',
+        'params': [],
+        'route': '/get4'
+      },
+      {
+        'authorized': false,
+        'context': 'default',
+        'controller': 'JsonDataDeliveryThird',
+        'controllerMethod': 'get',
+        'permissions': null,
+        'method': 'get',
+        'params': [],
+        'route': '/get'
       }
+
     ]);
 
   }
@@ -80,12 +91,12 @@ class WebserverSpec {
   @test
   async 'load static routing for absolute path'() {
 
-    let loader = new RuntimeLoader({});
+    const loader = new RuntimeLoader({});
 
     await loader.prepare();
-    Container.set("RuntimeLoader", loader);
+    Container.set('RuntimeLoader', loader);
 
-    let web = Container.get(WebServer);
+    const web = Container.get(WebServer);
     await web.initialize({
       type: 'web', framework: 'express', routes: [<IStaticFiles>{
         type: K_ROUTE_STATIC,
@@ -94,38 +105,38 @@ class WebserverSpec {
     });
 
     await web.prepare();
-    let uri = web.getUri();
-    let routes = web.getRoutes();
+    const uri = web.getUri();
+    const routes = web.getRoutes();
 
-    let started = await web.start();
+    const started = await web.start();
 
-    let res = await request(uri).get('/index.html')
+    const res = await request(uri).get('/index.html')
       .expect(200);
-    let stopped = await web.stop();
+    const stopped = await web.stop();
 
     expect(started).to.be.true;
     expect(stopped).to.be.true;
     expect(res.text).to.eq('<html>\n<body>TEST</body>\n</html>\n');
     expect(res.type).to.eq('text/html');
     expect(routes).to.deep.eq([{
-      "authorized": false,
-      "context": "default",
-      "method": "get",
-      "params": null,
-      "route": "/",
-      "serveStatic": true
+      'authorized': false,
+      'context': 'default',
+      'method': 'get',
+      'params': null,
+      'route': '/',
+      'serveStatic': true
     }]);
   }
 
   @test
   async 'load static routing for relative path'() {
-    Config.set('app.path', __dirname + '/fake_app')
-    let loader = new RuntimeLoader({});
+    Config.set('app.path', __dirname + '/fake_app');
+    const loader = new RuntimeLoader({});
 
     await loader.prepare();
-    Container.set("RuntimeLoader", loader);
+    Container.set('RuntimeLoader', loader);
 
-    let web = Container.get(WebServer);
+    const web = Container.get(WebServer);
     await web.initialize({
       type: 'web', framework: 'express', routes: [<IStaticFiles>{
         type: K_ROUTE_STATIC,
@@ -134,39 +145,39 @@ class WebserverSpec {
     });
 
     await web.prepare();
-    let uri = web.getUri();
-    let routes = web.getRoutes();
+    const uri = web.getUri();
+    const routes = web.getRoutes();
 
-    let started = await web.start();
+    const started = await web.start();
 
-    let res = await request(uri).get('/index.html')
+    const res = await request(uri).get('/index.html')
       .expect(200);
-    let stopped = await web.stop();
+    const stopped = await web.stop();
 
     expect(started).to.be.true;
     expect(stopped).to.be.true;
     expect(res.text).to.eq('<html>\n<body>TEST</body>\n</html>\n');
     expect(res.type).to.eq('text/html');
     expect(routes).to.deep.eq([{
-      "authorized": false,
-      "context": "default",
-      "method": "get",
-      "params": null,
-      "route": "/",
-      "serveStatic": true
+      'authorized': false,
+      'context': 'default',
+      'method': 'get',
+      'params': null,
+      'route': '/',
+      'serveStatic': true
     }]);
 
   }
 
   @test
   async 'load static routing for relative path with prefix'() {
-    Config.set('app.path', __dirname + '/fake_app')
-    let loader = new RuntimeLoader({});
+    Config.set('app.path', __dirname + '/fake_app');
+    const loader = new RuntimeLoader({});
 
     await loader.prepare();
-    Container.set("RuntimeLoader", loader);
+    Container.set('RuntimeLoader', loader);
 
-    let web = Container.get(WebServer);
+    const web = Container.get(WebServer);
     await web.initialize({
       type: 'web', framework: 'express', routes: [<IStaticFiles>{
         type: K_ROUTE_STATIC,
@@ -176,14 +187,14 @@ class WebserverSpec {
     });
 
     await web.prepare();
-    let uri = web.getUri();
-    let routes = web.getRoutes();
+    const uri = web.getUri();
+    const routes = web.getRoutes();
 
-    let started = await web.start();
+    const started = await web.start();
 
-    let res = await request(uri).get('/files/index.html')
+    const res = await request(uri).get('/files/index.html')
       .expect(200);
-    let stopped = await web.stop();
+    const stopped = await web.stop();
 
     expect(started).to.be.true;
     expect(stopped).to.be.true;
@@ -205,20 +216,20 @@ class WebserverSpec {
 
   @test
   async 'load multiple controllers routes'() {
-    let loader = new RuntimeLoader({
+    const loader = new RuntimeLoader({
       appdir: __dirname + '/fake_app',
       libs: [{
-        "topic": "server.controllers",
-        "refs": [
-          "controllers",
+        'topic': 'server.controllers',
+        'refs': [
+          'controllers',
         ]
       }]
     });
 
     await loader.prepare();
-    Container.set("RuntimeLoader", loader);
+    Container.set('RuntimeLoader', loader);
 
-    let web = Container.get(WebServer);
+    const web = Container.get(WebServer);
     await web.initialize({
       type: 'web', framework: 'express', routes: [
         {
@@ -233,17 +244,17 @@ class WebserverSpec {
     });
 
     await web.prepare();
-    let uri = web.getUri();
-    let routes = web.getRoutes();
+    const uri = web.getUri();
+    const routes = web.getRoutes();
 
-    let started = await web.start();
+    const started = await web.start();
 
-    let [res1, res2] = await Promise.all([
-      request(uri).get('/get').expect(200),
-      request(uri).get('/api/get').expect(200)
+    const [res1, res2] = await Promise.all([
+      request(uri).get('/get4').expect(200),
+      request(uri).get('/apias/get').expect(200)
     ]);
 
-    let stopped = await web.stop();
+    const stopped = await web.stop();
 
     expect(started).to.be.true;
     expect(stopped).to.be.true;
@@ -252,21 +263,31 @@ class WebserverSpec {
     expect(routes).to.deep.eq(
       [
         {
-          "authorized": false,
-          "context": "default",
-          "controller": "JsonDataDelivery",
-          "controllerMethod": "get",
-          "permissions": null,
-          "method": "get",
-          "params": [],
-          "route": "/get",
+          'authorized': false,
+          'context': 'default',
+          'controller': 'JsonDataDeliveryFourth',
+          'controllerMethod': 'get4',
+          'permissions': null,
+          'method': 'get',
+          'params': [],
+          'route': '/get4',
         },
         {
-          "authorized": false,
-          "context": "api",
-          "method": "get",
-          "params": null,
-          "route": "/api/get"
+          'authorized': false,
+          'context': 'default',
+          'controller': 'JsonDataDeliveryThird',
+          'controllerMethod': 'get',
+          'permissions': null,
+          'method': 'get',
+          'params': [],
+          'route': '/get',
+        },
+        {
+          'authorized': false,
+          'context': 'api',
+          'method': 'get',
+          'params': null,
+          'route': '/apias/get'
         }
       ]);
 
@@ -275,20 +296,20 @@ class WebserverSpec {
 
   @test
   async 'load controllers and static routes'() {
-    let loader = new RuntimeLoader({
+    const loader = new RuntimeLoader({
       appdir: __dirname + '/fake_app',
       libs: [{
-        "topic": "server.controllers",
-        "refs": [
-          "controllers",
+        'topic': 'server.controllers',
+        'refs': [
+          'controllers',
         ]
       }]
     });
 
     await loader.prepare();
-    Container.set("RuntimeLoader", loader);
+    Container.set('RuntimeLoader', loader);
 
-    let web = Container.get(WebServer);
+    const web = Container.get(WebServer);
     await web.initialize({
       type: 'web', framework: 'express', routes: [
         {
@@ -303,17 +324,17 @@ class WebserverSpec {
     });
 
     await web.prepare();
-    let uri = web.getUri();
-    let routes = web.getRoutes();
+    const uri = web.getUri();
+    const routes = web.getRoutes();
 
-    let started = await web.start();
+    const started = await web.start();
 
-    let [res1, res2] = await Promise.all([
+    const [res1, res2] = await Promise.all([
       request(uri).get('/get').expect(200),
       request(uri).get('/files/index.html').expect(200)
     ]);
 
-    let stopped = await web.stop();
+    const stopped = await web.stop();
     expect(started).to.be.true;
     expect(stopped).to.be.true;
     expect(res1.body).to.deep.eq({json: 'test'});
@@ -323,10 +344,20 @@ class WebserverSpec {
       [
         {
           context: 'default',
+          route: '/get4',
+          method: 'get',
+          params: [],
+          controller: 'JsonDataDeliveryFourth',
+          controllerMethod: 'get4',
+          permissions: null,
+          authorized: false
+        },
+        {
+          context: 'default',
           route: '/get',
           method: 'get',
           params: [],
-          controller: 'JsonDataDelivery',
+          controller: 'JsonDataDeliveryThird',
           controllerMethod: 'get',
           permissions: null,
           authorized: false
