@@ -1,0 +1,32 @@
+
+
+## Configuration
+
+### Web Server
+
+#### Routing Controller
+
+```yml
+
+server:
+  default:      # name for this server instance
+    type: web   # type for web server
+    ...
+    routes:
+    - type: routing_controller # type for this route handler
+      context: api # use only controllers which
+                   # are explicit declared by @ContextGroup('api')
+                   # Annotation
+      routerPrefix: api # HTTP Path prefix for this controller handler
+      access:   # Optional allow or deny some of the controllers
+      - name: *
+        access: allow  # only allow or deny are possible!
+      - name: DummyController* # using minimatch
+        access: deny
+```
+
+
+
+
+
+#### Static Controller
