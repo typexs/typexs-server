@@ -53,8 +53,7 @@ export class WebServer extends Server implements IServer {
   }
 
 
-  access(key: string, name: string) {
-    const cfg = this.config[key];
+  access(cfg: IRoutingController & any, name: string) {
     if (_.has(cfg, 'access')) {
       // if access empty then
       let allow = cfg.access.length > 0 ? false : true;
@@ -95,6 +94,7 @@ export class WebServer extends Server implements IServer {
       return null;
     }
     this.__prepared = true;
+    delete MetaArgs.$()[K_ROUTE_CACHE];
 
     this.loadFramework().create();
     await this.prepareMiddleware();
@@ -131,7 +131,7 @@ export class WebServer extends Server implements IServer {
           }
         }
 
-        controllerClasses = controllerClasses.filter(x => this.access(key, x.name));
+        controllerClasses = controllerClasses.filter(x => this.access(entry, x.name));
 
         routing.controllers = controllerClasses;
         routing.middlewares = getMetadataArgsStorage().middlewares.map(x => x.target);
