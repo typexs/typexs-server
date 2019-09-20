@@ -87,7 +87,7 @@ export class StorageAPIController {
   static checkOptions(opts: any, options: any) {
     if (!_.isEmpty(opts)) {
       const checked = {};
-      _.keys(opts).filter(k => ['raw', 'timeout'].indexOf(k) > -1 &&
+      _.keys(opts).filter(k => ['raw', 'timeout', 'validate', 'noTransaction', 'skipBuild'].indexOf(k) > -1 &&
         (_.isString(opts[k]) || _.isNumber(opts[k]) || _.isBoolean(opts[k])))
         .map(k => checked[k] = opts[k]);
       _.assign(options, opts);
