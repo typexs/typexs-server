@@ -47,7 +47,7 @@ import {
   XS_P_URL
 } from '..';
 import {HttpResponseError} from '../libs/exceptions/HttpResponseError';
-import {IEntityRef, IEntityRefMetadata} from 'commons-schema-api';
+import {IBuildOptions, IEntityRef, IEntityRefMetadata} from 'commons-schema-api';
 import {Expressions} from 'commons-expressions';
 import {IStorageRefMetadata} from '../libs/storage_api/IStorageRefMetadata';
 import {ServerNodeInfoApi} from '../api/ServerNodeInfo.api';
@@ -317,6 +317,21 @@ export class StorageAPIController {
   }
 
 
+  prepareEntities(entityDef: IEntityRef, data: any, options: ISaveOptions = {}) {
+    const buildOpts: IBuildOptions = {beforeBuild: StorageAPIController._beforeBuild};
+    if (options.raw) {
+      buildOpts.createAndCopy = options.raw;
+    }
+    let entities;
+    if (_.isArray(data)) {
+      entities = _.map(data, d => entityDef.build(d, buildOpts));
+    } else {
+      entities = entityDef.build(data, buildOpts);
+    }
+    return entities;
+  }
+
+
   /**
    * Return a new created Entity
    */
@@ -326,14 +341,12 @@ export class StorageAPIController {
 
     const [entityDef, controller] = this.getControllerForEntityName(name);
     // await this.invoker.use(EntityControllerApi).beforeEntityBuild(entityDef, data, user, controller);
-    let entities;
-    if (_.isArray(data)) {
-      entities = _.map(data, d => entityDef.build(d, {beforeBuild: StorageAPIController._beforeBuild}));
-    } else {
-      entities = entityDef.build(data, {beforeBuild: StorageAPIController._beforeBuild});
-    }
+
     const options: ISaveOptions = {validate: true};
     StorageAPIController.checkOptions(opts, options);
+
+    const entities = this.prepareEntities(entityDef, data, options);
+
     try {
       const results = await controller.save(entities, options);
       this.invoker.use(StorageAPIControllerApi).postProcessResults('save', entityDef, results, {
@@ -360,16 +373,9 @@ export class StorageAPIController {
                @CurrentUser() user: any) {
 
     const [entityDef, controller] = this.getControllerForEntityName(name);
-    // await this.invoker.use(EntityControllerApi).beforeEntityBuild(entityDef, data, user, controller);
-    let entities;
-    if (_.isArray(data)) {
-      entities = _.map(data, d => entityDef.build(d, {beforeBuild: StorageAPIController._beforeBuild}));
-    } else {
-      entities = entityDef.build(data, {beforeBuild: StorageAPIController._beforeBuild});
-    }
     const options: ISaveOptions = {validate: true};
-
     StorageAPIController.checkOptions(opts, options);
+    const entities = this.prepareEntities(entityDef, data, options);
 
     try {
       const results = await controller.save(entities, options);
