@@ -13,12 +13,12 @@ import {
   API_STORAGE_UPDATE_ENTITY,
   K_ROUTE_CONTROLLER
 } from '../../../src/libs/Constants';
-import * as request from 'request-promise';
 import {expect} from 'chai';
 import {Server} from '../../../src';
 import * as _ from 'lodash';
 import {Driver} from './fake_app_storage/entities/Driver';
 import {TEST_STORAGE_OPTIONS} from '../config';
+import {HttpFactory, IHttp} from 'commons-http';
 
 
 const settingsTemplate: ITypexsOptions & any = {
@@ -57,6 +57,7 @@ const settingsTemplate: ITypexsOptions & any = {
 
 let bootstrap: Bootstrap = null;
 let server: Server = null;
+let request: IHttp = null;
 
 
 @suite('functional/controllers/storage_api_controller')
@@ -67,7 +68,7 @@ class Storage_api_controllerSpec {
 
   static async before() {
     const settings = _.clone(settingsTemplate);
-
+    request = HttpFactory.create();
 
     bootstrap = Bootstrap
       .setConfigSources([{type: 'system'}])
@@ -100,12 +101,14 @@ class Storage_api_controllerSpec {
   @test
   async 'list storages'() {
     const url = server.url();
-    const res = await request.get(url + '/api' + API_STORAGE_PREFIX + API_STORAGE_METADATA_ALL_STORES, {json: true});
+    let res: any = await request.get(url + '/api' + API_STORAGE_PREFIX + API_STORAGE_METADATA_ALL_STORES, {json: true});
     // console.log(inspect(res, false, 10));
+    expect(res).to.not.be.null;
+    res = res.body;
     expect(res).to.have.length(1);
     expect(res[0].entities).to.have.length(4);
     expect(_.map(res[0].entities, e => e.name)).to.contain.members(['Driver', 'Car']);
-    const driver = _.find(res[0].entities, e => e.name == 'Driver');
+    const driver = _.find(res[0].entities, e => e.name === 'Driver');
     expect(driver.properties).to.have.length(4);
     expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
 
@@ -115,14 +118,16 @@ class Storage_api_controllerSpec {
   @test
   async 'list storage default'() {
     const url = server.url();
-    const res = await request.get(url + '/api' + API_STORAGE_PREFIX +
+    let res: any = await request.get(url + '/api' + API_STORAGE_PREFIX +
       API_STORAGE_METADATA_GET_STORE.replace(':name', 'default'), {json: true});
     // console.log(inspect(res, false, 10));
+    expect(res).to.not.be.null;
+    res = res.body;
     expect(res).to.exist;
     expect(res.name).to.be.eq('default');
     expect(res.entities).to.have.length(4);
     expect(_.map(res.entities, e => e.name)).to.contain.members(['Driver', 'Car']);
-    const driver = _.find(res.entities, e => e.name == 'Driver');
+    const driver = _.find(res.entities, e => e.name === 'Driver');
     expect(driver.properties).to.have.length(4);
     expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
 
@@ -132,12 +137,14 @@ class Storage_api_controllerSpec {
   @test
   async 'list all entities'() {
     const url = server.url();
-    const res = await request.get(url + '/api' + API_STORAGE_PREFIX +
+    let res = await request.get(url + '/api' + API_STORAGE_PREFIX +
       API_STORAGE_METADATA_ALL_ENTITIES, {json: true});
+    expect(res).to.not.be.null;
+    res = res.body;
     expect(res).to.have.length(4);
-    expect(_.map(res, r => r.options.storage)).to.contain.members([ 'default']);
+    expect(_.map(res, r => r.options.storage)).to.contain.members(['default']);
     expect(_.map(res, e => e.name)).to.contain.members(['Driver', 'Car']);
-    const driver = _.find(res, e => e.name == 'Driver');
+    const driver = _.find(res, e => e.name === 'Driver');
     expect(driver.properties).to.have.length(4);
     expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
   }
@@ -145,9 +152,11 @@ class Storage_api_controllerSpec {
   @test
   async 'list entity'() {
     const url = server.url();
-    const res = await request.get(url + '/api' +
+    let res: any = await request.get(url + '/api' +
       API_STORAGE_PREFIX +
       API_STORAGE_METADATA_GET_ENTITY.replace(':name', 'driver'), {json: true});
+    expect(res).to.not.be.null;
+    res = res.body;
     expect(res).to.exist;
     expect(res.storage).to.be.eq('default');
     expect(res.name).to.be.eq('Driver');
@@ -171,13 +180,17 @@ class Storage_api_controllerSpec {
     d.firstName = 'Blue';
 
     // save one driver
-    let res = await request.post(url + '/api' +
+    let res: any = await request.post(url + '/api' +
       API_STORAGE_PREFIX +
       API_STORAGE_SAVE_ENTITY.replace(':name', 'driver'),
       {
-        json: d,
+        body: d,
+        json: true
       }
     );
+
+    expect(res).to.not.be.null;
+    res = res.body;
 
     expect(res.id).to.be.gt(0);
     expect(res).to.be.deep.include(d);
@@ -196,9 +209,13 @@ class Storage_api_controllerSpec {
       API_STORAGE_PREFIX +
       API_STORAGE_SAVE_ENTITY.replace(':name', 'driver'),
       {
-        json: [d2, d3],
+        body: [d2, d3],
+        json: true
       }
     );
+
+    expect(res).to.not.be.null;
+    res = res.body;
 
     expect(res).to.have.length(2);
     expect(res[0]).to.be.deep.include(d2);
@@ -211,6 +228,9 @@ class Storage_api_controllerSpec {
       API_STORAGE_GET_ENTITY.replace(':name', 'driver').replace(':id', res[0].id), {json: true}
     );
 
+    expect(res).to.not.be.null;
+    res = res.body;
+
     expect(res).to.deep.include(d2);
     expect(res).to.have.include.keys(['$url', '$label']);
 
@@ -219,8 +239,11 @@ class Storage_api_controllerSpec {
     res.lastName = 'Gray2';
     res = await request.post(url + '/api' +
       API_STORAGE_PREFIX +
-      API_STORAGE_UPDATE_ENTITY.replace(':name', 'driver').replace(':id', res.id), {json: res}
+      API_STORAGE_UPDATE_ENTITY.replace(':name', 'driver').replace(':id', res.id), {body: res, json: true}
     );
+
+    expect(res).to.not.be.null;
+    res = res.body;
     expect(res.lastName).to.be.eq('Gray2');
 
     // get multiple driver
@@ -229,6 +252,8 @@ class Storage_api_controllerSpec {
       API_STORAGE_GET_ENTITY.replace(':name', 'driver').replace(':id', '1,2,3'), {json: true}
     );
 
+    expect(res).to.not.be.null;
+    res = res.body;
     expect(res.entities).to.have.length(3);
     expect(res.$count).to.eq(3);
 
@@ -237,6 +262,9 @@ class Storage_api_controllerSpec {
       API_STORAGE_PREFIX +
       API_STORAGE_FIND_ENTITY.replace(':name', 'driver') + '?query=' + JSON.stringify({firstName: 'Blue'}), {json: true}
     );
+
+    expect(res).to.not.be.null;
+    res = res.body;
     expect(res.$count).to.be.eq(1);
     expect(res.entities).to.have.length(1);
     expect(res.entities[0].firstName).to.be.eq('Blue');
@@ -245,6 +273,9 @@ class Storage_api_controllerSpec {
       API_STORAGE_PREFIX +
       API_STORAGE_DELETE_ENTITY.replace(':name', 'driver').replace(':id', '1,2'), {json: true}
     );
+
+    expect(res).to.not.be.null;
+    res = res.body;
 
     expect(res).to.have.length(2);
     expect(_.map(res, r => r.firstName)).to.deep.eq(['Blue', 'Green']);

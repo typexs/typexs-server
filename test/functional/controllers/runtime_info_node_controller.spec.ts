@@ -1,14 +1,14 @@
-import {suite, test, timeout} from "mocha-typescript";
-import {Bootstrap, Config, Container} from "@typexs/base";
-import {API_SYSTEM_RUNTIME_NODES, C_API, K_ROUTE_CONTROLLER} from "../../../src/libs/Constants";
-import * as request from "request-promise";
-import {expect} from "chai";
-import {WebServer} from "../../../src";
-import * as _ from "lodash";
-import {SpawnHandle} from "../SpawnHandle";
-import {TestHelper} from "../TestHelper";
-import {TEST_STORAGE_OPTIONS} from "../config";
-import {IEventBusConfiguration} from "commons-eventbus";
+import {suite, test, timeout} from 'mocha-typescript';
+import {Bootstrap, Config, Container} from '@typexs/base';
+import {API_SYSTEM_RUNTIME_NODES, C_API, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
+import {expect} from 'chai';
+import {WebServer} from '../../../src';
+import * as _ from 'lodash';
+import {SpawnHandle} from '../SpawnHandle';
+import {TestHelper} from '../TestHelper';
+import {TEST_STORAGE_OPTIONS} from '../config';
+import {IEventBusConfiguration} from 'commons-eventbus';
+import {HttpFactory, IHttp} from 'commons-http';
 
 const LOG_EVENT = TestHelper.logEnable(false);
 
@@ -41,19 +41,19 @@ const settingsTemplate: any = {
   },
   eventbus: {default: <IEventBusConfiguration>{adapter: 'redis', extra: {host: '127.0.0.1', port: 6379}}},
 
-}
+};
 
 let bootstrap: Bootstrap = null;
 let server: WebServer = null;
+let http: IHttp = null;
 
-
-@suite('functional/controllers/runtime_info_node_controller') @timeout(300000)
-class Runtime_info_controllerSpec {
+@suite(TestHelper.suiteName(__filename)) @timeout(300000)
+class RuntimeInfoControllerSpec {
 
 
   static async before() {
-    let settings = _.clone(settingsTemplate);
-
+    const settings = _.clone(settingsTemplate);
+    http = HttpFactory.create();
 
     bootstrap = Bootstrap
       .setConfigSources([{type: 'system'}])
@@ -83,12 +83,13 @@ class Runtime_info_controllerSpec {
   @test
   async 'get nodes'() {
     const url = server.url() + '/' + C_API;
-    let p = SpawnHandle.do(__dirname + '/fake_app_node/node.ts').start(LOG_EVENT);
+    const p = SpawnHandle.do(__dirname + '/fake_app_node/node.ts').start(LOG_EVENT);
     await p.started;
     await TestHelper.wait(50);
 
-    let res = await request.get(url + API_SYSTEM_RUNTIME_NODES, {json: true});
-
+    let res: any = await http.get(url + API_SYSTEM_RUNTIME_NODES, {json: true});
+    expect(res).to.not.be.null;
+    res = res.body;
     p.shutdown();
     await p.done;
 

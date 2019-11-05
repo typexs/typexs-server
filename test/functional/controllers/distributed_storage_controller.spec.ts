@@ -1,14 +1,14 @@
-import {suite, test, timeout} from "mocha-typescript";
-import {Log, Bootstrap, Config, Container, XS_P_$COUNT} from "@typexs/base";
-import {API_DISTRIBUTED_STORAGE_FIND_ENTITY, K_ROUTE_CONTROLLER} from "../../../src/libs/Constants";
-import * as request from "request-promise";
-import {expect} from "chai";
-import {WebServer} from "../../../src";
-import * as _ from "lodash";
-import {SpawnHandle} from "../SpawnHandle";
-import {TestHelper} from "../TestHelper";
-import {TEST_STORAGE_OPTIONS} from "../config";
-import {IEventBusConfiguration} from "commons-eventbus";
+import {suite, test, timeout} from 'mocha-typescript';
+import {Bootstrap, Config, Container, Log, XS_P_$COUNT} from '@typexs/base';
+import {API_DISTRIBUTED_STORAGE_FIND_ENTITY, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
+import {expect} from 'chai';
+import {WebServer} from '../../../src';
+import * as _ from 'lodash';
+import {SpawnHandle} from '../SpawnHandle';
+import {TestHelper} from '../TestHelper';
+import {TEST_STORAGE_OPTIONS} from '../config';
+import {IEventBusConfiguration} from 'commons-eventbus';
+import {HttpFactory, IHttp} from 'commons-http';
 
 const LOG_EVENT = TestHelper.logEnable(false);
 
@@ -42,18 +42,19 @@ const settingsTemplate: any = {
   workers: {access: [{name: 'DistributedQueryWorker', access: 'allow'}]},
   eventbus: {default: <IEventBusConfiguration>{adapter: 'redis', extra: {host: '127.0.0.1', port: 6379}}},
 
-}
+};
 
 let bootstrap: Bootstrap = null;
 let server: WebServer = null;
-
+let http: IHttp = null;
 
 @suite('functional/controllers/distributed_storage_controller') @timeout(300000)
-class Distributed_storage_controllerSpec {
+class DistributedStorageControllerSpec {
 
 
   static async before() {
-    let settings = _.clone(settingsTemplate);
+    http = HttpFactory.create();
+    const settings = _.clone(settingsTemplate);
 
 
     bootstrap = Bootstrap
@@ -84,49 +85,50 @@ class Distributed_storage_controllerSpec {
   @test
   async 'distributed query'() {
     const url = server.url();
-    let p = SpawnHandle.do(__dirname + '/fake_app_node/node_distributed.ts').start(LOG_EVENT);
+    const p = SpawnHandle.do(__dirname + '/fake_app_node/node_distributed.ts').start(LOG_EVENT);
     await p.started;
     await TestHelper.wait(50);
 
 
-    let _url = (url + API_DISTRIBUTED_STORAGE_FIND_ENTITY).replace(':name', 'system_node_info');
-    let start = Date.now();
-    let res = await request.get(_url, {json: true});
+    const _url = (url + API_DISTRIBUTED_STORAGE_FIND_ENTITY).replace(':name', 'system_node_info');
+    const start = Date.now();
+    const res: any = await http.get(_url, {json: true});
 
     p.shutdown();
 
     await p.done;
 
     expect(res).to.not.be.null;
-    expect(res.entities).to.have.length(4);
-    expect(res.entities.map((x: any) => x.nodeId)).to.contain.members(['fake_app_node', 'server']);
+    expect(res.body).to.not.be.null;
+    expect(res.body.entities).to.have.length(4);
+    expect(res.body.entities.map((x: any) => x.nodeId)).to.contain.members(['fake_app_node', 'server']);
   }
 
 
   @test
   async 'distributed query with conditions'() {
     const url = server.url();
-    let p = SpawnHandle.do(__dirname + '/fake_app_node/node_distributed.ts').start(LOG_EVENT);
+    const p = SpawnHandle.do(__dirname + '/fake_app_node/node_distributed.ts').start(LOG_EVENT);
     await p.started;
     await TestHelper.wait(50);
 
-    let _url = (url + API_DISTRIBUTED_STORAGE_FIND_ENTITY).replace(':name', 'system_node_info');
-    let res = null
+    const _url = (url + API_DISTRIBUTED_STORAGE_FIND_ENTITY).replace(':name', 'system_node_info');
+    let res: any = null;
     try {
-      res = await request.get(_url + '?query=' + JSON.stringify({nodeId: 'server'}), {json: true});
+      res = await http.get(_url + '?query=' + JSON.stringify({nodeId: 'server'}), {json: true});
     } catch (err) {
       Log.error(err);
     }
-
 
     p.shutdown();
     await p.done;
 
     expect(res).to.not.be.null;
-    expect(res[XS_P_$COUNT]).to.be.eq(2);
-    expect(res.entities).to.have.length(2);
-    expect(res.entities.map((x: any) => x.nodeId)).to.contain.members(['server']);
-    expect(res.entities.map((x: any) => x.nodeId)).to.not.contain.members(['fake_app_node']);
+    expect(res.body).to.not.be.null;
+    expect(res.body[XS_P_$COUNT]).to.be.eq(2);
+    expect(res.body.entities).to.have.length(2);
+    expect(res.body.entities.map((x: any) => x.nodeId)).to.contain.members(['server']);
+    expect(res.body.entities.map((x: any) => x.nodeId)).to.not.contain.members(['fake_app_node']);
   }
 
 }

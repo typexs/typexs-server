@@ -14,7 +14,6 @@ import {
   API_TASKS_METADATA,
   K_ROUTE_CONTROLLER
 } from '../../../src/libs/Constants';
-import * as request from 'request-promise';
 import {expect} from 'chai';
 import {Helper, WebServer} from '../../../src';
 import * as _ from 'lodash';
@@ -24,6 +23,7 @@ import {TEST_STORAGE_OPTIONS} from '../config';
 import {EventBus, IEventBusConfiguration, subscribe} from 'commons-eventbus';
 import {TaskEvent} from '@typexs/base/libs/tasks/worker/TaskEvent';
 import {IncomingMessage} from 'http';
+import {HttpFactory, IHttp} from 'commons-http';
 
 const LOG_EVENT = TestHelper.logEnable(true);
 
@@ -63,7 +63,7 @@ const settingsTemplate: any = {
 
 let bootstrap: Bootstrap = null;
 let server: WebServer = null;
-
+let request: IHttp = null;
 
 @suite('functional/controllers/tasks_controller')
 class TasksControllerSpec {
@@ -71,6 +71,7 @@ class TasksControllerSpec {
 
   static async before() {
     const settings = _.clone(settingsTemplate);
+    request = HttpFactory.create();
     bootstrap = Bootstrap
       .setConfigSources([{type: 'system'}])
       .configure(settings)
@@ -105,26 +106,34 @@ class TasksControllerSpec {
     const _urlTaskLocal = (url + '/api' + API_TASK_GET_METADATA.replace(':taskName', 'local_simple_task'));
     const _urlTaskRemote = (url + '/api' + API_TASK_GET_METADATA.replace(':taskName', 'simple_task'));
     const _urlTasks = (url + '/api' + API_TASKS_METADATA);
-    const rBefore = await request.get(_url, {json: true});
-
+    let rBefore: any = await request.get(_url, {json: true});
+    expect(rBefore).to.not.be.null;
+    rBefore = rBefore.body;
     const p = SpawnHandle.do(__dirname + '/fake_app_node_tasks/node_tasks.ts').start(LOG_EVENT);
     await p.started;
     await TestHelper.wait(50);
 
-    const rAfter = await request.get(_url, {json: true});
-
-    const rTasks = await request.get(_urlTasks, {json: true});
-    const rTaskLocal = await request.get(_urlTaskLocal, {json: true});
-    const rTaskRemote = await request.get(_urlTaskRemote, {json: true});
-
+    let rAfter: any = await request.get(_url, {json: true});
+    expect(rAfter).to.not.be.null;
+    rAfter = rAfter.body;
+    let rTasks: any = await request.get(_urlTasks, {json: true});
+    expect(rTasks).to.not.be.null;
+    rTasks = rTasks.body;
+    let rTaskLocal: any = await request.get(_urlTaskLocal, {json: true});
+    expect(rTaskLocal).to.not.be.null;
+    rTaskLocal = rTaskLocal.body;
+    let rTaskRemote: any = await request.get(_urlTaskRemote, {json: true});
+    expect(rTaskRemote).to.not.be.null;
+    rTaskRemote = rTaskRemote.body;
 
     p.shutdown();
 
     await p.done;
     await TestHelper.wait(50);
 
-    const rFinished = await request.get(_url, {json: true});
-
+    let rFinished: any = await request.get(_url, {json: true});
+    expect(rFinished).to.not.be.null;
+    rFinished = rFinished.body;
     expect(rTasks).to.have.length(4);
     expect(rTaskLocal).to.deep.include({
         'id': 'local_simple_task',
@@ -249,14 +258,17 @@ class TasksControllerSpec {
 
 
     const _url = url + '/api' + API_TASK_EXEC.replace(':taskName', 'simple_task');
-    const taskEvent: TaskEvent = await request.get(_url, {json: true});
+    let taskEvent: any = await request.get(_url, {json: true});
+    expect(taskEvent).to.not.be.null;
+    taskEvent = taskEvent.body;
 
     const _urlStatus = url + '/api' + API_TASK_STATUS.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id);
 
     await TestHelper.waitFor(() => events.length >= 4, 10);
     const s = await (<StorageRef>Container.get(C_STORAGE_DEFAULT)).getController().find(TaskLog);
-    const taskStatus1 = await request.get(_urlStatus, {json: true});
-
+    let taskStatus1: any = await request.get(_urlStatus, {json: true});
+    expect(taskStatus1).to.not.be.null;
+    taskStatus1 = taskStatus1.body;
 
     await TestHelper.waitFor(() => events.length >= 6);
 
@@ -264,13 +276,17 @@ class TasksControllerSpec {
     const _urlLog = url + '/api' + API_TASK_LOG
       .replace(':nodeId', taskEvent.respId)
       .replace(':runnerId', taskEvent.id);
-    const taskLog = await request.get(_urlLog, {json: true});
+    let taskLog: any = await request.get(_urlLog, {json: true});
+    expect(taskLog).to.not.be.null;
+    taskLog = taskLog.body;
 
     // get first 20 lines
     const _urlLog2 = url + '/api' + API_TASK_LOG
       .replace(':nodeId', taskEvent.respId)
       .replace(':runnerId', taskEvent.id) + '?from=0&offset=20';
-    const taskLog2 = await request.get(_urlLog2, {json: true});
+    let taskLog2: any = await request.get(_urlLog2, {json: true});
+    expect(taskLog2).to.not.be.null;
+    taskLog2 = taskLog2.body;
 
     // get skip 20 lines
     const _urlLog3 = url + '/api' + API_TASK_LOG
@@ -279,14 +295,15 @@ class TasksControllerSpec {
 
     let taskLog3: IncomingMessage;
     try {
-      taskLog3 = await request.get(_urlLog3, {resolveWithFullResponse: true});
+      taskLog3 = await request.get(_urlLog3, {json: true});
     } catch (e) {
 
     }
 
 
-    const taskStatus2 = await request.get(_urlStatus, {json: true});
-
+    let taskStatus2 = await request.get(_urlStatus, {json: true});
+    expect(taskStatus2).to.not.be.null;
+    taskStatus2 = taskStatus2.body;
     p.shutdown();
 
     await p.done;
@@ -370,8 +387,9 @@ class TasksControllerSpec {
         .replace(':taskName', 'simple_task_with_params') + '?parameters=' +
       JSON.stringify({need_this: {really: {important: 'data'}}}) + '&targetIds=' +
       JSON.stringify(['fake_app_node_tasks']);
-    const taskEvent: TaskEvent = await request.get(_url, {json: true});
-
+    let taskEvent: any = await request.get(_url, {json: true});
+    expect(taskEvent).to.not.be.null;
+    taskEvent = taskEvent.body;
     await TestHelper.waitFor(() => events.length >= 6);
 
     p.shutdown();
@@ -379,8 +397,9 @@ class TasksControllerSpec {
     await EventBus.unregister(z);
 
     const _urlStatus = url + '/api' + API_TASK_STATUS.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id);
-    const taskStatus1 = await request.get(_urlStatus, {json: true});
-
+    let taskStatus1: any = await request.get(_urlStatus, {json: true});
+    expect(taskStatus1).to.not.be.null;
+    taskStatus1 = taskStatus1.body;
     expect(taskEvent).to.be.deep.include({
       errors: [],
       state: 'enqueue',
@@ -438,8 +457,9 @@ class TasksControllerSpec {
 
     const _url = url + '/api' + API_TASK_EXEC
       .replace(':taskName', 'simple_task_with_params') + '?targetIds=' + JSON.stringify(['fake_app_node_tasks']);
-    const taskEvent: TaskEvent = await request.get(_url, {json: true});
-
+    let taskEvent: any = await request.get(_url, {json: true});
+    expect(taskEvent).to.not.be.null;
+    taskEvent = taskEvent.body;
     p.shutdown();
     await p.done;
     await EventBus.unregister(z);
@@ -470,22 +490,27 @@ class TasksControllerSpec {
       .replace(':taskName', 'local_simple_task_with_params')
       .replace(':incomingName', 'valueStatic');
 
-    const valueSuggestions1 = await request.get(_url, {json: true});
+    let valueSuggestions1 = await request.get(_url, {json: true});
+    expect(valueSuggestions1).to.not.be.null;
+    valueSuggestions1 = valueSuggestions1.body;
     expect(valueSuggestions1).to.be.deep.eq(['One', 'Two', 'Tree']);
 
     const _url3 = url + '/api' + API_TASK_GET_METADATA_VALUE
       .replace(':taskName', 'local_simple_task_with_params')
       .replace(':incomingName', 'valueClass');
 
-    const valueSuggestions3 = await request.get(_url3, {json: true});
+    let valueSuggestions3 = await request.get(_url3, {json: true});
+    expect(valueSuggestions3).to.not.be.null;
+    valueSuggestions3 = valueSuggestions3.body;
     expect(valueSuggestions3).to.be.deep.eq(['VP-One1', 'VP-Two2', 'VP-Tree3']);
     const _url2 = url + '/api' + API_TASK_GET_METADATA_VALUE
       .replace(':taskName', 'local_simple_task_with_params')
       .replace(':incomingName', 'valueFunction');
 
-    const valueSuggestions2 = await request.get(_url2, {json: true});
+    let valueSuggestions2 = await request.get(_url2, {json: true});
+    expect(valueSuggestions2).to.not.be.null;
+    valueSuggestions2 = valueSuggestions2.body;
     expect(valueSuggestions2).to.be.deep.eq(['One1', 'Two2', 'Tree3']);
-
 
 
   }
