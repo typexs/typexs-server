@@ -68,7 +68,7 @@
     "typescript-require": "^0.2.10"
   },
   "dependencies": {
-    "@typexs/base": "^0.10.0",
+    "@typexs/base": "0.x",
     "class-transformer": "^0.2.3",
     "commons-schema-api": "^1.1.4",
     "routing-controllers": "^0.8.0"
