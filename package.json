@@ -64,12 +64,12 @@
     "supertest": "^4.0.2",
     "ts-node": "^6.2.0",
     "tslint": "^5.20.0",
-    "typescript": "^3.6.4",
+    "typescript": "3.5.3",
     "typescript-require": "^0.2.10"
   },
   "dependencies": {
     "@typexs/base": "0.x",
-    "@typexs/roles-api": "^1.0.9",
+    "@typexs/roles-api": "^1.0.10",
     "class-transformer": "^0.2.3",
     "commons-schema-api": "^1.1.4",
     "routing-controllers": "^0.8.0"
