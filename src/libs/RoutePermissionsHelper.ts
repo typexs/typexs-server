@@ -1,8 +1,7 @@
-import {Action, getMetadataArgsStorage} from 'routing-controllers';
+import {Action} from 'routing-controllers';
 import {MetaArgs} from 'commons-base/browser';
-import {K_META_PERMISSIONS_ARGS} from './Constants';
+import {K_META_PERMISSIONS_ARGS, K_ROUTE_CACHE} from './Constants';
 import * as _ from 'lodash';
-import {K_ROUTE_CACHE} from './Constants';
 
 
 export class RoutePermissionsHelper {
@@ -12,8 +11,8 @@ export class RoutePermissionsHelper {
     const actions = MetaArgs.key(K_ROUTE_CACHE);
 
     const actionMetadatas = actions.filter(
-      x => x.method == action.request.method.toLowerCase() &&
-        x.route == action.request.route.path);
+      x => x.method === action.request.method.toLowerCase() &&
+        x.route === action.request.route.path);
 
     if (!_.isEmpty(actionMetadatas)) {
       const params = action.request.params;
@@ -33,8 +32,8 @@ export class RoutePermissionsHelper {
 
   static getPermissionFor(target: Function, methodName: string): any {
     const permissions = MetaArgs.key(K_META_PERMISSIONS_ARGS)
-      .find(x => x.target == target &&
-        methodName == x.method);
+      .find(x => x.target === target &&
+        methodName === x.method);
     return permissions;
   }
 

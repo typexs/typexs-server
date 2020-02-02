@@ -1,6 +1,6 @@
 import {Container} from 'typedi';
 import {EntitySchema} from 'typeorm';
-import {IActivator, IPermissions, Storage} from '@typexs/base';
+import {IActivator, Storage} from '@typexs/base';
 import {ServerRegistry} from './libs/server/ServerRegistry';
 import {
   PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY,
@@ -21,6 +21,7 @@ import {
   PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY,
   PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN
 } from './libs/Constants';
+import {BasicPermission, IPermissionDef, IPermissions} from '@typexs/roles-api';
 
 
 export class Activator implements IActivator, IPermissions {
@@ -32,7 +33,7 @@ export class Activator implements IActivator, IPermissions {
     Container.set('ServerRegistry', serverRegistry);
   }
 
-  permissions(): string[] {
+  permissions(): IPermissionDef[] {
 
     const permissions: string[] = [
       PERMISSION_ALLOW_ROUTES_VIEW,
@@ -85,7 +86,7 @@ export class Activator implements IActivator, IPermissions {
 
     // TODO how to solve dynamic task injection and concret permissions?
 
-    return permissions;
+    return permissions.map(x => new BasicPermission(x));
   }
 
 }
