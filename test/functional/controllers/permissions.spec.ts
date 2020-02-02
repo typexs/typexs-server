@@ -1,12 +1,12 @@
-import {suite, test} from "mocha-typescript";
-import {Bootstrap, Container, RuntimeLoader} from "@typexs/base";
-import {WebServer} from "../../../src/libs/web/WebServer";
-import {C_DEFAULT} from "../../../src/libs/Constants";
+import {suite, test} from 'mocha-typescript';
+import {Bootstrap, Container, RuntimeLoader} from '@typexs/base';
+import {WebServer} from '../../../src/libs/web/WebServer';
+import {C_DEFAULT} from '../../../src/libs/Constants';
 import * as request from 'supertest';
-import {expect} from "chai";
-import {IWebServerInstanceOptions, K_ROUTE_CONTROLLER} from "../../../src";
-import {Action} from "routing-controllers";
-import {RoutePermissionsHelper} from "../../../src/libs/RoutePermissionsHelper";
+import {expect} from 'chai';
+import {IWebServerInstanceOptions, K_ROUTE_CONTROLLER} from '../../../src';
+import {Action} from 'routing-controllers';
+import {RoutePermissionsHelper} from '../../../src/libs/RoutePermissionsHelper';
 
 @suite('functional/controllers/permissions')
 class PermissionsSpec {
@@ -14,7 +14,7 @@ class PermissionsSpec {
 
   before() {
     Bootstrap._().activateErrorHandling();
-    //(global as any).routingControllersMetadataArgsStorage = null;
+    // (global as any).routingControllersMetadataArgsStorage = null;
     Container.reset();
 
   }
@@ -26,22 +26,22 @@ class PermissionsSpec {
 
   @test
   async 'check permission annotations'() {
-    let loader = new RuntimeLoader({
+    const loader = new RuntimeLoader({
       appdir: __dirname + '/fake_app_permissions',
       libs: [{
-        "topic": "server.controllers",
-        "refs": [
-          "controllers",
+        'topic': 'server.controllers',
+        'refs': [
+          'controllers',
         ]
       }]
     });
 
     await loader.prepare();
-    Container.set("RuntimeLoader", loader);
+    Container.set('RuntimeLoader', loader);
 
-    let creds: string[][] = [];
-    let creds2: string[][] = [];
-    let web = Container.get(WebServer);
+    const creds: string[][] = [];
+    const creds2: string[][] = [];
+    const web = Container.get(WebServer);
     await web.initialize(<IWebServerInstanceOptions>{
       type: 'web',
       framework: 'express',
@@ -66,10 +66,10 @@ class PermissionsSpec {
     });
 
     await web.prepare();
-    let uri = web.getUri();
-    let routes = web.getRoutes();
+    const uri = web.getUri();
+    const routes = web.getRoutes();
     expect(routes).to.have.length(8);
-    let started = await web.start();
+    const started = await web.start();
 
     expect(started).to.be.true;
     let res = await request(uri)
@@ -97,10 +97,9 @@ class PermissionsSpec {
       .expect(200);
 
 
-
-    let stopped = await web.stop();
+    const stopped = await web.stop();
     expect(stopped).to.be.true;
-console.log(creds,creds2)
+    // console.log(creds, creds2);
     expect(creds).to.deep.include.members(
       [
         ['allow get'],
