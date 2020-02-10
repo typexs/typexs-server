@@ -59,7 +59,7 @@
     "mocha": "^7.0.1",
     "mocha-typescript": "^1.1.17",
     "nyc": "^15.0.0",
-    "redis": "^3.0.2",
+    "redis": "^2.8.0",
     "sqlite3": "^4.1.1",
     "supertest": "^4.0.2",
     "ts-node": "^6.2.0",
