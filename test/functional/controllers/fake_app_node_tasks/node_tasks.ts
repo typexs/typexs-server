@@ -1,10 +1,10 @@
-import {TEST_STORAGE_OPTIONS} from "../../config";
-import {IEventBusConfiguration} from "commons-eventbus";
-import {Bootstrap, ITypexsOptions} from "@typexs/base";
-import {Config} from "commons-config";
+import {TEST_STORAGE_OPTIONS} from '../../config';
+import {IEventBusConfiguration} from 'commons-eventbus';
+import {Bootstrap, ITypexsOptions} from '@typexs/base';
+import {Config} from 'commons-config';
 
 (async function () {
-  const LOG_EVENT = true;//
+  const LOG_EVENT = true; //
   let bootstrap = Bootstrap
     .setConfigSources([{type: 'system'}])
     .configure(<ITypexsOptions & any>{
@@ -18,16 +18,16 @@ import {Config} from "commons-config";
     });
 
   // create manuell
-  //PlatformUtils.mkdir('/tmp/taskmonitor/fake_app_node_tasks');
+  // PlatformUtils.mkdir('/tmp/taskmonitor/fake_app_node_tasks');
 
   bootstrap.activateLogger();
   bootstrap.activateErrorHandling();
   await bootstrap.prepareRuntime();
   bootstrap = await bootstrap.activateStorage();
   bootstrap = await bootstrap.startup();
-  let timeout = parseInt(Config.get('argv.timeout', 20000));
+  const timeout = parseInt(Config.get('argv.timeout', 20000));
 
-  let t = setTimeout(async () => {
+  const t = setTimeout(async () => {
     await bootstrap.shutdown();
   }, timeout);
 
@@ -37,7 +37,7 @@ import {Config} from "commons-config";
       running = false;
       clearTimeout(t);
       await bootstrap.shutdown();
-      process.exit(0)
+      process.exit(0);
     }
   });
   process.on('exit', async () => {

@@ -181,7 +181,7 @@ class TasksControllerSpec {
         'remote': true
       },
       'mode': '4',
-      'hasWorker': false,
+      'hasWorker': true,
       'permissions': null,
       'description': null,
       'remote': true,
