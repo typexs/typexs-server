@@ -13,8 +13,6 @@ import {
   Storage,
   StorageEntityController,
   StorageRef,
-  TreeUtils,
-  WalkValues,
   XS_P_$COUNT,
   XS_P_$LIMIT,
   XS_P_$OFFSET
@@ -178,6 +176,7 @@ export class StorageAPIController {
     @CurrentUser() user: any
   ) {
 
+
     const [entityRef, controller] = this.getControllerForEntityName(name);
 
     // try {
@@ -195,14 +194,14 @@ export class StorageAPIController {
 
     let conditions = null;
     if (query) {
-      conditions = JSON.parse(query);
+      conditions = JsonUtils.parse(query);
       if (!_.isPlainObject(conditions)) {
         throw new Error('conditions are wrong ' + query);
       }
     }
     let sortBy = null;
     if (sort) {
-      sortBy = JSON.parse(sort);
+      sortBy = JsonUtils.parse(sort);
       if (!_.isPlainObject(sortBy)) {
         throw new Error('sort by is wrong ' + sort);
       }

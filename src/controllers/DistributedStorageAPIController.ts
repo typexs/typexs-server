@@ -26,6 +26,7 @@ import {
 import {HttpResponseError} from '../libs/exceptions/HttpResponseError';
 import {IEntityRef} from 'commons-schema-api';
 import {Expressions} from 'commons-expressions';
+import {JsonUtils} from 'commons-base';
 
 
 @ContextGroup('api')
@@ -81,14 +82,14 @@ export class DistributedStorageAPIController {
 
     let conditions = null;
     if (query) {
-      conditions = JSON.parse(query);
+      conditions = JsonUtils.parse(query);
       if (!_.isPlainObject(conditions)) {
         throw new Error('conditions are wrong ' + query);
       }
     }
     let sortBy = null;
     if (sort) {
-      sortBy = JSON.parse(sort);
+      sortBy = JsonUtils.parse(sort);
       if (!_.isPlainObject(sortBy)) {
         throw new Error('sort by is wrong ' + sort);
       }
