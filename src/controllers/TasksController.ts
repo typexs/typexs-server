@@ -1,7 +1,19 @@
 import * as _ from 'lodash';
 
 import {Get, HttpError, JsonController, Param, QueryParam} from 'routing-controllers';
-import {C_STORAGE_DEFAULT, Cache, Container, Inject, Invoker, Log, PlatformUtils, StorageRef, TaskLog, Tasks} from '@typexs/base';
+import {
+  C_STORAGE_DEFAULT,
+  Cache,
+  Container,
+  Inject,
+  Invoker,
+  Log,
+  PlatformUtils,
+  StorageRef,
+  TaskLog,
+  TaskRunnerRegistry,
+  Tasks
+} from '@typexs/base';
 import {
   _API_TASK_EXEC,
   _API_TASK_GET_METADATA,
@@ -11,6 +23,7 @@ import {
   _API_TASKS,
   _API_TASKS_LIST,
   _API_TASKS_METADATA,
+  _API_TASKS_RUNNING,
   Access,
   ContextGroup,
   Helper,
@@ -19,6 +32,7 @@ import {
   PERMISSION_ALLOW_TASK_GET_METADATA,
   PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN,
   PERMISSION_ALLOW_TASK_LOG,
+  PERMISSION_ALLOW_TASK_RUNNING,
   PERMISSION_ALLOW_TASK_STATUS,
   PERMISSION_ALLOW_TASKS_LIST,
   PERMISSION_ALLOW_TASKS_METADATA
@@ -33,6 +47,9 @@ export class TasksController {
 
   @Inject(Tasks.NAME)
   tasks: Tasks;
+
+  @Inject(TaskRunnerRegistry.NAME)
+  taskRunner: TaskRunnerRegistry;
 
   @Inject(Invoker.NAME)
   invoker: Invoker;
@@ -188,5 +205,21 @@ export class TasksController {
     }
     return null;
   }
+
+  @Access(PERMISSION_ALLOW_TASK_RUNNING)
+  @Get(_API_TASKS_RUNNING)
+  async getRunningTasks(@Param('nodeId') nodeId: string = null) {
+    const tasksRunner = [];
+    // todo
+    if (_.isEmpty(nodeId)) {
+      const tasks = this.taskRunner.getRunningTasks();
+      for (const t of this.taskRunner.getRunners()) {
+
+      }
+    }
+
+
+  }
+
 
 }

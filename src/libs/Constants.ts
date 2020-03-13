@@ -141,3 +141,7 @@ export const PERMISSION_ALLOW_TASK_LOG = 'task log view';
 export const _API_TASK_STATUS = '/status/:nodeId/:runnerId';
 export const API_TASK_STATUS = _API_TASKS + _API_TASK_STATUS;
 export const PERMISSION_ALLOW_TASK_STATUS = 'task status view';
+
+export const _API_TASKS_RUNNING = '/running/:nodeId/:runnerId';
+export const API_TASK_RUNNING = _API_TASKS + _API_TASKS_RUNNING;
+export const PERMISSION_ALLOW_TASK_RUNNING = 'task running view';

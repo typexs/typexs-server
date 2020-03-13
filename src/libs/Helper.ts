@@ -1,9 +1,9 @@
-import * as _ from "lodash";
-import {C_DEFAULT} from "./Constants";
-import {MetaArgs} from "commons-base/browser";
-import {K_META_CONTEXT_ARGS} from "./Constants";
-import {Stats} from "fs";
-import * as fs from "fs";
+import * as _ from 'lodash';
+import {C_DEFAULT} from './Constants';
+import {MetaArgs} from 'commons-base/browser';
+import {K_META_CONTEXT_ARGS} from './Constants';
+import {Stats} from 'fs';
+import * as fs from 'fs';
 
 
 export class Helper {
@@ -11,11 +11,11 @@ export class Helper {
   static FILEPATH_PATTERN = /^(\.|\.\/|\/)([\w\/\.\-_ ]*)$/;
 
   static resolveGroups(classes: Function[]) {
-    let grouped = MetaArgs.key(K_META_CONTEXT_ARGS);
-    let groups: any = {}
-    for (let clazz of classes) {
+    const grouped = MetaArgs.key(K_META_CONTEXT_ARGS);
+    const groups: any = {};
+    for (const clazz of classes) {
       let group = C_DEFAULT;
-      for (let entry of grouped) {
+      for (const entry of grouped) {
         if (entry.target === clazz) {
           group = entry.ctxtGroup;
         }
@@ -32,7 +32,7 @@ export class Helper {
   static async tail(filepath: string, maxlines: number = -1, encoding: string = 'utf8') {
     let stat: Stats = null;
     let file: number = null;
-    const NEW_LINE_CHARACTERS = ["\n", "\r"];
+    const NEW_LINE_CHARACTERS = ['\n', '\r'];
 
     const readPreviousChar = (stat: Stats, file: number, currentCharacterCount: number) => {
       return new Promise((resolve, reject) => {
@@ -42,20 +42,20 @@ export class Helper {
           } else {
             resolve(buffer.toString());
           }
-        })
-      })
+        });
+      });
     };
 
     if (!fs.existsSync(filepath)) {
-      throw new Error("file does not exist");
+      throw new Error('file does not exist');
     }
 
     stat = await new Promise((resolve, reject) => fs.stat(filepath, (err: Error, res: Stats) => err ? reject(err) : resolve(res)));
-    file = await new Promise((resolve, reject) => fs.open(filepath, "r", (err: Error, res: number) => err ? reject(err) : resolve(res)));
+    file = await new Promise((resolve, reject) => fs.open(filepath, 'r', (err: Error, res: number) => err ? reject(err) : resolve(res)));
 
     let chars = 0;
     let lineCount = 0;
-    let lines = "";
+    let lines = '';
 
     const do_while_loop = async (): Promise<Buffer | string> => {
       if (lines.length > stat.size) {
@@ -67,10 +67,10 @@ export class Helper {
           lines = lines.substring(1);
         }
         await new Promise((resolve, reject) => fs.close(file, err => err ? reject(err) : resolve()));
-        if (encoding === "buffer") {
-          return Buffer.from(lines, "binary");
+        if (encoding === 'buffer') {
+          return Buffer.from(lines, 'binary');
         }
-        return Buffer.from(lines, "binary").toString(encoding);
+        return Buffer.from(lines, 'binary').toString(encoding);
       }
 
       return readPreviousChar(stat, file, chars)
@@ -92,7 +92,7 @@ export class Helper {
   static async less(filepath: string, from: number = 0, maxlines: number = -1, encoding: string = 'utf8') {
     let stat: Stats = null;
     let file: number = null;
-    const NEW_LINE_CHARACTERS = ["\n", "\r"];
+    const NEW_LINE_CHARACTERS = ['\n', '\r'];
 
     const readChar = (stat: Stats, file: number, currentCharacterCount: number) => {
       return new Promise((resolve, reject) => {
@@ -102,22 +102,22 @@ export class Helper {
           } else {
             resolve(buffer.toString());
           }
-        })
-      })
+        });
+      });
     };
 
     if (!fs.existsSync(filepath)) {
-      throw new Error("file does not exist");
+      throw new Error('file does not exist');
     }
 
     stat = await new Promise((resolve, reject) => fs.stat(filepath, (err: Error, res: Stats) => err ? reject(err) : resolve(res)));
-    file = await new Promise((resolve, reject) => fs.open(filepath, "r", (err: Error, res: number) => err ? reject(err) : resolve(res)));
+    file = await new Promise((resolve, reject) => fs.open(filepath, 'r', (err: Error, res: number) => err ? reject(err) : resolve(res)));
 
     let started = false;
     let chars = 0;
     let lineCount = 0;
     let lineSelectedCount = 0;
-    let lines = "";
+    let lines = '';
 
     // set default lines
     maxlines = maxlines === 0 ? 10000 : maxlines;
@@ -126,10 +126,10 @@ export class Helper {
       if ((!started && lines.length > 0) || chars >= stat.size) {
         await new Promise((resolve, reject) => fs.close(file, err => err ? reject(err) : resolve()));
         lines = lines.substring(0, lines.length - 1);
-        if (encoding === "buffer") {
-          return Buffer.from(lines, "binary");
+        if (encoding === 'buffer') {
+          return Buffer.from(lines, 'binary');
         }
-        return Buffer.from(lines, "binary").toString(encoding);
+        return Buffer.from(lines, 'binary').toString(encoding);
       }
 
       return readChar(stat, file, chars)
@@ -141,7 +141,7 @@ export class Helper {
           }
           if (_.includes(NEW_LINE_CHARACTERS, nextCharacter)) {
             lineCount++;
-            if (started){
+            if (started) {
               lineSelectedCount++;
             }
           }
