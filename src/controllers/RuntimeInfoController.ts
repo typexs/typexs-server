@@ -1,18 +1,7 @@
 import * as _ from 'lodash';
-import {
-  ClassLoader,
-  Config,
-  Container,
-  IModule,
-  Inject,
-  Invoker,
-  RuntimeLoader,
-  Storage,
-  System,
-  Workers
-} from '@typexs/base';
+import {ClassLoader, Config, Container, IModule, Inject, Invoker, RuntimeLoader, Storage, System, Workers} from '@typexs/base';
 import {ContextGroup} from '../decorators/ContextGroup';
-import {Get, JsonController, Param, QueryParam} from 'routing-controllers';
+import {ContentType, Get, JsonController, Param, QueryParam} from 'routing-controllers';
 import {Access} from '../decorators/Access';
 import {ServerRegistry} from './../libs/server/ServerRegistry';
 import {IRoute} from './../libs/server/IRoute';
@@ -26,7 +15,8 @@ import {
   _API_SYSTEM_RUNTIME_NODE,
   _API_SYSTEM_RUNTIME_NODES,
   _API_SYSTEM_RUNTIME_REMOTE_INFOS,
-  _API_SYSTEM_STORAGES, _API_SYSTEM_WORKERS,
+  _API_SYSTEM_STORAGES,
+  _API_SYSTEM_WORKERS,
   PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW,
   PERMISSION_ALLOW_MODULES_VIEW,
   PERMISSION_ALLOW_ROUTES_VIEW,
@@ -35,7 +25,8 @@ import {
   PERMISSION_ALLOW_RUNTIME_NODES_VIEW,
   PERMISSION_ALLOW_RUNTIME_REMOTE_INFOS_VIEW,
   PERMISSION_ALLOW_STORAGE_ENTITY_VIEW,
-  PERMISSION_ALLOW_STORAGES_VIEW, PERMISSION_ALLOW_WORKERS_INFO
+  PERMISSION_ALLOW_STORAGES_VIEW,
+  PERMISSION_ALLOW_WORKERS_INFO
 } from '../libs/Constants';
 import {ServerNodeInfoApi} from '../api/ServerNodeInfo.api';
 import {IWorkerInfo} from '@typexs/base/libs/worker/IWorkerInfo';
@@ -64,6 +55,7 @@ export class RuntimeInfoController {
 
   @Access(PERMISSION_ALLOW_RUNTIME_INFO_VIEW)
   @Get(_API_SYSTEM_RUNTIME_INFO)
+  @ContentType('application/json')
   info(): any {
     return this.system.info;
   }
@@ -71,6 +63,7 @@ export class RuntimeInfoController {
 
   @Access(PERMISSION_ALLOW_RUNTIME_NODE_VIEW)
   @Get(_API_SYSTEM_RUNTIME_NODE)
+  @ContentType('application/json')
   node(): any {
     return this.system.node;
   }
@@ -78,6 +71,7 @@ export class RuntimeInfoController {
 
   @Access(PERMISSION_ALLOW_RUNTIME_NODES_VIEW)
   @Get(_API_SYSTEM_RUNTIME_NODES)
+  @ContentType('application/json')
   nodes(): any {
     return this.system.nodes;
   }
@@ -85,6 +79,7 @@ export class RuntimeInfoController {
 
   @Access(PERMISSION_ALLOW_RUNTIME_REMOTE_INFOS_VIEW)
   @Get(_API_SYSTEM_RUNTIME_REMOTE_INFOS)
+  @ContentType('application/json')
   nodesInfo(@QueryParam('nodeIds') nodeIds: string[] = []): any {
     return this.system.getNodeInfos(nodeIds);
   }
@@ -93,6 +88,7 @@ export class RuntimeInfoController {
   // TODO impl worker statistics
   @Access(PERMISSION_ALLOW_WORKERS_INFO)
   @Get(_API_SYSTEM_WORKERS)
+  @ContentType('application/json')
   listWorkers(): IWorkerInfo[] {
     return (<Workers>Container.get(Workers.NAME)).infos();
   }
@@ -100,6 +96,7 @@ export class RuntimeInfoController {
 
   @Access(PERMISSION_ALLOW_ROUTES_VIEW)
   @Get(_API_SYSTEM_ROUTES)
+  @ContentType('application/json')
   listRoutes(): IRoute[] {
     let routes: IRoute[] = [];
     const instanceNames = this.serverRegistry.getInstanceNames();
@@ -114,6 +111,7 @@ export class RuntimeInfoController {
 
   @Access(PERMISSION_ALLOW_MODULES_VIEW)
   @Get(_API_SYSTEM_MODULES)
+  @ContentType('application/json')
   listModules(): IModule[] {
     const modules = this.loader.registry.modules();
     this.invoker.use(ServerNodeInfoApi).prepareModules(modules);
@@ -123,6 +121,7 @@ export class RuntimeInfoController {
 
   @Access(PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW)
   @Get(_API_SYSTEM_CONFIG)
+  @ContentType('application/json')
   getConfig(): any {
     const _orgCfg = Config.get();
     const cfg = _.cloneDeepWith(_orgCfg);
@@ -146,20 +145,11 @@ export class RuntimeInfoController {
   }
 
 
-  getFilterKeys(): string[] {
-    // TODO cache this!
-    let filterKeys = ['user', 'username', 'password'];
-    const res: string[][] = <string[][]><any>this.invoker.use(ServerNodeInfoApi).filterConfigKeys();
-    if (res && _.isArray(res)) {
-      filterKeys = _.uniq(_.concat(filterKeys, ...res.filter(x => _.isArray(x))).filter(x => !_.isEmpty(x)));
-    }
-    return filterKeys;
-  }
-
 
   @Access(PERMISSION_ALLOW_STORAGES_VIEW)
   @Get(_API_SYSTEM_STORAGES)
-  getStorageInfo(): any {
+  @ContentType('application/json')
+  async getStorageInfo() {
     const options = _.cloneDeepWith(this.storage.getAllOptions());
     const filterKeys = this.getFilterKeys();
     TreeUtils.walk(options, (x: WalkValues) => {
@@ -174,14 +164,15 @@ export class RuntimeInfoController {
         }
       }
     });
-    this.invoker.use(ServerNodeInfoApi).prepareStorageInfo(options);
+    await this.invoker.use(ServerNodeInfoApi).prepareStorageInfo(options);
     return options;
   }
 
 
   @Access(PERMISSION_ALLOW_STORAGE_ENTITY_VIEW)
   @Get('/storage/:name/entities')
-  getStorageEntities(@Param('name') name: string): any[] {
+  @ContentType('application/json')
+  async getStorageEntities(@Param('name') name: string) {
     const ref = this.storage.get(name);
     const entityNames = _.map(ref.getOptions().entities, e => {
       if (_.isString(e)) {
@@ -205,9 +196,19 @@ export class RuntimeInfoController {
         }
       }
     });
-    this.invoker.use(ServerNodeInfoApi).prepareStorageEntities(tables);
+    await this.invoker.use(ServerNodeInfoApi).prepareStorageEntities(tables);
     return tables;
   }
 
+
+  getFilterKeys(): string[] {
+    // TODO cache this!
+    let filterKeys = ['user', 'username', 'password'];
+    const res: string[][] = <string[][]><any>this.invoker.use(ServerNodeInfoApi).filterConfigKeys();
+    if (res && _.isArray(res)) {
+      filterKeys = _.uniq(_.concat(filterKeys, ...res.filter(x => _.isArray(x))).filter(x => !_.isEmpty(x)));
+    }
+    return filterKeys;
+  }
 
 }

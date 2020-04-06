@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {Body, CurrentUser, Delete, Get, HttpError, JsonController, Param, Post, QueryParam} from 'routing-controllers';
+import {Body, ContentType, CurrentUser, Delete, Get, HttpError, JsonController, Param, Post, QueryParam} from 'routing-controllers';
 import {
   Cache,
   ClassLoader,
@@ -100,6 +100,7 @@ export class StorageAPIController {
   // - Check if user has an explicit credential to access the method
   @Access(PERMISSION_ALLOW_ACCESS_STORAGE_METADATA)
   @Get(API_STORAGE_METADATA_ALL_STORES)
+  @ContentType('application/json')
   async getMetadatas(@CurrentUser() user: any): Promise<any> {
     const storageNames = this.storage.getNames();
     const data = await Promise.all(_.map(storageNames, storageName => {
@@ -114,6 +115,7 @@ export class StorageAPIController {
    */
   @Access(PERMISSION_ALLOW_ACCESS_STORAGE_METADATA)
   @Get(API_STORAGE_METADATA_GET_STORE)
+  @ContentType('application/json')
   async getMetadata(@Param('name') storageName: string,
                     @QueryParam('withCollections') withCollections: boolean,
                     @QueryParam('refresh') refresh: boolean,
@@ -127,6 +129,7 @@ export class StorageAPIController {
    */
   @Access(PERMISSION_ALLOW_ACCESS_STORAGE_METADATA)
   @Get(API_STORAGE_METADATA_ALL_ENTITIES)
+  @ContentType('application/json')
   async getMetadataEntities(@CurrentUser() user: any) {
     const storageNames = this.storage.getNames();
     let data: IEntityRefMetadata[] = [];
@@ -143,6 +146,7 @@ export class StorageAPIController {
    */
   @Access(PERMISSION_ALLOW_ACCESS_STORAGE_METADATA)
   @Get(API_STORAGE_METADATA_GET_ENTITY)
+  @ContentType('application/json')
   async getMetadataEntity(@Param('name') entityName: string, @CurrentUser() user: any) {
     const ref = this.getStorageRef(entityName);
     const entityRef = this.getEntityRef(ref, entityName);
@@ -157,6 +161,7 @@ export class StorageAPIController {
    */
   @Access(PERMISSION_ALLOW_ACCESS_STORAGE_METADATA)
   @Post(API_STORAGE_METADATA_CREATE_ENTITY)
+  @ContentType('application/json')
   async entityCreate(@Body() data: any, @CurrentUser() user: any) {
     throw new NotYetImplementedError();
   }
@@ -167,6 +172,7 @@ export class StorageAPIController {
    */
   @Access([PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY, PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN])
   @Get(API_STORAGE_FIND_ENTITY)
+  @ContentType('application/json')
   async query(
     @Param('name') name: string,
     @QueryParam('query') query: string,
@@ -259,6 +265,7 @@ export class StorageAPIController {
    */
   @Access([PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY, PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN])
   @Get(API_STORAGE_GET_ENTITY)
+  @ContentType('application/json')
   async get(@Param('name') name: string, @Param('id') id: string, @QueryParam('opts') opts: any = {}, @CurrentUser() user: any) {
     if (_.isEmpty(name) || _.isEmpty(id)) {
       throw new HttpError(400, 'entity name or id not set');
@@ -337,6 +344,7 @@ export class StorageAPIController {
    */
   @Access([PERMISSION_ALLOW_SAVE_STORAGE_ENTITY, PERMISSION_ALLOW_SAVE_STORAGE_ENTITY_PATTERN])
   @Post(API_STORAGE_SAVE_ENTITY)
+  @ContentType('application/json')
   async save(@Param('name') name: string, @Body() data: any, @QueryParam('opts') opts: any = {}, @CurrentUser() user: any): Promise<any> {
 
     const [entityDef, controller] = this.getControllerForEntityName(name);
@@ -366,6 +374,7 @@ export class StorageAPIController {
    */
   @Access([PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY, PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN])
   @Post(API_STORAGE_UPDATE_ENTITY)
+  @ContentType('application/json')
   async update(@Param('name') name: string,
                @Param('id') id: string,
                @QueryParam('opts') opts: any = {},
@@ -397,6 +406,7 @@ export class StorageAPIController {
    */
   @Access([PERMISSION_ALLOW_DELETE_STORAGE_ENTITY, PERMISSION_ALLOW_DELETE_STORAGE_ENTITY_PATTERN])
   @Delete(API_STORAGE_DELETE_ENTITY)
+  @ContentType('application/json')
   async delete(@Param('name') name: string,
                @Param('id') id: string,
                @QueryParam('opts') opts: any = {},
@@ -421,6 +431,7 @@ export class StorageAPIController {
     return [entityRef, controller];
   }
 
+
   private getEntityRef(storageRef: StorageRef, entityName: string): IEntityRef {
     const entityRef = storageRef.getEntityRef(entityName);
     if (!entityRef) {
@@ -429,6 +440,7 @@ export class StorageAPIController {
     return entityRef;
   }
 
+
   private getStorageRef(entityName: string): StorageRef {
     const storageRef = this.storage.forClass(entityName);
     if (!storageRef) {
@@ -436,6 +448,7 @@ export class StorageAPIController {
     }
     return storageRef;
   }
+
 
   private async getFilterKeys(): Promise<string[]> {
     // TODO cache this!
@@ -453,6 +466,7 @@ export class StorageAPIController {
     await this.cache.set(cacheKey, filterKeys);
     return filterKeys;
   }
+
 
   private async getStorageSchema(storageName: string, withCollections: boolean = false, refresh: boolean = false) {
     const cacheKey = 'storage-schema-' + storageName + (withCollections ? '-with-collection' : '');
@@ -503,6 +517,7 @@ export class StorageAPIController {
     await this.cache.set(cacheKey, entry, cacheBin, {ttl: 24 * 60 * 60 * 1000});
     return entry;
   }
+
 
   private async getStorageRefCollections(ref: StorageRef): Promise<ICollection[]> {
 

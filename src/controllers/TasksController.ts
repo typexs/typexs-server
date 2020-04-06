@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import {Get, HttpError, JsonController, Param, QueryParam} from 'routing-controllers';
+import {ContentType, Get, HttpError, JsonController, Param, QueryParam} from 'routing-controllers';
 import {
   C_STORAGE_DEFAULT,
   Cache,
@@ -24,9 +24,6 @@ import {
   _API_TASKS_LIST,
   _API_TASKS_METADATA,
   _API_TASKS_RUNNING,
-  Access,
-  ContextGroup,
-  Helper,
   PERMISSION_ALLOW_TASK_EXEC,
   PERMISSION_ALLOW_TASK_EXEC_PATTERN,
   PERMISSION_ALLOW_TASK_GET_METADATA,
@@ -36,10 +33,14 @@ import {
   PERMISSION_ALLOW_TASK_STATUS,
   PERMISSION_ALLOW_TASKS_LIST,
   PERMISSION_ALLOW_TASKS_METADATA
-} from '..';
+} from '../libs/Constants';
 import {TaskExecutionRequestFactory} from '@typexs/base/libs/tasks/worker/TaskExecutionRequestFactory';
 import {TasksHelper} from '@typexs/base/libs/tasks/TasksHelper';
 import {IValueProvider} from '@typexs/base/libs/tasks/decorators/IValueProvider';
+import {Helper} from '../libs/Helper';
+import {Access} from '../decorators/Access';
+import {ContextGroup} from '../decorators/ContextGroup';
+
 
 @ContextGroup('api')
 @JsonController(_API_TASKS)
@@ -67,18 +68,21 @@ export class TasksController {
 
   @Access(PERMISSION_ALLOW_TASKS_LIST)
   @Get(_API_TASKS_LIST)
+  @ContentType('application/json')
   list() {
     return this.tasks.infos(true);
   }
 
   @Access(PERMISSION_ALLOW_TASKS_METADATA)
   @Get(_API_TASKS_METADATA)
+  @ContentType('application/json')
   tasksMetadata() {
     return this.tasks.toJson();
   }
 
   @Access([PERMISSION_ALLOW_TASK_GET_METADATA, PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN])
   @Get(_API_TASK_GET_METADATA)
+  @ContentType('application/json')
   taskMetadata(@Param('taskName') taskName: string) {
     if (this.tasks.contains(taskName)) {
       return this.tasks.get(taskName).toJson();
@@ -89,6 +93,7 @@ export class TasksController {
 
   @Access([PERMISSION_ALLOW_TASK_GET_METADATA, PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN])
   @Get(_API_TASK_GET_METADATA_VALUE)
+  @ContentType('application/json')
   taskMetadataValueProvider(@Param('taskName') taskName: string,
                             @Param('incomingName') incomingName: string,
                             @QueryParam('values') values: any = null,
@@ -126,6 +131,7 @@ export class TasksController {
 
   @Access([PERMISSION_ALLOW_TASK_EXEC, PERMISSION_ALLOW_TASK_EXEC_PATTERN])
   @Get(_API_TASK_EXEC)
+  @ContentType('application/json')
   async execute(@Param('taskName') taskName: string,
                 @QueryParam('parameters') parameters: any = {},
                 @QueryParam('targetIds') targetIds: string[] = []) {
@@ -152,6 +158,7 @@ export class TasksController {
    */
   @Access(PERMISSION_ALLOW_TASK_LOG)
   @Get(_API_TASK_LOG)
+  @ContentType('application/json')
   async log(@Param('nodeId') nodeId: string,
             @Param('runnerId') runnerId: string,
             @QueryParam('from') fromLine: number = null,
@@ -190,6 +197,7 @@ export class TasksController {
 
   @Access(PERMISSION_ALLOW_TASK_STATUS)
   @Get(_API_TASK_STATUS)
+  @ContentType('application/json')
   async status(@Param('nodeId') nodeId: string,
                @Param('runnerId') runnerId: string) {
     const storageRef: StorageRef = Container.get(C_STORAGE_DEFAULT);
@@ -208,6 +216,7 @@ export class TasksController {
 
   @Access(PERMISSION_ALLOW_TASK_RUNNING)
   @Get(_API_TASKS_RUNNING)
+  @ContentType('application/json')
   async getRunningTasks(@Param('nodeId') nodeId: string = null) {
     const tasksRunner = [];
     // todo

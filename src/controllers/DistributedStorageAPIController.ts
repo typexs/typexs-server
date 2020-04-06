@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {CurrentUser, Get, JsonController, Param, QueryParam} from 'routing-controllers';
+import {ContentType, CurrentUser, Get, JsonController, Param, QueryParam} from 'routing-controllers';
 import {
   Cache,
   DistributedStorageEntityController,
@@ -68,6 +68,7 @@ export class DistributedStorageAPIController {
     PERMISSION_ALLOW_ACCESS_DISTRIBUTED_STORAGE_ENTITY_PATTERN
   ])
   @Get(_API_DISTRIBUTED_STORAGE_FIND_ENTITY)
+  @ContentType('application/json')
   async query(
     @Param('name') name: string,
     @QueryParam('query') query: string,
