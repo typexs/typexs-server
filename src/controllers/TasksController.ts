@@ -5,14 +5,15 @@ import {
   C_STORAGE_DEFAULT,
   Cache,
   Container,
+  FileSystemExchange,
   Inject,
   Invoker,
   Log,
-  PlatformUtils,
   StorageRef,
   TaskLog,
   TaskRunnerRegistry,
-  Tasks
+  Tasks,
+  TasksExchange
 } from '@typexs/base';
 import {
   _API_TASK_EXEC,
@@ -26,7 +27,6 @@ import {
   _API_TASKS_RUNNING,
   Access,
   ContextGroup,
-  Helper,
   PERMISSION_ALLOW_TASK_EXEC,
   PERMISSION_ALLOW_TASK_EXEC_PATTERN,
   PERMISSION_ALLOW_TASK_GET_METADATA,
@@ -60,6 +60,11 @@ export class TasksController {
   @Inject()
   taskFactory: TaskExecutionRequestFactory;
 
+  @Inject(() => TasksExchange)
+  taskExchange: TasksExchange;
+
+  @Inject(() => FileSystemExchange)
+  fileExchange: FileSystemExchange;
 
   static getTaskLogFile(runnerId: string, nodeId: string) {
     return TasksHelper.getTaskLogFile(runnerId, nodeId);
@@ -77,7 +82,8 @@ export class TasksController {
     return this.tasks.toJson();
   }
 
-  @Access([PERMISSION_ALLOW_TASK_GET_METADATA, PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN])
+  @Access([PERMISSION_ALLOW_TASK_GET_METADATA,
+    PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN])
   @Get(_API_TASK_GET_METADATA)
   taskMetadata(@Param('taskName') taskName: string) {
     if (this.tasks.contains(taskName)) {
@@ -87,7 +93,8 @@ export class TasksController {
   }
 
 
-  @Access([PERMISSION_ALLOW_TASK_GET_METADATA, PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN])
+  @Access([PERMISSION_ALLOW_TASK_GET_METADATA,
+    PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN])
   @Get(_API_TASK_GET_METADATA_VALUE)
   taskMetadataValueProvider(@Param('taskName') taskName: string,
                             @Param('incomingName') incomingName: string,
@@ -158,30 +165,34 @@ export class TasksController {
             @QueryParam('offset') offsetLine: number = null,
             @QueryParam('tail') tail: number = 50) {
 
-    // if tail is lower then 1 then print all, this works only if monitor exists
-    const filename = TasksController.getTaskLogFile(runnerId, nodeId);
-    if (PlatformUtils.fileExist(filename)) {
-      let content: string = null;
-      if (_.isNumber(fromLine) && _.isNumber(offsetLine)) {
-        content = <string>await Helper.less(filename, fromLine, offsetLine);
-      } else if (_.isNumber(fromLine)) {
-        content = <string>await Helper.less(filename, fromLine, 0);
-      } else {
-        content = <string>await Helper.tail(filename, tail ? tail : 50);
-      }
+    const responses = await this.taskExchange.getLogFilePath(runnerId, {mode: 'only_value', filterErrors: true, skipLocal: false});
+    const filename: string = null;
 
 
-      if (content) {
-        try {
-          return content.split('\n').filter(x => !_.isEmpty(x)).map(x => JSON.parse(x.trim()));
-        } catch (err) {
-          Log.error(err);
-          throw new HttpError(500, err.message);
-        }
-      } else {
-        throw new HttpError(204, 'not content in logfile');
-      }
-    }
+    // // if tail is lower then 1 then print all, this works only if monitor exists
+    // const filename = TasksController.getTaskLogFile(runnerId, nodeId);
+    // if (PlatformUtils.fileExist(filename)) {
+    //   let content: string = null;
+    //   if (_.isNumber(fromLine) && _.isNumber(offsetLine)) {
+    //     content = <string>await Helper.less(filename, fromLine, offsetLine);
+    //   } else if (_.isNumber(fromLine)) {
+    //     content = <string>await Helper.less(filename, fromLine, 0);
+    //   } else {
+    //     content = <string>await Helper.tail(filename, tail ? tail : 50);
+    //   }
+    //
+    //
+    //   if (content) {
+    //     try {
+    //       return content.split('\n').filter(x => !_.isEmpty(x)).map(x => JSON.parse(x.trim()));
+    //     } catch (err) {
+    //       Log.error(err);
+    //       throw new HttpError(500, err.message);
+    //     }
+    //   } else {
+    //     throw new HttpError(204, 'not content in logfile');
+    //   }
+    // }
 
     Log.error('taskscontroller: log file not found ' + filename);
     throw new HttpError(404, 'log file not found');
@@ -206,6 +217,12 @@ export class TasksController {
     return null;
   }
 
+
+  /**
+   * Return the runnings tasks of all known nodes or only the given one
+   *
+   * @param nodeId
+   */
   @Access(PERMISSION_ALLOW_TASK_RUNNING)
   @Get(_API_TASKS_RUNNING)
   async getRunningTasks(@Param('nodeId') nodeId: string = null) {

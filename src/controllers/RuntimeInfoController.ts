@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import {
+  C_CONFIG_FILTER_KEYS,
   ClassLoader,
   Config,
   Container,
@@ -148,7 +149,7 @@ export class RuntimeInfoController {
 
   getFilterKeys(): string[] {
     // TODO cache this!
-    let filterKeys = ['user', 'username', 'password'];
+    let filterKeys = C_CONFIG_FILTER_KEYS; // get them from base/ConfigUtils
     const res: string[][] = <string[][]><any>this.invoker.use(ServerNodeInfoApi).filterConfigKeys();
     if (res && _.isArray(res)) {
       filterKeys = _.uniq(_.concat(filterKeys, ...res.filter(x => _.isArray(x))).filter(x => !_.isEmpty(x)));
