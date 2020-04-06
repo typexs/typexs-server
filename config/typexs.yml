@@ -15,7 +15,7 @@ server:
       context: api
       routePrefix: api
       access:
-        - name: *
+        - name: '*'
           access: allow
 
 
