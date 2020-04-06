@@ -2,7 +2,28 @@
 
 ## Configuration
 
+### Generel
+
+```yml
+# config/typexs.yml
+
+server:
+  default:      # name for this server instance
+    type: some_server_type   # type for web server
+    host: localhost
+    port: 3000
+    # use enviroment port variable for passanger
+    port: ${env.port}
+
+```
+
+Start with
+```
+typexs server [--nodeId nameNode]
+```
+
 ### Web Server
+
 
 #### Routing Controller
 

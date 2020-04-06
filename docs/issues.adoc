@@ -1,15 +1,15 @@
 ## Issues
 
+
 *@ISSUE {counter:task} 20180126* +
 Impl. Controllers which deliver meta information of runtime,
 usage, routes, ...
 
 
+*@ISSUE {counter:task} 20200313* +
+Add distributed session support when eventbus is active,
+take for example redis configuration from eventbus or
+declare extra one in web server configuration ...
 
-*@ISSUE {counter:task} 20180127* +
-Add pass through routing-controller in index.ts
 
-
-*@ISSUE {counter:task} 20180301* +
-Add middleware integration tests.
 
