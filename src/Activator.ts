@@ -1,10 +1,10 @@
 // import {Container} from 'typedi';
 import {EntitySchema} from 'typeorm';
 import * as _ from 'lodash';
-import {IActivator, Injector, Storage} from '@typexs/base';
+import {Container, IActivator, Injector, Storage} from '@typexs/base';
 import {ServerRegistry} from './libs/server/ServerRegistry';
 import {
-  PERMISSION_ALLOW_ACCESS_DISTRIBUTED_STORAGE_ENTITY, PERMISSION_ALLOW_ACCESS_DISTRIBUTED_STORAGE_ENTITY_PATTERN,
+  PERMISSION_ALLOW_ACCESS_DISTRIBUTED_STORAGE_ENTITY,
   PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY,
   PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN,
   PERMISSION_ALLOW_ACCESS_STORAGE_METADATA,
@@ -24,7 +24,6 @@ import {
   PERMISSION_ALLOW_TASK_EXEC,
   PERMISSION_ALLOW_TASK_EXEC_PATTERN,
   PERMISSION_ALLOW_TASK_GET_METADATA,
-  PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN,
   PERMISSION_ALLOW_TASK_LOG,
   PERMISSION_ALLOW_TASK_RUNNING,
   PERMISSION_ALLOW_TASK_STATUS,
@@ -42,8 +41,8 @@ export class Activator implements IActivator, IPermissions {
 
   async startup() {
     const serverRegistry = new ServerRegistry();
-    Injector.set(ServerRegistry, serverRegistry);
-    Injector.set('ServerRegistry', serverRegistry);
+    Container.set(ServerRegistry, serverRegistry);
+    Container.set('ServerRegistry', serverRegistry);
   }
 
   permissions(): IPermissionDef[] {
