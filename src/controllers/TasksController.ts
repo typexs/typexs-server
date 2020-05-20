@@ -37,7 +37,7 @@ import {
   PERMISSION_ALLOW_TASKS_LIST,
   PERMISSION_ALLOW_TASKS_METADATA
 } from '..';
-import {TaskExecutionRequestFactory} from '@typexs/base/libs/tasks/worker/TaskExecutionRequestFactory';
+import {TaskRequestFactory} from '@typexs/base/libs/tasks/worker/TaskRequestFactory';
 import {TasksHelper} from '@typexs/base/libs/tasks/TasksHelper';
 import {IValueProvider} from '@typexs/base/libs/tasks/decorators/IValueProvider';
 
@@ -58,7 +58,7 @@ export class TasksController {
   cache: Cache;
 
   @Inject()
-  taskFactory: TaskExecutionRequestFactory;
+  taskFactory: TaskRequestFactory;
 
   @Inject(() => TasksExchange)
   taskExchange: TasksExchange;
@@ -137,8 +137,9 @@ export class TasksController {
                 @QueryParam('parameters') parameters: any = {},
                 @QueryParam('targetIds') targetIds: string[] = []) {
     // arguments
-    const execReq = this.taskFactory.createRequest();
-    const taskEvent = await execReq.run([taskName], parameters, {targetIds: targetIds, skipTargetCheck: false});
+    const execReq = this.taskFactory.executeRequest();
+
+    const taskEvent = await execReq.create([taskName], parameters, {targetIds: targetIds, skipTargetCheck: false}).run();
     return taskEvent.shift();
   }
 
@@ -165,7 +166,7 @@ export class TasksController {
             @QueryParam('offset') offsetLine: number = null,
             @QueryParam('tail') tail: number = 50) {
 
-    const responses = await this.taskExchange.getLogFilePath(runnerId, {mode: 'only_value', filterErrors: true, skipLocal: false});
+    const responses = await this.taskExchange.getLogFilePath(runnerId, {mode: 'only_value', filterErrors: true, skipLocal: false} as any);
     const filename: string = null;
 
 

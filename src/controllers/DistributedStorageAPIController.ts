@@ -4,10 +4,9 @@ import {
   Cache,
   DistributedStorageEntityController,
   Inject,
-  Invoker,
+  Invoker, IStorageRef,
   Log,
   Storage,
-  StorageRef,
   XS_P_$COUNT,
   XS_P_$LIMIT,
   XS_P_$OFFSET
@@ -135,7 +134,7 @@ export class DistributedStorageAPIController {
   }
 
 
-  private getEntityRef(storageRef: StorageRef, entityName: string): IEntityRef {
+  private getEntityRef(storageRef: IStorageRef, entityName: string): IEntityRef {
     const entityRef = storageRef.getEntityRef(entityName);
     if (!entityRef) {
       throw new HttpResponseError(['storage', 'entity_ref_not_found'], 'Entity reference not found for ' + name);
@@ -144,7 +143,7 @@ export class DistributedStorageAPIController {
   }
 
 
-  private getStorageRef(entityName: string): StorageRef {
+  private getStorageRef(entityName: string): IStorageRef {
     const storageRef = this.storage.forClass(entityName);
     if (!storageRef) {
       throw new HttpResponseError(['storage', 'reference_not_found'], 'Storage containing entity ' + name + ' not found');

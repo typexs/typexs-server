@@ -29,11 +29,12 @@ export class Helper {
   }
 
 
-  static async tail(filepath: string, maxlines: number = -1, encoding: string = 'utf8') {
+  static async tail(filepath: string, maxlines: number = -1, encoding: BufferEncoding = 'utf8') {
     let stat: Stats = null;
     let file: number = null;
     const NEW_LINE_CHARACTERS = ['\n', '\r'];
 
+    // tslint:disable-next-line:no-shadowed-variable
     const readPreviousChar = (stat: Stats, file: number, currentCharacterCount: number) => {
       return new Promise((resolve, reject) => {
         fs.read(file, Buffer.alloc(1), 0, 1, stat.size - 1 - currentCharacterCount, (err: Error, bytesRead: number, buffer: Buffer) => {
@@ -67,7 +68,7 @@ export class Helper {
           lines = lines.substring(1);
         }
         await new Promise((resolve, reject) => fs.close(file, err => err ? reject(err) : resolve()));
-        if (encoding === 'buffer') {
+        if (encoding as any === 'buffer') {
           return Buffer.from(lines, 'binary');
         }
         return Buffer.from(lines, 'binary').toString(encoding);
@@ -89,11 +90,12 @@ export class Helper {
   }
 
 
-  static async less(filepath: string, from: number = 0, maxlines: number = -1, encoding: string = 'utf8') {
+  static async less(filepath: string, from: number = 0, maxlines: number = -1, encoding: BufferEncoding = 'utf8') {
     let stat: Stats = null;
     let file: number = null;
     const NEW_LINE_CHARACTERS = ['\n', '\r'];
 
+    // tslint:disable-next-line:no-shadowed-variable
     const readChar = (stat: Stats, file: number, currentCharacterCount: number) => {
       return new Promise((resolve, reject) => {
         fs.read(file, Buffer.alloc(1), 0, 1, currentCharacterCount, (err: Error, bytesRead: number, buffer: Buffer) => {
@@ -126,7 +128,7 @@ export class Helper {
       if ((!started && lines.length > 0) || chars >= stat.size) {
         await new Promise((resolve, reject) => fs.close(file, err => err ? reject(err) : resolve()));
         lines = lines.substring(0, lines.length - 1);
-        if (encoding === 'buffer') {
+        if (encoding as any === 'buffer') {
           return Buffer.from(lines, 'binary');
         }
         return Buffer.from(lines, 'binary').toString(encoding);

@@ -4,8 +4,8 @@ import {ICollection} from '@typexs/base/browser';
 
 export interface IStorageRefMetadata {
   name: string;
+  framework: string;
   type: string;
-  synchronize: boolean;
   options?: any;
   entities: IEntityRefMetadata[];
   collections?: ICollection[];

@@ -4,14 +4,15 @@ import {
   Cache,
   ClassLoader,
   ICollection,
+  IEntityController,
   IFindOptions,
   Inject,
   Invoker,
   ISaveOptions,
+  IStorageRef,
   Log,
   NotYetImplementedError,
   Storage,
-  StorageEntityController,
   StorageRef,
   XS_P_$COUNT,
   XS_P_$LIMIT,
@@ -147,7 +148,7 @@ export class StorageAPIController {
     const ref = this.getStorageRef(entityName);
     const entityRef = this.getEntityRef(ref, entityName);
     const entry = entityRef.toJson(true);
-    (<any>entry).storage = ref.name;
+    (<any>entry).storage = ref.getName();
     return entry;
   }
 
@@ -414,14 +415,14 @@ export class StorageAPIController {
   }
 
 
-  private getControllerForEntityName(name: string): [IEntityRef, StorageEntityController] {
+  private getControllerForEntityName(name: string): [IEntityRef, IEntityController] {
     const storageRef = this.getStorageRef(name);
     const controller = storageRef.getController();
     const entityRef = this.getEntityRef(storageRef, name);
     return [entityRef, controller];
   }
 
-  private getEntityRef(storageRef: StorageRef, entityName: string): IEntityRef {
+  private getEntityRef(storageRef: IStorageRef, entityName: string): IEntityRef {
     const entityRef = storageRef.getEntityRef(entityName);
     if (!entityRef) {
       throw new HttpResponseError(['storage', 'entity_ref_not_found'], 'Entity reference not found for ' + name);
@@ -429,7 +430,7 @@ export class StorageAPIController {
     return entityRef;
   }
 
-  private getStorageRef(entityName: string): StorageRef {
+  private getStorageRef(entityName: string): IStorageRef {
     const storageRef = this.storage.forClass(entityName);
     if (!storageRef) {
       throw new HttpResponseError(['storage', 'reference_not_found'], 'Storage containing entity ' + name + ' not found');
@@ -479,8 +480,9 @@ export class StorageAPIController {
     });
     entry = {
       name: storageName,
-      type: storageRef.dbType,
-      synchronize: options.synchronize,
+      type: storageRef.getType(),
+      framework: storageRef.getFramework(),
+      // synchronize: options.synchronize,
       options: options,
       entities: []
     };
@@ -504,12 +506,12 @@ export class StorageAPIController {
     return entry;
   }
 
-  private async getStorageRefCollections(ref: StorageRef): Promise<ICollection[]> {
 
+  private async getStorageRefCollections(ref: IStorageRef): Promise<ICollection[]> {
     try {
-      const schemaHandler = ref.getSchemaHandler();
-      const collectionNames = await schemaHandler.getCollectionNames();
-      return await schemaHandler.getCollections(collectionNames);
+      // const schemaHandler = ref.getSchemaHandler();
+      const collectionNames = await ref.getRawCollectionNames();
+      return await ref.getRawCollections(collectionNames);
 
     } catch (e) {
       Log.error(e);
