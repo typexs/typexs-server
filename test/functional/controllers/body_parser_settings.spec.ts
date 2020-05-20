@@ -1,21 +1,22 @@
-import {suite, test} from "mocha-typescript";
-import {Bootstrap, Container, CryptUtils, RuntimeLoader} from "@typexs/base";
-import {WebServer} from "../../../src/libs/web/WebServer";
-import {C_DEFAULT} from "../../../src/libs/Constants";
+import {suite, test} from 'mocha-typescript';
+import {Bootstrap, Container, RuntimeLoader} from '@typexs/base';
+import {WebServer} from '../../../src/libs/web/WebServer';
+import {C_DEFAULT} from '../../../src/libs/Constants';
 import * as request from 'supertest';
-import {expect} from "chai";
-import {IWebServerInstanceOptions, K_ROUTE_CONTROLLER} from "../../../src";
-import * as _ from "lodash";
+import {expect} from 'chai';
+import {IWebServerInstanceOptions, K_ROUTE_CONTROLLER} from '../../../src';
+import * as _ from 'lodash';
+import {CryptUtils} from 'commons-base';
 
 process.setMaxListeners(1000);
 Bootstrap._().activateErrorHandling();
 @suite('functional/controllers/body_parser_settings')
-class Body_parser_settingsSpec {
+class BodyParserSettingsSpec {
 
 
   before() {
 
-    //(global as any).routingControllersMetadataArgsStorage = null;
+    // (global as any).routingControllersMetadataArgsStorage = null;
     Container.reset();
 
   }
@@ -27,21 +28,21 @@ class Body_parser_settingsSpec {
 
   @test
   async 'check body parser limit'() {
-    let loader = new RuntimeLoader({
+    const loader = new RuntimeLoader({
       appdir: __dirname + '/fake_app_consumer',
       libs: [{
-        "topic": "server.controllers",
-        "refs": [
-          "controllers",
+        'topic': 'server.controllers',
+        'refs': [
+          'controllers',
         ]
       }]
     });
 
     await loader.prepare();
-    Container.set("RuntimeLoader", loader);
+    Container.set('RuntimeLoader', loader);
 
-    let creds: string[][] = [];
-    let web = Container.get(WebServer);
+    const creds: string[][] = [];
+    const web = Container.get(WebServer);
     await web.initialize(<IWebServerInstanceOptions>{
       type: 'web',
       framework: 'express',
@@ -55,10 +56,10 @@ class Body_parser_settingsSpec {
     });
 
     await web.prepare();
-    let uri = web.getUri();
-    let routes = web.getRoutes();
+    const uri = web.getUri();
+    const routes = web.getRoutes();
     expect(routes).to.have.length(1);
-    let started = await web.start();
+    const started = await web.start();
 
     let data: any = {dummy: []};
     _.range(0, 100, 1).map(n => {
@@ -77,7 +78,7 @@ class Body_parser_settingsSpec {
     _.range(0, 10, 1).map(n => {
       data.dummy.push(CryptUtils.random(32));
     });
-    let length = JSON.stringify(data).length;
+    const length = JSON.stringify(data).length;
 
     // Payload okay
     res = await request(uri)
@@ -85,32 +86,32 @@ class Body_parser_settingsSpec {
       .expect(200);
 
 
-    let afterlength = JSON.stringify(res.body).length;
+    const afterlength = JSON.stringify(res.body).length;
     expect(length).to.eq(afterlength);
 
 
-    let stopped = await web.stop();
+    const stopped = await web.stop();
     expect(stopped).to.be.true;
 
   }
 
   @test
   async 'check body parser default limit'() {
-    let loader = new RuntimeLoader({
+    const loader = new RuntimeLoader({
       appdir: __dirname + '/fake_app_consumer',
       libs: [{
-        "topic": "server.controllers",
-        "refs": [
-          "controllers",
+        'topic': 'server.controllers',
+        'refs': [
+          'controllers',
         ]
       }]
     });
 
     await loader.prepare();
-    Container.set("RuntimeLoader", loader);
+    Container.set('RuntimeLoader', loader);
 
-    let creds: string[][] = [];
-    let web = Container.get(WebServer);
+    const creds: string[][] = [];
+    const web = Container.get(WebServer);
     await web.initialize(<IWebServerInstanceOptions>{
       type: 'web',
       framework: 'express',
@@ -123,10 +124,10 @@ class Body_parser_settingsSpec {
     });
 
     await web.prepare();
-    let uri = web.getUri();
-    let routes = web.getRoutes();
+    const uri = web.getUri();
+    const routes = web.getRoutes();
     expect(routes).to.have.length(1);
-    let started = await web.start();
+    const started = await web.start();
     expect(started).to.be.true;
 
     let data: any = {dummy: []};
@@ -155,11 +156,11 @@ class Body_parser_settingsSpec {
       .expect(200);
 
 
-    let afterlength = JSON.stringify(res.body).length;
+    const afterlength = JSON.stringify(res.body).length;
     expect(length).to.eq(afterlength);
 
 
-    let stopped = await web.stop();
+    const stopped = await web.stop();
     expect(stopped).to.be.true;
 
   }
