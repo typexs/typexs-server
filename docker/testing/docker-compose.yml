@@ -1,9 +1,13 @@
 version: '3'
+
+networks:
+  txs_server: {}
+
 services:
 
   typexs_server_test_redis:
     image: redis:5
     ports:
       - 127.0.0.1:6379:6379
-    volumes:
-      - ./local/redis/db:/data
+    networks:
+      - txs_server
