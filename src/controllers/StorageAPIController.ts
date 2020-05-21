@@ -13,7 +13,6 @@ import {
   Log,
   NotYetImplementedError,
   Storage,
-  StorageRef,
   XS_P_$COUNT,
   XS_P_$LIMIT,
   XS_P_$OFFSET
@@ -21,6 +20,7 @@ import {
 import {EntitySchema} from 'typeorm';
 import {
   Access,
+  API_STORAGE_DELETE_ENTITIES,
   API_STORAGE_DELETE_ENTITY,
   API_STORAGE_FIND_ENTITY,
   API_STORAGE_GET_ENTITY,
@@ -52,6 +52,8 @@ import {IStorageRefMetadata} from '../libs/storage_api/IStorageRefMetadata';
 import {ServerNodeInfoApi} from '../api/ServerNodeInfo.api';
 import {StorageAPIControllerApi} from '../api/StorageAPIController.api';
 import {JsonUtils, TreeUtils, WalkValues} from 'commons-base';
+import {IDeleteOptions} from '@typexs/base/libs/storage/framework/IDeleteOptions';
+import {IUpdateOptions} from '@typexs/base/libs/storage/framework/IUpdateOptions';
 
 
 @ContextGroup('api')
@@ -174,7 +176,7 @@ export class StorageAPIController {
     @QueryParam('sort') sort: string = null,
     @QueryParam('limit') limit: number = 50,
     @QueryParam('offset') offset: number = 0,
-    @QueryParam('opts') opts: any = {},
+    @QueryParam('opts') opts: IFindOptions = {},
     @CurrentUser() user: any
   ) {
 
@@ -260,7 +262,10 @@ export class StorageAPIController {
    */
   @Access([PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY, PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN])
   @Get(API_STORAGE_GET_ENTITY)
-  async get(@Param('name') name: string, @Param('id') id: string, @QueryParam('opts') opts: any = {}, @CurrentUser() user: any) {
+  async get(@Param('name') name: string,
+            @Param('id') id: string,
+            @QueryParam('opts') opts: IFindOptions = {},
+            @CurrentUser() user: any) {
     if (_.isEmpty(name) || _.isEmpty(id)) {
       throw new HttpError(400, 'entity name or id not set');
     }
@@ -284,9 +289,15 @@ export class StorageAPIController {
 
     StorageAPIController.checkOptions(opts, options);
 
-    const conditions = Expressions.parseLookupConditions(entityRef, id);
+    let conditions = Expressions.parseLookupConditions(entityRef, id);
+
     let result = null;
     if (_.isArray(conditions)) {
+      if (conditions.length > 1) {
+        // multiple ids should be bound by 'or', else it would be 'and'
+        conditions = {$or: conditions};
+      }
+
       result = await controller.find(entityRef.getClassRef().getClass(), conditions, options);
       StorageAPIController._afterEntity(entityRef, result);
       const results = {
@@ -338,7 +349,10 @@ export class StorageAPIController {
    */
   @Access([PERMISSION_ALLOW_SAVE_STORAGE_ENTITY, PERMISSION_ALLOW_SAVE_STORAGE_ENTITY_PATTERN])
   @Post(API_STORAGE_SAVE_ENTITY)
-  async save(@Param('name') name: string, @Body() data: any, @QueryParam('opts') opts: any = {}, @CurrentUser() user: any): Promise<any> {
+  async save(@Param('name') name: string,
+             @Body() data: any,
+             @QueryParam('opts') opts: ISaveOptions = {},
+             @CurrentUser() user: any): Promise<any> {
 
     const [entityDef, controller] = this.getControllerForEntityName(name);
     // await this.invoker.use(EntityControllerApi).beforeEntityBuild(entityDef, data, user, controller);
@@ -367,11 +381,11 @@ export class StorageAPIController {
    */
   @Access([PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY, PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN])
   @Post(API_STORAGE_UPDATE_ENTITY)
-  async update(@Param('name') name: string,
-               @Param('id') id: string,
-               @QueryParam('opts') opts: any = {},
-               @Body() data: any,
-               @CurrentUser() user: any) {
+  async updateById(@Param('name') name: string,
+                   @Param('id') id: string,
+                   @QueryParam('opts') opts: IUpdateOptions = {},
+                   @Body() data: any,
+                   @CurrentUser() user: any) {
 
     const [entityDef, controller] = this.getControllerForEntityName(name);
     const options: ISaveOptions = {validate: true};
@@ -392,20 +406,58 @@ export class StorageAPIController {
     }
   }
 
+  /**
+   * TODO
+   * 
+   * Return a updated Entity
+   */
+  @Access([PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY, PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN])
+  @Post(API_STORAGE_UPDATE_ENTITY)
+  async updateByCondition(@Param('name') name: string,
+                          @QueryParam('query') query: any = null,
+                          @QueryParam('opts') opts: IUpdateOptions = {},
+                          @Body() data: any,
+                          @CurrentUser() user: any) {
+
+    // const [entityDef, controller] = this.getControllerForEntityName(name);
+    // const options: ISaveOptions = {validate: true};
+    // StorageAPIController.checkOptions(opts, options);
+    // const entities = this.prepareEntities(entityDef, data, options);
+    //
+    // try {
+    //   const results = await controller.save(entities, options);
+    //   this.invoker.use(StorageAPIControllerApi).postProcessResults('update', entityDef, results, {
+    //     name: name,
+    //     id: id,
+    //     opts: opts,
+    //     user: user,
+    //   });
+    //   return results;
+    // } catch (e) {
+    //   throw new HttpResponseError(['storage', 'update'], e.message);
+    // }
+  }
+
 
   /**
-   * Return a deleted Entity
+   * Deletes a entity and return removal results
+   *
    */
   @Access([PERMISSION_ALLOW_DELETE_STORAGE_ENTITY, PERMISSION_ALLOW_DELETE_STORAGE_ENTITY_PATTERN])
   @Delete(API_STORAGE_DELETE_ENTITY)
-  async delete(@Param('name') name: string,
-               @Param('id') id: string,
-               @QueryParam('opts') opts: any = {},
-               @Body() data: any,
-               @CurrentUser() user: any) {
+  async deleteById(@Param('name') name: string,
+                   @Param('id') id: string,
+                   @QueryParam('opts') opts: IDeleteOptions = {},
+                   @Body() data: any,
+                   @CurrentUser() user: any) {
     const [entityDef, controller] = this.getControllerForEntityName(name);
-    const conditions = Expressions.parseLookupConditions(entityDef, id);
-    const options: ISaveOptions = {};
+    let conditions = Expressions.parseLookupConditions(entityDef, id);
+    if (conditions.length > 1) {
+      // multiple ids should be bound by 'or', else it would be 'and'
+      conditions = {$or: conditions};
+    }
+
+    const options: IDeleteOptions = {};
     StorageAPIController.checkOptions(opts, options);
     const results = await controller.find(entityDef.getClassRef().getClass(), conditions, options);
     if (results.length > 0) {
@@ -414,6 +466,38 @@ export class StorageAPIController {
     return null;
   }
 
+
+  /**
+   * TODO ...
+   * @param name
+   * @param id
+   * @param opts
+   * @param data
+   * @param user
+   */
+  @Access([PERMISSION_ALLOW_DELETE_STORAGE_ENTITY, PERMISSION_ALLOW_DELETE_STORAGE_ENTITY_PATTERN])
+  @Delete(API_STORAGE_DELETE_ENTITIES)
+  async deleteByQuery(@Param('name') name: string,
+                      // can be also conditions!
+                      @QueryParam('query') query: any = {},
+                      @QueryParam('opts') opts: IDeleteOptions = {},
+                      @Body() data: any,
+                      @CurrentUser() user: any) {
+    // const [entityDef, controller] = this.getControllerForEntityName(name);
+    // let conditions = Expressions.parseLookupConditions(entityDef, id);
+    // if (conditions.length > 1) {
+    //   // multiple ids should be bound by 'or', else it would be 'and'
+    //   conditions = {$or: conditions};
+    // }
+    //
+    // const options: IDeleteOptions = {};
+    // StorageAPIController.checkOptions(opts, options);
+    // const results = await controller.find(entityDef.getClassRef().getClass(), conditions, options);
+    // if (results.length > 0) {
+    //   return controller.remove(results);
+    // }
+    // return null;
+  }
 
   private getControllerForEntityName(name: string): [IEntityRef, IEntityController] {
     const storageRef = this.getStorageRef(name);

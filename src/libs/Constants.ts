@@ -90,6 +90,7 @@ export const PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY = 'allow edit storage entity
 export const PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN = 'allow edit storage entity :name';
 
 export const API_STORAGE_DELETE_ENTITY = '/entity/:name/:id';
+export const API_STORAGE_DELETE_ENTITIES = '/entity/:name';
 export const PERMISSION_ALLOW_DELETE_STORAGE_ENTITY = 'allow delete storage entity';
 export const PERMISSION_ALLOW_DELETE_STORAGE_ENTITY_PATTERN = 'allow delete storage entity :name';
 
