@@ -277,8 +277,15 @@ class Storage_api_controllerSpec {
     expect(res).to.not.be.null;
     res = res.body;
 
-    expect(res).to.have.length(2);
-    expect(_.map(res, r => r.firstName)).to.deep.eq(['Blue', 'Green']);
+    expect(res).to.eq(2);
+
+    res = await request.get(url + '/api' +
+      API_STORAGE_PREFIX +
+      API_STORAGE_GET_ENTITY.replace(':name', 'driver').replace(':id', '1,2'), {json: true}
+    );
+    expect(res).to.not.be.null;
+    res = res.body;
+    expect(res.$count).to.be.eq(0);
 
   }
 
