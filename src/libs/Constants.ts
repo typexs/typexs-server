@@ -139,10 +139,19 @@ export const _API_TASK_LOG = '/log/:nodeId/:runnerId';
 export const API_TASK_LOG = _API_TASKS + _API_TASK_LOG;
 export const PERMISSION_ALLOW_TASK_LOG = 'task log view';
 
-export const _API_TASK_STATUS = '/status/:nodeId/:runnerId';
+export const _API_TASK_STATUS = '/status/:runnerId';
 export const API_TASK_STATUS = _API_TASKS + _API_TASK_STATUS;
 export const PERMISSION_ALLOW_TASK_STATUS = 'task status view';
 
-export const _API_TASKS_RUNNING = '/running/:nodeId/:runnerId';
-export const API_TASK_RUNNING = _API_TASKS + _API_TASKS_RUNNING;
+export const _API_TASK_RUNNING = '/running/:nodeId';
+export const API_TASK_RUNNING = _API_TASKS + _API_TASK_RUNNING;
 export const PERMISSION_ALLOW_TASK_RUNNING = 'task running view';
+
+export const _API_TASKS_RUNNING = '/running';
+export const API_TASKS_RUNNING = _API_TASKS + _API_TASKS_RUNNING;
+
+export const _API_TASKS_RUNNING_ON_NODE = '/running_tasks/:nodeId';
+export const API_TASKS_RUNNING_ON_NODE = _API_TASKS + _API_TASKS_RUNNING_ON_NODE;
+export const PERMISSION_ALLOW_TASKS_RUNNING = 'task running_tasks view';
+
+

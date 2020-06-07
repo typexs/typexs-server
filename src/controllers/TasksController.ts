@@ -1,20 +1,7 @@
 import * as _ from 'lodash';
 
-import {Get, HttpError, JsonController, Param, QueryParam} from 'routing-controllers';
-import {
-  C_STORAGE_DEFAULT,
-  Cache,
-  Container,
-  FileSystemExchange,
-  Inject,
-  Invoker,
-  Log,
-  StorageRef,
-  TaskLog,
-  TaskRunnerRegistry,
-  Tasks,
-  TasksExchange
-} from '@typexs/base';
+import {Get, HttpError, InternalServerError, JsonController, Param, QueryParam} from 'routing-controllers';
+import {Cache, Container, IMessageOptions, Inject, Injector, Invoker, TaskRunnerRegistry, Tasks, TasksExchange} from '@typexs/base';
 import {
   _API_TASK_EXEC,
   _API_TASK_GET_METADATA,
@@ -25,6 +12,7 @@ import {
   _API_TASKS_LIST,
   _API_TASKS_METADATA,
   _API_TASKS_RUNNING,
+  _API_TASKS_RUNNING_ON_NODE,
   Access,
   ContextGroup,
   PERMISSION_ALLOW_TASK_EXEC,
@@ -32,14 +20,16 @@ import {
   PERMISSION_ALLOW_TASK_GET_METADATA,
   PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN,
   PERMISSION_ALLOW_TASK_LOG,
-  PERMISSION_ALLOW_TASK_RUNNING,
   PERMISSION_ALLOW_TASK_STATUS,
   PERMISSION_ALLOW_TASKS_LIST,
-  PERMISSION_ALLOW_TASKS_METADATA
+  PERMISSION_ALLOW_TASKS_METADATA,
+  PERMISSION_ALLOW_TASKS_RUNNING
 } from '..';
-import {TaskRequestFactory} from '@typexs/base/libs/tasks/worker/TaskRequestFactory';
 import {TasksHelper} from '@typexs/base/libs/tasks/TasksHelper';
 import {IValueProvider} from '@typexs/base/libs/tasks/decorators/IValueProvider';
+import {ITaskExectorOptions} from '@typexs/base/libs/tasks/ITaskExectorOptions';
+import {TaskExecutor} from '@typexs/base/libs/tasks/TaskExecutor';
+import {IError} from '@typexs/base/libs/exceptions/IError';
 
 @ContextGroup('api')
 @JsonController(_API_TASKS)
@@ -57,14 +47,9 @@ export class TasksController {
   @Inject(Cache.NAME)
   cache: Cache;
 
-  @Inject()
-  taskFactory: TaskRequestFactory;
-
   @Inject(() => TasksExchange)
   taskExchange: TasksExchange;
 
-  @Inject(() => FileSystemExchange)
-  fileExchange: FileSystemExchange;
 
   static getTaskLogFile(runnerId: string, nodeId: string) {
     return TasksHelper.getTaskLogFile(runnerId, nodeId);
@@ -131,17 +116,68 @@ export class TasksController {
   }
 
 
+  /**
+   * Execute a single task
+   *
+   * @param taskName
+   * @param parameters
+   * @param targetIds - depracated
+   * @param options
+   */
   @Access([PERMISSION_ALLOW_TASK_EXEC, PERMISSION_ALLOW_TASK_EXEC_PATTERN])
   @Get(_API_TASK_EXEC)
-  async execute(@Param('taskName') taskName: string,
-                @QueryParam('parameters') parameters: any = {},
-                @QueryParam('targetIds') targetIds: string[] = []) {
+  async executeTask(@Param('taskName') taskName: string,
+                    @QueryParam('params') parameters: any = {},
+                    @QueryParam('targetIds') targetIds: string[] = [],
+                    @QueryParam('options') options: ITaskExectorOptions = {}) {
     // arguments
-    const execReq = this.taskFactory.executeRequest();
+    // const execReq = this.taskFactory.executeRequest();
+    options = _.defaults(options, <ITaskExectorOptions>{
+      waitForRemoteResults: false,
+      skipTargetCheck: false
+    });
 
-    const taskEvent = await execReq.create([taskName], parameters, {targetIds: targetIds, skipTargetCheck: false}).run();
-    return taskEvent.shift();
+    if (targetIds && _.isArray(targetIds) && targetIds.length > 0) {
+      options.targetIds = targetIds;
+    }
+
+    // as start only
+    try {
+      const executor = Injector.create(TaskExecutor);
+      const taskEvent: any[] = await executor
+        .create(
+          [taskName],
+          parameters,
+          options)
+        .run() as any[];
+
+      // check if error happened
+      if (!_.get(options, 'skipThrow', false)) {
+        if (taskEvent && _.isArray(taskEvent)) {
+
+          let errors: IError[] = [];
+          if (!_.get(options, 'waitForRemoteResults', false)) {
+            errors = _.concat([], ...taskEvent.map(x => _.get(x, 'errors', [])));
+          } else {
+            errors = _.concat([], ...taskEvent.map(x => _.get(x, 'results', []).map((y: any) => y.error))).filter(x => !!x);
+          }
+
+          if (errors.length > 0) {
+            throw new InternalServerError(errors.map(e => e.message
+              + (e.data ? JSON.stringify(e.data) : '')).join('\n'));
+          }
+        }
+      }
+
+      return taskEvent;
+    } catch (e) {
+      throw new InternalServerError(e.message);
+    }
   }
+
+  //
+  // TODO: Implement execution of multiple tasks
+  //
 
 
   /**
@@ -160,83 +196,115 @@ export class TasksController {
    */
   @Access(PERMISSION_ALLOW_TASK_LOG)
   @Get(_API_TASK_LOG)
-  async log(@Param('nodeId') nodeId: string,
-            @Param('runnerId') runnerId: string,
-            @QueryParam('from') fromLine: number = null,
-            @QueryParam('offset') offsetLine: number = null,
-            @QueryParam('tail') tail: number = 50) {
+  async getLogContent(@Param('nodeId') nodeId: string,
+                      @Param('runnerId') runnerId: string,
+                      @QueryParam('limit') limitLine: number = null,
+                      @QueryParam('offset') offsetLine: number = null,
+                      @QueryParam('tail') tail: number = 50) {
 
-    const responses = await this.taskExchange.getLogFilePath(runnerId, {mode: 'only_value', filterErrors: true, skipLocal: false} as any);
-    const filename: string = null;
-
-
-    // // if tail is lower then 1 then print all, this works only if monitor exists
-    // const filename = TasksController.getTaskLogFile(runnerId, nodeId);
-    // if (PlatformUtils.fileExist(filename)) {
-    //   let content: string = null;
-    //   if (_.isNumber(fromLine) && _.isNumber(offsetLine)) {
-    //     content = <string>await Helper.less(filename, fromLine, offsetLine);
-    //   } else if (_.isNumber(fromLine)) {
-    //     content = <string>await Helper.less(filename, fromLine, 0);
-    //   } else {
-    //     content = <string>await Helper.tail(filename, tail ? tail : 50);
-    //   }
-    //
-    //
-    //   if (content) {
-    //     try {
-    //       return content.split('\n').filter(x => !_.isEmpty(x)).map(x => JSON.parse(x.trim()));
-    //     } catch (err) {
-    //       Log.error(err);
-    //       throw new HttpError(500, err.message);
-    //     }
-    //   } else {
-    //     throw new HttpError(204, 'not content in logfile');
-    //   }
-    // }
-
-    Log.error('taskscontroller: log file not found ' + filename);
-    throw new HttpError(404, 'log file not found');
-  }
-
-
-  @Access(PERMISSION_ALLOW_TASK_STATUS)
-  @Get(_API_TASK_STATUS)
-  async status(@Param('nodeId') nodeId: string,
-               @Param('runnerId') runnerId: string) {
-    const storageRef: StorageRef = Container.get(C_STORAGE_DEFAULT);
-    const entry = <TaskLog>await storageRef.getController().findOne(TaskLog, {respId: nodeId, tasksId: runnerId});
-    if (entry) {
-      if (_.isString(entry.data)) {
-        try {
-          entry.data = JSON.parse(entry.data);
-        } catch (e) {
-        }
-      }
-      return entry;
+    try {
+      const responses = await this.taskExchange.getLogFile(runnerId,
+        {
+          targetIds: [nodeId],
+          outputMode: 'only_value',
+          filterErrors: true,
+          tail: tail,
+          offset: offsetLine,
+          limit: limitLine
+        });
+      return responses;
+    } catch (e) {
+      throw new HttpError(404, e.message);
     }
-    return null;
+
+
   }
 
 
   /**
-   * Return the runnings tasks of all known nodes or only the given one
+   * Returns the status of a task runner by runner id
+   *
+   * @param runnerId
+   * @param runnerId
+   */
+  @Access(PERMISSION_ALLOW_TASK_STATUS)
+  @Get(_API_TASK_STATUS)
+  async getTaskStatus(
+    @Param('runnerId') runnerId: string,
+    @QueryParam('options') options: IMessageOptions = {},
+  ) {
+    let _opts = options || {};
+    _opts = _.defaults(_opts, <IMessageOptions>{
+      filterErrors: true
+    });
+    try {
+      const status = await this.taskExchange.getStatus(runnerId, _opts);
+      return status.filter(x => !!x);
+    } catch (e) {
+      throw new InternalServerError(e.message);
+    }
+
+  }
+
+
+  /**
+   * Return the running tasks for node
    *
    * @param nodeId
    */
-  @Access(PERMISSION_ALLOW_TASK_RUNNING)
+  @Access([PERMISSION_ALLOW_TASKS_RUNNING])
+  @Get(_API_TASKS_RUNNING_ON_NODE)
+  async getRunningTasksByNode(@Param('nodeId') nodeId: string,
+                              @QueryParam('options') options: IMessageOptions = {}) {
+
+    let _opts = options || {};
+    _opts = _.defaults(_opts, <IMessageOptions>{
+      filterErrors: true,
+      targetIds: [nodeId]
+    });
+    return this.getRunningTasks(_opts);
+  }
+
+
+  /**
+   * Return the running tasks for node
+   *
+   * @param nodeId
+   */
+  @Access([PERMISSION_ALLOW_TASKS_RUNNING])
   @Get(_API_TASKS_RUNNING)
-  async getRunningTasks(@Param('nodeId') nodeId: string = null) {
-    const tasksRunner = [];
-    // todo
-    if (_.isEmpty(nodeId)) {
-      const tasks = this.taskRunner.getRunningTasks();
-      for (const t of this.taskRunner.getRunners()) {
+  async getRunningTasks(@QueryParam('options') options: IMessageOptions = {}) {
 
-      }
+    let _opts = options || {};
+    _opts = _.defaults(_opts, <IMessageOptions>{
+      filterErrors: true,
+    });
+    try {
+      return this.taskExchange.getRunningTasks(_opts);
+    } catch (e) {
+      throw new HttpError(404, e.message);
     }
+  }
 
 
+  /**
+   * Return the running tasks for node
+   *
+   * @param nodeId
+   */
+  @Access([PERMISSION_ALLOW_TASKS_RUNNING])
+  @Get(_API_TASKS_RUNNING)
+  async getRunners(@QueryParam('options') options: IMessageOptions = {}) {
+
+    let _opts = options || {};
+    _opts = _.defaults(_opts, <IMessageOptions>{
+      filterErrors: true,
+    });
+    try {
+      return this.taskExchange.getRunners(_opts);
+    } catch (e) {
+      throw new HttpError(404, e.message);
+    }
   }
 
 

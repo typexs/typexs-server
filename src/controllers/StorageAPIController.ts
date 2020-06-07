@@ -408,7 +408,7 @@ export class StorageAPIController {
 
   /**
    * TODO
-   * 
+   *
    * Return a updated Entity
    */
   @Access([PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY, PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN])
