@@ -85,8 +85,13 @@ class Storage_api_controllerSpec {
   }
 
 
-  static async after() {
+  async before() {
+    // delete + create dummy data
 
+  }
+
+
+  static async after() {
     if (server) {
       await server.stop();
     }
@@ -94,7 +99,6 @@ class Storage_api_controllerSpec {
     Bootstrap.reset();
     Container.reset();
     Config.clear();
-
   }
 
 
@@ -167,6 +171,41 @@ class Storage_api_controllerSpec {
 
   @test.skip
   async 'create entity class'() {
+
+  }
+
+  @test.skip
+  async 'create entity'() {
+
+  }
+
+  @test.skip
+  async 'find entity'() {
+
+  }
+
+  @test.skip
+  async 'update entity by id'() {
+
+  }
+
+  @test.skip
+  async 'update entity by condition'() {
+
+  }
+
+  @test.skip
+  async 'delete entity by id'() {
+
+  }
+
+  @test.skip
+  async 'delete entity by condition'() {
+
+  }
+
+  @test.skip
+  async 'aggregate entities'() {
 
   }
 

@@ -1,10 +1,10 @@
-import {ITask, ITaskRuntimeContainer, TaskRuntime, Incoming, Outgoing} from "@typexs/base";
-import {TestHelper} from "../../../TestHelper";
+import {ITask, ITaskRuntimeContainer, TaskRuntime, Incoming, Outgoing} from '@typexs/base';
+import {TestHelper} from '../../../TestHelper';
 
 
 export class SimpleTaskWithParams implements ITask {
 
-  name: string = 'simple_task_with_params';
+  name = 'simple_task_with_params';
 
   @TaskRuntime()
   r: ITaskRuntimeContainer;
@@ -18,7 +18,7 @@ export class SimpleTaskWithParams implements ITask {
   async exec() {
     const logger = this.r.logger();
     await TestHelper.wait(100);
-    logger.info('task is running with parameter '+JSON.stringify(this.needThis));
+    logger.info('task is running with parameter ' + JSON.stringify(this.needThis));
 
     this.r.progress(50);
 

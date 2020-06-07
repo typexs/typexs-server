@@ -1,10 +1,10 @@
-import {ITask, ITaskRuntimeContainer, TaskRuntime} from "@typexs/base";
-import {TestHelper} from "../../../TestHelper";
+import {ITask, ITaskRuntimeContainer, TaskRuntime} from '@typexs/base';
+import {TestHelper} from '../../../TestHelper';
 
 
 export class SimpleTask implements ITask {
 
-  name:string = 'simple_task';
+  name = 'simple_task';
 
   @TaskRuntime()
   r: ITaskRuntimeContainer;
