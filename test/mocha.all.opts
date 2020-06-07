@@ -2,8 +2,8 @@
 --extensions ts,tsx
 --watch
 --timeout 30000
---watch-files
 --files
+--watch-files
 
 test/**/*.spec.ts
 test/**/**/*.spec.ts
