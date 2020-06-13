@@ -11,6 +11,7 @@ import {
   _API_TASKS,
   _API_TASKS_LIST,
   _API_TASKS_METADATA,
+  _API_TASKS_RUNNERS_INFO,
   _API_TASKS_RUNNING,
   _API_TASKS_RUNNING_ON_NODE,
   Access,
@@ -20,6 +21,7 @@ import {
   PERMISSION_ALLOW_TASK_GET_METADATA,
   PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN,
   PERMISSION_ALLOW_TASK_LOG,
+  PERMISSION_ALLOW_TASK_RUNNER_INFO_VIEW,
   PERMISSION_ALLOW_TASK_STATUS,
   PERMISSION_ALLOW_TASKS_LIST,
   PERMISSION_ALLOW_TASKS_METADATA,
@@ -235,11 +237,15 @@ export class TasksController {
   ) {
     let _opts = options || {};
     _opts = _.defaults(_opts, <IMessageOptions>{
-      filterErrors: true
+      filterErrors: true,
+      outputMode: 'only_value'
     });
     try {
       const status = await this.taskExchange.getStatus(runnerId, _opts);
-      return status.filter(x => !!x);
+      if (_.isArray(status) && _opts.outputMode === 'only_value') {
+        return status.filter(x => !!x);
+      }
+      return status;
     } catch (e) {
       throw new InternalServerError(e.message);
     }
@@ -260,6 +266,7 @@ export class TasksController {
     let _opts = options || {};
     _opts = _.defaults(_opts, <IMessageOptions>{
       filterErrors: true,
+      outputMode: 'only_value',
       targetIds: [nodeId]
     });
     return this.getRunningTasks(_opts);
@@ -278,9 +285,14 @@ export class TasksController {
     let _opts = options || {};
     _opts = _.defaults(_opts, <IMessageOptions>{
       filterErrors: true,
+      outputMode: 'only_value',
     });
     try {
-      return this.taskExchange.getRunningTasks(_opts);
+      const results = await this.taskExchange.getRunningTasks(_opts);
+      if (_.isArray(results) && _opts.outputMode === 'only_value') {
+        return _.concat([], ...results.filter(x => x && !_.isEmpty(x)));
+      }
+      return results;
     } catch (e) {
       throw new HttpError(404, e.message);
     }
@@ -292,16 +304,21 @@ export class TasksController {
    *
    * @param nodeId
    */
-  @Access([PERMISSION_ALLOW_TASKS_RUNNING])
-  @Get(_API_TASKS_RUNNING)
+  @Access([PERMISSION_ALLOW_TASK_RUNNER_INFO_VIEW])
+  @Get(_API_TASKS_RUNNERS_INFO)
   async getRunners(@QueryParam('options') options: IMessageOptions = {}) {
 
     let _opts = options || {};
     _opts = _.defaults(_opts, <IMessageOptions>{
       filterErrors: true,
+      outputMode: 'only_value'
     });
     try {
-      return this.taskExchange.getRunners(_opts);
+      const results = await this.taskExchange.getRunners(_opts);
+      if (_.isArray(results) && _opts.outputMode === 'only_value') {
+        return _.concat([], ...results.filter(x => x && !_.isEmpty(x)));
+      }
+      return results;
     } catch (e) {
       throw new HttpError(404, e.message);
     }

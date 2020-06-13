@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 export const K_ROUTE_CACHE = 'route_cache';
 export const C_DEFAULT = 'default';
 export const C_SERVER = 'server';
@@ -59,7 +52,6 @@ export const API_SYSTEM_WORKERS = _API_SYSTEM + _API_SYSTEM_WORKERS;
 export const PERMISSION_ALLOW_STORAGE_ENTITY_VIEW = 'allow storages entity view';
 
 
-
 export const API_STORAGE_PREFIX = '/storage';
 
 
@@ -75,7 +67,6 @@ export const API_STORAGE_METADATA_CREATE_ENTITY = API_STORAGE_METADATA + '/entit
 export const API_STORAGE_METADATA_GET_ENTITY = API_STORAGE_METADATA + '/entity/:name';
 
 
-
 export const API_STORAGE_FIND_ENTITY = '/entity/:name';
 export const API_STORAGE_GET_ENTITY = '/entity/:name/:id';
 export const PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY = 'allow access storage entity';
@@ -86,25 +77,74 @@ export const PERMISSION_ALLOW_SAVE_STORAGE_ENTITY = 'allow save storage entity';
 export const PERMISSION_ALLOW_SAVE_STORAGE_ENTITY_PATTERN = 'allow save storage entity :name';
 
 export const API_STORAGE_UPDATE_ENTITY = '/entity/:name/:id';
+export const API_STORAGE_UPDATE_ENTITIES_BY_CONDITION = '/entity/:name';
 export const PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY = 'allow edit storage entity';
 export const PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN = 'allow edit storage entity :name';
 
 export const API_STORAGE_DELETE_ENTITY = '/entity/:name/:id';
-export const API_STORAGE_DELETE_ENTITIES = '/entity/:name';
+export const API_STORAGE_DELETE_ENTITIES_BY_CONDITION = '/entity/:name';
 export const PERMISSION_ALLOW_DELETE_STORAGE_ENTITY = 'allow delete storage entity';
 export const PERMISSION_ALLOW_DELETE_STORAGE_ENTITY_PATTERN = 'allow delete storage entity :name';
 
+/**
+ * Distributed storage url paths
+ */
 
-export const _API_DISTRIBUTED_STORAGE = '/distributed';
-export const API_DISTRIBUTED_STORAGE = '/api' + _API_DISTRIBUTED_STORAGE;
+export const API_DISTRIBUTED_STORAGE = '/distributed';
 
-
+// Get method
 export const _API_DISTRIBUTED_STORAGE_FIND_ENTITY = '/query/:name';
-export const API_DISTRIBUTED_STORAGE_FIND_ENTITY = API_DISTRIBUTED_STORAGE + _API_DISTRIBUTED_STORAGE_FIND_ENTITY;
+export const API_DISTRIBUTED_STORAGE_FIND_ENTITY =
+  API_DISTRIBUTED_STORAGE +
+  _API_DISTRIBUTED_STORAGE_FIND_ENTITY;
+
+// Get method
 export const _API_DISTRIBUTED_STORAGE_GET_ENTITY = '/entity/:nodeId/:name/:id';
-export const API_DISTRIBUTED_STORAGE_GET_ENTITY = API_DISTRIBUTED_STORAGE + _API_DISTRIBUTED_STORAGE_GET_ENTITY;
-export const PERMISSION_ALLOW_ACCESS_DISTRIBUTED_STORAGE_ENTITY = 'allow access distributed storage entity';
-export const PERMISSION_ALLOW_ACCESS_DISTRIBUTED_STORAGE_ENTITY_PATTERN = 'allow access distributed storage entity :name';
+export const API_DISTRIBUTED_STORAGE_GET_ENTITY =
+  API_DISTRIBUTED_STORAGE +
+  _API_DISTRIBUTED_STORAGE_GET_ENTITY;
+
+export const PERMISSION_ALLOW_DISTRIBUTED_STORAGE_ACCESS_ENTITY = 'allow access distributed storage entity';
+export const PERMISSION_ALLOW_DISTRIBUTED_STORAGE_ACCESS_ENTITY_PATTERN = 'allow access distributed storage entity :name';
+
+// Post method
+export const _API_DISTRIBUTED_STORAGE_SAVE_ENTITY = '/entity/:nodeId/:name';
+export const API_DISTRIBUTED_STORAGE_SAVE_ENTITY =
+  API_DISTRIBUTED_STORAGE +
+  _API_DISTRIBUTED_STORAGE_SAVE_ENTITY;
+
+export const PERMISSION_ALLOW_DISTRIBUTED_STORAGE_SAVE_ENTITY = 'allow save distributed storage entity';
+export const PERMISSION_ALLOW_DISTRIBUTED_STORAGE_SAVE_ENTITY_PATTERN = 'allow save distributed storage entity :name';
+
+// Post method
+export const _API_DISTRIBUTED_STORAGE_UPDATE_ENTITY = '/entity/:nodeId/:name/:id';
+export const API_DISTRIBUTED_STORAGE_UPDATE_ENTITY =
+  API_DISTRIBUTED_STORAGE +
+  _API_DISTRIBUTED_STORAGE_UPDATE_ENTITY;
+
+// Put method
+export const _API_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION = '/entity/:nodeId/:name';
+export const API_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION =
+  API_DISTRIBUTED_STORAGE +
+  _API_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION;
+
+export const PERMISSION_ALLOW_DISTRIBUTED_STORAGE_UPDATE_ENTITY = 'allow update distributed storage entity';
+export const PERMISSION_ALLOW_DISTRIBUTED_STORAGE_UPDATE_ENTITY_PATTERN = 'allow update distributed storage entity :name';
+
+
+// Delete method
+export const _API_DISTRIBUTED_STORAGE_DELETE_ENTITY = '/entity/:nodeId/:name/:id';
+export const API_DISTRIBUTED_STORAGE_DELETE_ENTITY =
+  API_DISTRIBUTED_STORAGE +
+  _API_DISTRIBUTED_STORAGE_DELETE_ENTITY;
+
+export const _API_DISTRIBUTED_STORAGE_DELETE_ENTITIES_BY_CONDITION = '/entity/:nodeId/:name';
+export const API_DISTRIBUTED_STORAGE_DELETE_ENTITIES_BY_CONDITION =
+  API_DISTRIBUTED_STORAGE +
+  _API_DISTRIBUTED_STORAGE_DELETE_ENTITIES_BY_CONDITION;
+
+export const PERMISSION_ALLOW_DISTRIBUTED_STORAGE_DELETE_ENTITY = 'allow delete distributed storage entity';
+export const PERMISSION_ALLOW_DISTRIBUTED_STORAGE_DELETE_ENTITY_PATTERN = 'allow delete distributed storage entity :name';
 
 
 
@@ -149,6 +189,10 @@ export const PERMISSION_ALLOW_TASK_RUNNING = 'task running view';
 
 export const _API_TASKS_RUNNING = '/running';
 export const API_TASKS_RUNNING = _API_TASKS + _API_TASKS_RUNNING;
+
+export const PERMISSION_ALLOW_TASK_RUNNER_INFO_VIEW = 'task runners view';
+export const _API_TASKS_RUNNERS_INFO = '/runners';
+export const API_TASKS_RUNNERS_INFO = _API_TASKS + _API_TASKS_RUNNERS_INFO;
 
 export const _API_TASKS_RUNNING_ON_NODE = '/running_tasks/:nodeId';
 export const API_TASKS_RUNNING_ON_NODE = _API_TASKS + _API_TASKS_RUNNING_ON_NODE;

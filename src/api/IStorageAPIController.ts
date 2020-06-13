@@ -1,6 +1,6 @@
 import {IEntityRef} from 'commons-schema-api/browser';
 
-export type STORAGE_API_CONTROLLER_STATE = 'get' | 'query' | 'save' | 'update';
+export type STORAGE_API_CONTROLLER_STATE = 'get' | 'query' | 'save' | 'update' | 'delete';
 
 /**
  * Interface declaration

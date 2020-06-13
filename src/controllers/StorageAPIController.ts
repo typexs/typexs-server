@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {Body, CurrentUser, Delete, Get, HttpError, JsonController, Param, Post, QueryParam} from 'routing-controllers';
+import {Body, CurrentUser, Delete, Get, HttpError, JsonController, Param, Post, Put, QueryParam} from 'routing-controllers';
 import {
   Cache,
   ClassLoader,
@@ -20,7 +20,7 @@ import {
 import {EntitySchema} from 'typeorm';
 import {
   Access,
-  API_STORAGE_DELETE_ENTITIES,
+  API_STORAGE_DELETE_ENTITIES_BY_CONDITION,
   API_STORAGE_DELETE_ENTITY,
   API_STORAGE_FIND_ENTITY,
   API_STORAGE_GET_ENTITY,
@@ -31,6 +31,7 @@ import {
   API_STORAGE_METADATA_GET_STORE,
   API_STORAGE_PREFIX,
   API_STORAGE_SAVE_ENTITY,
+  API_STORAGE_UPDATE_ENTITIES_BY_CONDITION,
   API_STORAGE_UPDATE_ENTITY,
   ContextGroup,
   PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY,
@@ -54,6 +55,7 @@ import {StorageAPIControllerApi} from '../api/StorageAPIController.api';
 import {JsonUtils, TreeUtils, WalkValues} from 'commons-base';
 import {IDeleteOptions} from '@typexs/base/libs/storage/framework/IDeleteOptions';
 import {IUpdateOptions} from '@typexs/base/libs/storage/framework/IUpdateOptions';
+import {IAggregateOptions} from '@typexs/base/libs/storage/framework/IAggregateOptions';
 
 
 @ContextGroup('api')
@@ -89,7 +91,12 @@ export class StorageAPIController {
   static checkOptions(opts: any, options: any) {
     if (!_.isEmpty(opts)) {
       const checked = {};
-      _.keys(opts).filter(k => ['raw', 'timeout', 'validate', 'noTransaction', 'skipBuild'].indexOf(k) > -1 &&
+      _.keys(opts).filter(k => [
+          'raw',
+          'timeout',
+          'validate',
+          'noTransaction',
+          'skipBuild'].indexOf(k) > -1 &&
         (_.isString(opts[k]) || _.isNumber(opts[k]) || _.isBoolean(opts[k])))
         .map(k => checked[k] = opts[k]);
       _.assign(options, opts);
@@ -166,50 +173,23 @@ export class StorageAPIController {
 
 
   /**
-   * Run a query for entity
+   * Run a query for entity or an aggregation
    */
-  @Access([PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY, PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN])
+  @Access([
+    PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY,
+    PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN])
   @Get(API_STORAGE_FIND_ENTITY)
   async query(
     @Param('name') name: string,
     @QueryParam('query') query: string,
+    @QueryParam('aggr') aggr: string,
     @QueryParam('sort') sort: string = null,
     @QueryParam('limit') limit: number = 50,
     @QueryParam('offset') offset: number = 0,
     @QueryParam('opts') opts: IFindOptions = {},
     @CurrentUser() user: any
   ) {
-
-
     const [entityRef, controller] = this.getControllerForEntityName(name);
-
-    // try {
-    //   this.invoker.use(StorageAPIControllerApi).prepareParams('query', entityRef, {
-    //     name: name,
-    //     query: query,
-    //     sort: sort,
-    //     limit: limit,
-    //     opts: opts,
-    //     user: user,
-    //   });
-    // } catch (e) {
-    //   throw new HttpResponseError(['storage', 'query'], e.message);
-    // }
-
-    let conditions = null;
-    if (query) {
-      conditions = JsonUtils.parse(query);
-      if (!_.isPlainObject(conditions)) {
-        throw new Error('conditions are wrong ' + query);
-      }
-    }
-    let sortBy = null;
-    if (sort) {
-      sortBy = JsonUtils.parse(sort);
-      if (!_.isPlainObject(sortBy)) {
-        throw new Error('sort by is wrong ' + sort);
-      }
-    }
 
     if (!_.isNumber(limit)) {
       limit = 50;
@@ -219,18 +199,53 @@ export class StorageAPIController {
       offset = 0;
     }
 
-    const options: IFindOptions = {
-      limit: limit,
-      offset: offset,
-      sort: sortBy,
-      // hooks: {afterEntity: StorageAPIController._afterEntity}
-    };
-    StorageAPIController.checkOptions(opts, options);
+    const aggregationMode = !!aggr && !_.isEmpty(aggr);
 
-    const result = await controller.find(entityRef.getClassRef().getClass(), conditions, options);
+    let conditions: any = aggregationMode ? aggr : query;
+    if (conditions) {
+      conditions = JsonUtils.parse(conditions);
+      if (
+        !_.isPlainObject(conditions) &&
+        !_.isArray(conditions)
+      ) {
+        throw new Error('conditions are wrong ' + conditions);
+      }
+    }
 
-    if (!_.isEmpty(result)) {
-      StorageAPIController._afterEntity(entityRef, result);
+    let sortBy = null;
+    if (sort) {
+      sortBy = JsonUtils.parse(sort);
+      if (!_.isPlainObject(sortBy)) {
+        throw new Error('sort by is wrong ' + sort);
+      }
+    }
+
+    let result = null;
+    if (aggr && !_.isEmpty(aggr)) {
+      const options: IAggregateOptions = {
+        limit: limit,
+        offset: offset,
+        sort: sortBy,
+      };
+      StorageAPIController.checkOptions(opts, options);
+
+      result = await controller.aggregate(
+        entityRef.getClassRef().getClass(),
+        conditions,
+        options);
+    } else {
+      const options: IFindOptions = {
+        limit: limit,
+        offset: offset,
+        sort: sortBy,
+        // hooks: {afterEntity: StorageAPIController._afterEntity}
+      };
+      StorageAPIController.checkOptions(opts, options);
+
+      result = await controller.find(entityRef.getClassRef().getClass(), conditions, options);
+      if (!_.isEmpty(result)) {
+        StorageAPIController._afterEntity(entityRef, result);
+      }
     }
 
     const results = {
@@ -241,14 +256,17 @@ export class StorageAPIController {
     };
 
     try {
-      this.invoker.use(StorageAPIControllerApi).postProcessResults('query', entityRef, results, {
-        name: name,
-        query: query,
-        sort: sort,
-        limit: limit,
-        opts: opts,
-        user: user,
-      });
+      this.invoker.use(StorageAPIControllerApi)
+        .postProcessResults('query', entityRef, results, {
+          name: name,
+          query: query,
+          aggr: aggr,
+          sort: sort,
+          limit: limit,
+          opts: opts,
+          user: user,
+          aggregation: aggregationMode
+        });
     } catch (e) {
       throw new HttpResponseError(['storage', 'query'], e.message);
     }
@@ -260,7 +278,9 @@ export class StorageAPIController {
   /**
    * Return a single Entity
    */
-  @Access([PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY, PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN])
+  @Access([
+    PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY,
+    PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN])
   @Get(API_STORAGE_GET_ENTITY)
   async get(@Param('name') name: string,
             @Param('id') id: string,
@@ -329,39 +349,20 @@ export class StorageAPIController {
   }
 
 
-  prepareEntities(entityDef: IEntityRef, data: any, options: ISaveOptions = {}) {
-    const buildOpts: IBuildOptions = {beforeBuild: StorageAPIController._beforeBuild};
-    if (options.raw) {
-      buildOpts.createAndCopy = options.raw;
-    }
-    let entities;
-    if (_.isArray(data)) {
-      entities = _.map(data, d => entityDef.build(d, buildOpts));
-    } else {
-      entities = entityDef.build(data, buildOpts);
-    }
-    return entities;
-  }
-
-
   /**
-   * Return a new created Entity
+   * Return a new created Entity or executes an update
    */
   @Access([PERMISSION_ALLOW_SAVE_STORAGE_ENTITY, PERMISSION_ALLOW_SAVE_STORAGE_ENTITY_PATTERN])
   @Post(API_STORAGE_SAVE_ENTITY)
   async save(@Param('name') name: string,
              @Body() data: any,
-             @QueryParam('opts') opts: ISaveOptions = {},
+             @QueryParam('opts') opts: ISaveOptions | IUpdateOptions = {},
              @CurrentUser() user: any): Promise<any> {
-
     const [entityDef, controller] = this.getControllerForEntityName(name);
-    // await this.invoker.use(EntityControllerApi).beforeEntityBuild(entityDef, data, user, controller);
-
     const options: ISaveOptions = {validate: true};
     StorageAPIController.checkOptions(opts, options);
 
     const entities = this.prepareEntities(entityDef, data, options);
-
     try {
       const results = await controller.save(entities, options);
       this.invoker.use(StorageAPIControllerApi).postProcessResults('save', entityDef, results, {
@@ -394,12 +395,13 @@ export class StorageAPIController {
 
     try {
       const results = await controller.save(entities, options);
-      this.invoker.use(StorageAPIControllerApi).postProcessResults('update', entityDef, results, {
-        name: name,
-        id: id,
-        opts: opts,
-        user: user,
-      });
+      this.invoker.use(StorageAPIControllerApi)
+        .postProcessResults('update', entityDef, results, {
+          name: name,
+          id: id,
+          opts: opts,
+          user: user,
+        });
       return results;
     } catch (e) {
       throw new HttpResponseError(['storage', 'update'], e.message);
@@ -407,35 +409,50 @@ export class StorageAPIController {
   }
 
   /**
-   * TODO
-   *
-   * Return a updated Entity
+   * Mas update of data by given query
    */
-  @Access([PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY, PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN])
-  @Post(API_STORAGE_UPDATE_ENTITY)
+  @Access([
+    PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY,
+    PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN])
+  @Put(API_STORAGE_UPDATE_ENTITIES_BY_CONDITION)
   async updateByCondition(@Param('name') name: string,
                           @QueryParam('query') query: any = null,
                           @QueryParam('opts') opts: IUpdateOptions = {},
                           @Body() data: any,
                           @CurrentUser() user: any) {
+    if (!data) {
+      throw new HttpResponseError(['storage', 'update'], 'No update data given');
+    }
 
-    // const [entityDef, controller] = this.getControllerForEntityName(name);
-    // const options: ISaveOptions = {validate: true};
-    // StorageAPIController.checkOptions(opts, options);
-    // const entities = this.prepareEntities(entityDef, data, options);
-    //
-    // try {
-    //   const results = await controller.save(entities, options);
-    //   this.invoker.use(StorageAPIControllerApi).postProcessResults('update', entityDef, results, {
-    //     name: name,
-    //     id: id,
-    //     opts: opts,
-    //     user: user,
-    //   });
-    //   return results;
-    // } catch (e) {
-    //   throw new HttpResponseError(['storage', 'update'], e.message);
-    // }
+    if (!query) {
+      // select all for change
+      query = {};
+    }
+
+    const [entityDef, controller] = this.getControllerForEntityName(name);
+    const options: IUpdateOptions = {validate: true};
+    StorageAPIController.checkOptions(opts, options);
+
+    try {
+      const results = await controller.update(
+        entityDef.getClassRef().getClass(),
+        query,
+        data,
+        options
+      );
+      this.invoker.use(StorageAPIControllerApi)
+        .postProcessResults('update', entityDef, results, {
+          name: name,
+          query: query,
+          update: data,
+          opts: opts,
+          user: user,
+        });
+      return results;
+    } catch (e) {
+      throw new HttpResponseError(['storage', 'update'], e.message);
+    }
+
   }
 
 
@@ -448,7 +465,6 @@ export class StorageAPIController {
   async deleteById(@Param('name') name: string,
                    @Param('id') id: string,
                    @QueryParam('opts') opts: IDeleteOptions = {},
-                   @Body() data: any,
                    @CurrentUser() user: any) {
     const [entityDef, controller] = this.getControllerForEntityName(name);
     let conditions = Expressions.parseLookupConditions(entityDef, id);
@@ -459,45 +475,77 @@ export class StorageAPIController {
 
     const options: IDeleteOptions = {};
     StorageAPIController.checkOptions(opts, options);
-    const results = await controller.find(entityDef.getClassRef().getClass(), conditions, options);
-    if (results.length > 0) {
-      return controller.remove(results);
+    try {
+      const results = await controller.find(
+        entityDef.getClassRef().getClass(),
+        conditions,
+        options);
+
+      if (results.length > 0) {
+        return controller.remove(results);
+      }
+      this.invoker.use(StorageAPIControllerApi)
+        .postProcessResults('delete', entityDef, results, {
+          name: name,
+          id: id,
+          opts: opts,
+          user: user,
+        });
+      return results;
+    } catch (e) {
+      throw new HttpResponseError(['storage', 'delete'], e.message);
     }
-    return null;
+
+    return 0;
   }
 
 
   /**
-   * TODO ...
+   * Delete records by conditions
+
    * @param name
    * @param id
    * @param opts
    * @param data
    * @param user
    */
-  @Access([PERMISSION_ALLOW_DELETE_STORAGE_ENTITY, PERMISSION_ALLOW_DELETE_STORAGE_ENTITY_PATTERN])
-  @Delete(API_STORAGE_DELETE_ENTITIES)
+  @Access([
+    PERMISSION_ALLOW_DELETE_STORAGE_ENTITY,
+    PERMISSION_ALLOW_DELETE_STORAGE_ENTITY_PATTERN])
+  @Delete(API_STORAGE_DELETE_ENTITIES_BY_CONDITION)
   async deleteByQuery(@Param('name') name: string,
-                      // can be also conditions!
                       @QueryParam('query') query: any = {},
                       @QueryParam('opts') opts: IDeleteOptions = {},
-                      @Body() data: any,
                       @CurrentUser() user: any) {
-    // const [entityDef, controller] = this.getControllerForEntityName(name);
-    // let conditions = Expressions.parseLookupConditions(entityDef, id);
-    // if (conditions.length > 1) {
-    //   // multiple ids should be bound by 'or', else it would be 'and'
-    //   conditions = {$or: conditions};
-    // }
-    //
-    // const options: IDeleteOptions = {};
-    // StorageAPIController.checkOptions(opts, options);
-    // const results = await controller.find(entityDef.getClassRef().getClass(), conditions, options);
-    // if (results.length > 0) {
-    //   return controller.remove(results);
-    // }
-    // return null;
+
+    if (!query || _.isEmpty(query)) {
+      // multiple ids should be bound by 'or', else it would be 'and'
+      throw new HttpResponseError(['storage', 'delete'], 'query for selection is empty');
+    }
+    const [entityDef, controller] = this.getControllerForEntityName(name);
+
+    const options: IDeleteOptions = {};
+    StorageAPIController.checkOptions(opts, options);
+    try {
+
+      const results = await controller.remove(
+        entityDef.getClassRef().getClass(),
+        query,
+        options);
+
+      this.invoker.use(StorageAPIControllerApi)
+        .postProcessResults('delete', entityDef, results, {
+          name: name,
+          query: query,
+          opts: opts,
+          user: user,
+        });
+      return results;
+    } catch (e) {
+      throw new HttpResponseError(['storage', 'delete'], e.message);
+    }
   }
+
 
   private getControllerForEntityName(name: string): [IEntityRef, IEntityController] {
     const storageRef = this.getStorageRef(name);
@@ -505,6 +553,7 @@ export class StorageAPIController {
     const entityRef = this.getEntityRef(storageRef, name);
     return [entityRef, controller];
   }
+
 
   private getEntityRef(storageRef: IStorageRef, entityName: string): IEntityRef {
     const entityRef = storageRef.getEntityRef(entityName);
@@ -522,6 +571,24 @@ export class StorageAPIController {
     return storageRef;
   }
 
+
+  private prepareEntities(entityDef: IEntityRef, data: any, options: ISaveOptions = {}) {
+    const buildOpts: IBuildOptions = {
+      beforeBuild: StorageAPIController._beforeBuild
+    };
+    if (options.raw) {
+      buildOpts.createAndCopy = options.raw;
+    }
+    let entities;
+    if (_.isArray(data)) {
+      entities = _.map(data, d => entityDef.build(d, buildOpts));
+    } else {
+      entities = entityDef.build(data, buildOpts);
+    }
+    return entities;
+  }
+
+
   private async getFilterKeys(): Promise<string[]> {
     // TODO cache this!
     const cacheKey = 'storage_filter_keys';
@@ -538,6 +605,7 @@ export class StorageAPIController {
     await this.cache.set(cacheKey, filterKeys);
     return filterKeys;
   }
+
 
   private async getStorageSchema(storageName: string, withCollections: boolean = false, refresh: boolean = false) {
     const cacheKey = 'storage-schema-' + storageName + (withCollections ? '-with-collection' : '');
@@ -593,7 +661,6 @@ export class StorageAPIController {
 
   private async getStorageRefCollections(ref: IStorageRef): Promise<ICollection[]> {
     try {
-      // const schemaHandler = ref.getSchemaHandler();
       const collectionNames = await ref.getRawCollectionNames();
       return await ref.getRawCollections(collectionNames);
 
@@ -601,7 +668,6 @@ export class StorageAPIController {
       Log.error(e);
     }
     return [];
-
   }
 
 }
