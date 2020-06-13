@@ -1,26 +1,19 @@
 import * as got from 'got';
-import {suite, test} from "mocha-typescript";
-import {ServerRegistry} from "../../../src/libs/server/ServerRegistry";
+import {suite, test} from 'mocha-typescript';
 
-import {expect} from "chai";
-import {PlatformUtils, Container, RuntimeLoader, Log} from "@typexs/base";
-import {IServer} from "../../../src/libs/server/IServer";
-import {IServerInstanceOptions} from "../../../src/libs/server/IServerInstanceOptions";
-import {ServerFactory} from "../../../src/libs/server/ServerFactory";
-import {WebServer} from "../../../src/libs/web/WebServer";
-import * as path from "path";
-import * as glob from "glob";
-import {IWebServerInstanceOptions} from "../../../src/libs/web/IWebServerInstanceOptions";
-import {IRequest, IResponse, Server} from "../../../src";
+import {expect} from 'chai';
+import {Container, Log} from '@typexs/base';
+import {Server} from '../../../src';
 
 
-let server:Server = null;
-@suite('functional/server/'+__filename)
+let server: Server = null;
+
+@suite('functional/server/server.spec.ts')
 class RegistrySpec {
 
 
-  async after(){
-    if(server){
+  async after() {
+    if (server) {
       await server.stop();
       await server.shutdown();
     }
@@ -36,20 +29,19 @@ class RegistrySpec {
 
     server.stall = 1000;
 
-    let _url = server.url();
+    const _url = server.url();
 
     let err = null;
     try {
-      let req = await got.get(_url);
+      const req = await got.get(_url);
     } catch (err2) {
       err = err2;
-      Log.error(err)
+      Log.error(err);
     }
-    expect(err.message).to.match(new RegExp("socket hang up"));
+    expect(err.message).to.match(new RegExp('socket hang up'));
 
 
   }
-
 
 
   /**
@@ -67,19 +59,18 @@ class RegistrySpec {
     server.stall = 1000;
 
     setTimeout(() => {
-      server.shutdown()
+      server.shutdown();
     }, 100);
 
-    let _url = server.url();
+    const _url = server.url();
 
     try {
-      let req = await got.get(_url);
+      const req = await got.get(_url);
     } catch (err) {
-      expect(err.message).to.match(new RegExp("ECONNREFUSED 127.0.0.1:8000"))
+      expect(err.message).to.match(new RegExp('ECONNREFUSED 127.0.0.1:8000'));
     }
 
   }
-
 
 
   /**
@@ -93,8 +84,8 @@ class RegistrySpec {
 
     await server.start();
 
-    let _url = server.url();
-    let req = await got.get(_url);
+    const _url = server.url();
+    const req = await got.get(_url);
 
     expect(req.statusCode).to.be.eq(200);
 
@@ -113,15 +104,13 @@ class RegistrySpec {
     await server.start();
 
     // this.timeout(server.stall)
-    let result = null;
-    let rrm = null;
     try {
       server.stall = 500;
-      let req = await got.get(server.url(), {timeout: 100});
-      server.stall = 0
+      const req = await got.get(server.url(), {timeout: 100});
+      server.stall = 0;
     } catch (err) {
       expect(err.name).to.be.equal('TimeoutError');
-      expect(err.message).to.be.equal('Timeout awaiting \'request\' for 100ms')
+      expect(err.message).to.be.equal('Timeout awaiting \'request\' for 100ms');
     }
 
 
@@ -145,16 +134,16 @@ class RegistrySpec {
 
     await server.start();
 
-    let options = {ca: server._options.cert,timeout:100};
+    const options = {ca: server._options.cert, timeout: 100};
 
-    //_request.debug = true
-    try{
+    // _request.debug = true
+    try {
       server.stall = 500;
-      let req = await got.get(server.url() + '/judge/DUMMY', options);
-      server.stall = 0
-    }catch (err) {
+      const req = await got.get(server.url() + '/judge/DUMMY', options);
+      server.stall = 0;
+    } catch (err) {
       expect(err.name).to.be.equal('TimeoutError');
-      expect(err.message).to.be.equal('Timeout awaiting \'request\' for 100ms')
+      expect(err.message).to.be.equal('Timeout awaiting \'request\' for 100ms');
     }
 
   }
@@ -165,12 +154,10 @@ class RegistrySpec {
   @test
   async 'server not reachable - http request'() {
 
-    let result = null;
-    let rrm = null;
     try {
-      let req = await got.get('http://127.0.0.1:12345', {timeout: 100});
+      const req = await got.get('http://127.0.0.1:12345', {timeout: 100});
     } catch (err) {
-      expect(err.message).to.match(new RegExp("connect ECONNREFUSED 127.0.0.1:12345"))
+      expect(err.message).to.match(new RegExp('connect ECONNREFUSED 127.0.0.1:12345'));
     }
   }
 
@@ -180,12 +167,10 @@ class RegistrySpec {
    */
   @test
   async 'server not reachable - https request'() {
-    let result = null;
-    let rrm = null;
     try {
-      let req = await got.get('https://127.0.0.1:12345', {timeout: 100});
+      const req = await got.get('https://127.0.0.1:12345', {timeout: 100});
     } catch (err) {
-      expect(err.message).to.match(new RegExp("connect ECONNREFUSED 127.0.0.1:12345"))
+      expect(err.message).to.match(new RegExp('connect ECONNREFUSED 127.0.0.1:12345'));
     }
 
   }

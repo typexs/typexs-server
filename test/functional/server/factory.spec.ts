@@ -1,65 +1,68 @@
-import {suite, test} from "mocha-typescript";
+import {suite, test} from 'mocha-typescript';
 
-import {expect} from "chai";
-import {Container} from "typedi";
-import {PlatformUtils, RuntimeLoader} from "@typexs/base";
-import {IServer} from "../../../src/libs/server/IServer";
-import {IServerInstanceOptions} from "../../../src/libs/server/IServerInstanceOptions";
-import {ServerFactory} from "../../../src/libs/server/ServerFactory";
-import {WebServer} from "../../../src/libs/web/WebServer";
-import {IRoute} from "../../../src";
-import {ServerTmpl} from "./classes/ServerTmpl";
+import {expect} from 'chai';
+import {Container} from 'typedi';
+import {PlatformUtils, RuntimeLoader} from '@typexs/base';
+import {IServer} from '../../../src/libs/server/IServer';
+import {IServerInstanceOptions} from '../../../src/libs/server/IServerInstanceOptions';
+import {ServerFactory} from '../../../src/libs/server/ServerFactory';
+import {WebServer} from '../../../src/libs/web/WebServer';
+import {IRoute} from '../../../src';
+import {ServerTmpl} from './classes/ServerTmpl';
 
 @suite('functional/server/factory')
 class FactorySpec {
 
 
-  before(){
+  before() {
     Container.reset();
   }
 
-  after(){
+  after() {
     Container.reset();
   }
 
   @test
   async 'get web server'() {
-    let loader = new RuntimeLoader({});
-    Container.set(RuntimeLoader,loader);
-    Container.set("RuntimeLoader",loader);
-    let r = new ServerFactory();
-    let web = r.get('web');
+    const loader = new RuntimeLoader({});
+    Container.set(RuntimeLoader, loader);
+    Container.set('RuntimeLoader', loader);
+    const r = new ServerFactory();
+    const web = r.get('web');
     expect(web instanceof WebServer).to.be.true;
   }
 
   @test
   async 'get custom server class'() {
-    let r = new ServerFactory();
+    const r = new ServerFactory();
+
     class ServerTmplX implements IServer {
       name: string = 'x';
 
       initialize(options: IServerInstanceOptions) {
-      };
+      }
 
-      options(): IServerInstanceOptions{return <IServerInstanceOptions>{};}
+      options(): IServerInstanceOptions {
+        return <IServerInstanceOptions>{};
+      }
 
       prepare() {
-      };
+      }
 
       async start() {
         return true;
-      };
+      }
 
-      async stop(){
+      async stop() {
         return true;
-      };
+      }
 
       getRoutes(): IRoute[] {
         return [];
       }
 
       getUri(): string {
-        return "";
+        return '';
       }
 
       hasRoutes(): boolean {
@@ -67,24 +70,25 @@ class FactorySpec {
       }
 
     }
-    let web = r.get(ServerTmplX);
+
+    const web = r.get(ServerTmplX);
     expect(web instanceof ServerTmplX).to.be.true;
   }
 
   @test
   async 'get custom server class from file'() {
-    let p = PlatformUtils.join(__dirname,'classes','ServerTmpl');
-    let r = new ServerFactory();
-    let web = r.get(p);
+    const p = PlatformUtils.join(__dirname, 'classes', 'ServerTmpl');
+    const r = new ServerFactory();
+    const web = r.get(p);
     expect(web.name).to.eq('x');
 
   }
 
   @test
   async 'define new type'() {
-    ServerFactory.register('testserver',ServerTmpl);
-    let r = new ServerFactory();
-    let web = r.get('testserver');
+    ServerFactory.register('testserver', ServerTmpl);
+    const r = new ServerFactory();
+    const web = r.get('testserver');
     expect(web.name).to.eq('x');
 
   }
@@ -99,28 +103,30 @@ class FactorySpec {
       name: string = 'x';
 
       initialize(options: IServerInstanceOptions) {
-      };
+      }
 
       prepare() {
-      };
+      }
 
-      options(): IServerInstanceOptions{return <IServerInstanceOptions>{};}
+      options(): IServerInstanceOptions {
+        return <IServerInstanceOptions>{};
+      }
 
 
       async start() {
         return true;
-      };
+      }
 
       async stop() {
         return true;
-      };
+      }
 
       getRoutes(): IRoute[] {
         return [];
       }
 
       getUri(): string {
-        return "";
+        return '';
       }
 
       hasRoutes(): boolean {

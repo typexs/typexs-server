@@ -4,7 +4,7 @@ import {WebServer} from '../../../src/libs/web/WebServer';
 import {C_DEFAULT, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
 import {IRoutingController} from '../../../src';
 import {expect} from 'chai';
-import {MetaArgs} from 'commons-base/browser';
+
 process.setMaxListeners(1000);
 Bootstrap._().activateErrorHandling();
 

@@ -3,26 +3,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 // process.env.SQL_LOG = '1';
 import {suite, test} from 'mocha-typescript';
-import {Bootstrap, C_STORAGE_DEFAULT, Config, Container, StorageRef, TaskLog} from '@typexs/base';
-import {
-  API_TASK_EXEC,
-  API_TASK_GET_METADATA,
-  API_TASK_GET_METADATA_VALUE,
-  API_TASK_LOG,
-  API_TASK_STATUS,
-  API_TASKS_LIST,
-  API_TASKS_METADATA,
-  K_ROUTE_CONTROLLER
-} from '../../../src/libs/Constants';
+import {Bootstrap, Config, Container} from '@typexs/base';
+import {API_TASK_GET_METADATA_VALUE, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
 import {expect} from 'chai';
 import {Helper, WebServer} from '../../../src';
 import * as _ from 'lodash';
-// import {SpawnHandle} from '../SpawnHandle';
 import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
-import {EventBus, IEventBusConfiguration, subscribe} from 'commons-eventbus';
-import {TaskEvent} from '@typexs/base/libs/tasks/worker/TaskEvent';
-import {IncomingMessage} from 'http';
+import {IEventBusConfiguration} from 'commons-eventbus';
 import {HttpFactory, IHttp} from 'commons-http';
 
 const LOG_EVENT = TestHelper.logEnable(true);
@@ -480,7 +468,6 @@ class TasksControllerSpec {
   //   );
   //
   // }
-
 
 
   @test

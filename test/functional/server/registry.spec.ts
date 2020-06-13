@@ -1,9 +1,9 @@
-import {suite, test} from "mocha-typescript";
-import {ServerRegistry} from "../../../src/libs/server/ServerRegistry";
+import {suite, test} from 'mocha-typescript';
+import {ServerRegistry} from '../../../src/libs/server/ServerRegistry';
 
-import {expect} from "chai";
-import {Container, RuntimeLoader} from "@typexs/base";
-import {IWebServerInstanceOptions} from "../../../src/libs/web/IWebServerInstanceOptions";
+import {expect} from 'chai';
+import {Container, RuntimeLoader} from '@typexs/base';
+import {IWebServerInstanceOptions} from '../../../src/libs/web/IWebServerInstanceOptions';
 
 @suite('functional/server/registry')
 class RegistrySpec {
@@ -20,12 +20,12 @@ class RegistrySpec {
 
   @test
   async 'error creating of web server because of framework missing'() {
-    let loader = new RuntimeLoader({});
-    Container.set("RuntimeLoader", loader);
+    const loader = new RuntimeLoader({});
+    Container.set('RuntimeLoader', loader);
 
-    let registry = new ServerRegistry();
+    const registry = new ServerRegistry();
     try {
-      let instance = await registry.create('default', {type: 'web'});
+      const instance = await registry.create('default', {type: 'web'});
       expect(false).to.be.true;
     } catch (err) {
       expect(err.message).to.eq('framework not present!');
@@ -35,13 +35,13 @@ class RegistrySpec {
 
   @test
   async 'create a express web server'() {
-    let loader = new RuntimeLoader({});
-    Container.set("RuntimeLoader", loader);
+    const loader = new RuntimeLoader({});
+    Container.set('RuntimeLoader', loader);
 
-    let registry = new ServerRegistry();
-    let instance = await registry.create('default', <IWebServerInstanceOptions>{type: 'web', framework: 'express'});
+    const registry = new ServerRegistry();
+    const instance = await registry.create('default', <IWebServerInstanceOptions>{type: 'web', framework: 'express'});
 
-    let opts = instance.options();
+    const opts = instance.options();
 
     expect(opts).to.deep.include({
       type: 'web',

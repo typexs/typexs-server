@@ -1,10 +1,9 @@
-import {suite, test} from "mocha-typescript";
-import {expect} from "chai";
-import {Config, IFileConfigOptions, PlatformUtils} from "@typexs/base";
-import {C_SERVER} from "../../../src/libs/Constants";
-import {ServerRegistry} from "../../../src/libs/server/ServerRegistry";
-import {ServerUtils} from "../../../src/libs/server/ServerUtils";
-import {WebServerUtils} from "../../../src/libs/web/WebServerUtils";
+import {suite, test} from 'mocha-typescript';
+import {expect} from 'chai';
+import {Config, IFileConfigOptions, PlatformUtils} from '@typexs/base';
+import {C_SERVER} from '../../../src/libs/Constants';
+import {ServerUtils} from '../../../src/libs/server/ServerUtils';
+import {WebServerUtils} from '../../../src/libs/web/WebServerUtils';
 
 
 @suite('functional/config/general')
@@ -26,8 +25,8 @@ class GeneralSpec {
         type: 'file',
         file: PlatformUtils.join(__dirname, 'variants', 'typexs_no_type.yml')
       }]
-    })
-    let data = Config.get(C_SERVER);
+    });
+    const data = Config.get(C_SERVER);
     expect(data.default).to.deep.eq({host: '127.0.0.1', port: 3554});
     expect(ServerUtils.checkIfTypeIsSet(data.default)).to.be.false;
   }
@@ -40,9 +39,9 @@ class GeneralSpec {
         type: 'file',
         file: PlatformUtils.join(__dirname, 'variants', 'typexs_no_framework.yml')
       }]
-    })
-    let data = Config.get(C_SERVER);
-    expect(data.default).to.deep.include({type: "web"});
+    });
+    const data = Config.get(C_SERVER);
+    expect(data.default).to.deep.include({type: 'web'});
     expect(ServerUtils.checkIfTypeIsSet(data.default)).to.be.true;
   }
 
@@ -55,9 +54,9 @@ class GeneralSpec {
         file: PlatformUtils.join(__dirname, 'variants', 'typexs_no_framework.yml')
 
       }]
-    })
-    let data = Config.get(C_SERVER);
-    expect(data.default).to.deep.include({type: "web"});
+    });
+    const data = Config.get(C_SERVER);
+    expect(data.default).to.deep.include({type: 'web'});
     expect(WebServerUtils.checkIfFrameworkIsSet(data.default)).to.be.false;
   }
 
@@ -70,9 +69,9 @@ class GeneralSpec {
         file: PlatformUtils.join(__dirname, 'variants', 'typexs_web_routes.yml')
 
       }]
-    })
-    let data = Config.get(C_SERVER);
-    expect(data.default).to.deep.include({type: "web", framework: "express"});
+    });
+    const data = Config.get(C_SERVER);
+    expect(data.default).to.deep.include({type: 'web', framework: 'express'});
     expect(WebServerUtils.checkIfFrameworkIsSet(data.default)).to.be.true;
   }
 }
