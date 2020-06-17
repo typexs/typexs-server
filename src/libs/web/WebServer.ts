@@ -1,7 +1,7 @@
 import * as http from 'http';
 import * as _ from 'lodash';
 import {MetaArgs} from 'commons-base/browser';
-import {ClassLoader, Container, Inject, RuntimeLoader, TodoException} from '@typexs/base';
+import {ClassLoader, Container, Inject, Log, RuntimeLoader, TodoException} from '@typexs/base';
 import {Action, getMetadataArgsStorage, useContainer} from 'routing-controllers';
 
 import {Server} from './../server/Server';
@@ -136,6 +136,7 @@ export class WebServer extends Server implements IServer {
         routing.controllers = controllerClasses;
         routing.middlewares = getMetadataArgsStorage().middlewares.map(x => x.target);
         if (!_.isEmpty(controllerClasses)) {
+          controllerClasses.map(x => Log.debug('server: enable controller ' + x.name));
           await this.extendOptionsForMiddleware(routing);
           this.applyDefaultOptionsIfNotGiven(routing);
           this.framework.useRouteController(routing);

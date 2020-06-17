@@ -19,20 +19,20 @@ import {
 } from '@typexs/base';
 import {EntitySchema} from 'typeorm';
 import {
-  Access,
-  API_STORAGE_DELETE_ENTITIES_BY_CONDITION,
-  API_STORAGE_DELETE_ENTITY,
-  API_STORAGE_FIND_ENTITY,
-  API_STORAGE_GET_ENTITY,
-  API_STORAGE_METADATA_ALL_ENTITIES,
-  API_STORAGE_METADATA_ALL_STORES,
-  API_STORAGE_METADATA_CREATE_ENTITY,
-  API_STORAGE_METADATA_GET_ENTITY,
-  API_STORAGE_METADATA_GET_STORE,
+  _API_STORAGE_DELETE_ENTITIES_BY_CONDITION,
+  _API_STORAGE_DELETE_ENTITY,
+  _API_STORAGE_FIND_ENTITY,
+  _API_STORAGE_GET_ENTITY,
+  _API_STORAGE_METADATA_ALL_ENTITIES,
+  _API_STORAGE_METADATA_ALL_STORES,
+  _API_STORAGE_METADATA_CREATE_ENTITY,
+  _API_STORAGE_METADATA_GET_ENTITY,
+  _API_STORAGE_METADATA_GET_STORE,
+  _API_STORAGE_SAVE_ENTITY,
+  _API_STORAGE_UPDATE_ENTITIES_BY_CONDITION,
+  _API_STORAGE_UPDATE_ENTITY,
+  Access, API_DISTRIBUTED_STORAGE_GET_ENTITY, API_STORAGE_GET_ENTITY,
   API_STORAGE_PREFIX,
-  API_STORAGE_SAVE_ENTITY,
-  API_STORAGE_UPDATE_ENTITIES_BY_CONDITION,
-  API_STORAGE_UPDATE_ENTITY,
   ContextGroup,
   PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY,
   PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN,
@@ -81,7 +81,7 @@ export class StorageAPIController {
     const props = entityDef.getPropertyRefs().filter(id => id.isIdentifier());
     entity.forEach(e => {
       const idStr = Expressions.buildLookupConditions(entityDef, e);
-      const url = `api${API_STORAGE_PREFIX}${API_STORAGE_GET_ENTITY}`.replace(':name', entityDef.machineName).replace(':id', idStr);
+      const url = `api${API_STORAGE_GET_ENTITY}`.replace(':name', entityDef.machineName).replace(':id', idStr);
       e[XS_P_URL] = url;
       e[XS_P_LABEL] = _.isFunction(e.label) ? e.label() : _.map(props, p => p.get(e)).join(' ');
     });
@@ -109,7 +109,7 @@ export class StorageAPIController {
   // @Authorized('read metadata schema')
   // - Check if user has an explicit credential to access the method
   @Access(PERMISSION_ALLOW_ACCESS_STORAGE_METADATA)
-  @Get(API_STORAGE_METADATA_ALL_STORES)
+  @Get(_API_STORAGE_METADATA_ALL_STORES)
   async getMetadatas(@CurrentUser() user: any): Promise<any> {
     const storageNames = this.storage.getNames();
     const data = await Promise.all(_.map(storageNames, storageName => {
@@ -123,7 +123,7 @@ export class StorageAPIController {
    * Return list of entity
    */
   @Access(PERMISSION_ALLOW_ACCESS_STORAGE_METADATA)
-  @Get(API_STORAGE_METADATA_GET_STORE)
+  @Get(_API_STORAGE_METADATA_GET_STORE)
   async getMetadata(@Param('name') storageName: string,
                     @QueryParam('withCollections') withCollections: boolean,
                     @QueryParam('refresh') refresh: boolean,
@@ -136,7 +136,7 @@ export class StorageAPIController {
    * Return list of defined entities
    */
   @Access(PERMISSION_ALLOW_ACCESS_STORAGE_METADATA)
-  @Get(API_STORAGE_METADATA_ALL_ENTITIES)
+  @Get(_API_STORAGE_METADATA_ALL_ENTITIES)
   async getMetadataEntities(@CurrentUser() user: any) {
     const storageNames = this.storage.getNames();
     let data: IEntityRefMetadata[] = [];
@@ -152,7 +152,7 @@ export class StorageAPIController {
    * Return list of defined entities
    */
   @Access(PERMISSION_ALLOW_ACCESS_STORAGE_METADATA)
-  @Get(API_STORAGE_METADATA_GET_ENTITY)
+  @Get(_API_STORAGE_METADATA_GET_ENTITY)
   async getMetadataEntity(@Param('name') entityName: string, @CurrentUser() user: any) {
     const ref = this.getStorageRef(entityName);
     const entityRef = this.getEntityRef(ref, entityName);
@@ -166,7 +166,7 @@ export class StorageAPIController {
    * TODO
    */
   @Access(PERMISSION_ALLOW_ACCESS_STORAGE_METADATA)
-  @Post(API_STORAGE_METADATA_CREATE_ENTITY)
+  @Post(_API_STORAGE_METADATA_CREATE_ENTITY)
   async entityCreate(@Body() data: any, @CurrentUser() user: any) {
     throw new NotYetImplementedError();
   }
@@ -178,7 +178,7 @@ export class StorageAPIController {
   @Access([
     PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY,
     PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN])
-  @Get(API_STORAGE_FIND_ENTITY)
+  @Get(_API_STORAGE_FIND_ENTITY)
   async query(
     @Param('name') name: string,
     @QueryParam('query') query: string,
@@ -281,7 +281,7 @@ export class StorageAPIController {
   @Access([
     PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY,
     PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN])
-  @Get(API_STORAGE_GET_ENTITY)
+  @Get(_API_STORAGE_GET_ENTITY)
   async get(@Param('name') name: string,
             @Param('id') id: string,
             @QueryParam('opts') opts: IFindOptions = {},
@@ -353,7 +353,7 @@ export class StorageAPIController {
    * Return a new created Entity or executes an update
    */
   @Access([PERMISSION_ALLOW_SAVE_STORAGE_ENTITY, PERMISSION_ALLOW_SAVE_STORAGE_ENTITY_PATTERN])
-  @Post(API_STORAGE_SAVE_ENTITY)
+  @Post(_API_STORAGE_SAVE_ENTITY)
   async save(@Param('name') name: string,
              @Body() data: any,
              @QueryParam('opts') opts: ISaveOptions | IUpdateOptions = {},
@@ -381,7 +381,7 @@ export class StorageAPIController {
    * Return a updated Entity
    */
   @Access([PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY, PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN])
-  @Post(API_STORAGE_UPDATE_ENTITY)
+  @Post(_API_STORAGE_UPDATE_ENTITY)
   async updateById(@Param('name') name: string,
                    @Param('id') id: string,
                    @QueryParam('opts') opts: IUpdateOptions = {},
@@ -414,7 +414,7 @@ export class StorageAPIController {
   @Access([
     PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY,
     PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN])
-  @Put(API_STORAGE_UPDATE_ENTITIES_BY_CONDITION)
+  @Put(_API_STORAGE_UPDATE_ENTITIES_BY_CONDITION)
   async updateByCondition(@Param('name') name: string,
                           @QueryParam('query') query: any = null,
                           @QueryParam('opts') opts: IUpdateOptions = {},
@@ -461,7 +461,7 @@ export class StorageAPIController {
    *
    */
   @Access([PERMISSION_ALLOW_DELETE_STORAGE_ENTITY, PERMISSION_ALLOW_DELETE_STORAGE_ENTITY_PATTERN])
-  @Delete(API_STORAGE_DELETE_ENTITY)
+  @Delete(_API_STORAGE_DELETE_ENTITY)
   async deleteById(@Param('name') name: string,
                    @Param('id') id: string,
                    @QueryParam('opts') opts: IDeleteOptions = {},
@@ -512,7 +512,7 @@ export class StorageAPIController {
   @Access([
     PERMISSION_ALLOW_DELETE_STORAGE_ENTITY,
     PERMISSION_ALLOW_DELETE_STORAGE_ENTITY_PATTERN])
-  @Delete(API_STORAGE_DELETE_ENTITIES_BY_CONDITION)
+  @Delete(_API_STORAGE_DELETE_ENTITIES_BY_CONDITION)
   async deleteByQuery(@Param('name') name: string,
                       @QueryParam('query') query: any = {},
                       @QueryParam('opts') opts: IDeleteOptions = {},

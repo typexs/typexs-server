@@ -13,30 +13,25 @@ import {
   XS_P_$OFFSET
 } from '@typexs/base';
 import {
+  _API_DISTRIBUTED_STORAGE_DELETE_ENTITIES_BY_CONDITION,
+  _API_DISTRIBUTED_STORAGE_DELETE_ENTITY,
+  _API_DISTRIBUTED_STORAGE_FIND_ENTITY,
+  _API_DISTRIBUTED_STORAGE_GET_ENTITY,
+  _API_DISTRIBUTED_STORAGE_SAVE_ENTITY,
+  _API_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION,
+  _API_DISTRIBUTED_STORAGE_UPDATE_ENTITY,
   Access,
-  API_DISTRIBUTED_STORAGE, API_DISTRIBUTED_STORAGE_DELETE_ENTITIES_BY_CONDITION, API_DISTRIBUTED_STORAGE_DELETE_ENTITY,
-  API_DISTRIBUTED_STORAGE_FIND_ENTITY,
+  API_DISTRIBUTED_STORAGE,
   API_DISTRIBUTED_STORAGE_GET_ENTITY,
-  API_DISTRIBUTED_STORAGE_SAVE_ENTITY,
-  API_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION,
-  API_DISTRIBUTED_STORAGE_UPDATE_ENTITY,
-  API_STORAGE_DELETE_ENTITIES_BY_CONDITION,
-  API_STORAGE_DELETE_ENTITY,
-  API_STORAGE_UPDATE_ENTITIES_BY_CONDITION,
-  API_STORAGE_UPDATE_ENTITY,
   ContextGroup,
   PERMISSION_ALLOW_DISTRIBUTED_STORAGE_ACCESS_ENTITY,
   PERMISSION_ALLOW_DISTRIBUTED_STORAGE_ACCESS_ENTITY_PATTERN,
-  PERMISSION_ALLOW_DELETE_STORAGE_ENTITY,
-  PERMISSION_ALLOW_DELETE_STORAGE_ENTITY_PATTERN,
   PERMISSION_ALLOW_DISTRIBUTED_STORAGE_DELETE_ENTITY,
   PERMISSION_ALLOW_DISTRIBUTED_STORAGE_DELETE_ENTITY_PATTERN,
   PERMISSION_ALLOW_DISTRIBUTED_STORAGE_SAVE_ENTITY,
   PERMISSION_ALLOW_DISTRIBUTED_STORAGE_SAVE_ENTITY_PATTERN,
   PERMISSION_ALLOW_DISTRIBUTED_STORAGE_UPDATE_ENTITY,
   PERMISSION_ALLOW_DISTRIBUTED_STORAGE_UPDATE_ENTITY_PATTERN,
-  PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY,
-  PERMISSION_ALLOW_UPDATE_STORAGE_ENTITY_PATTERN,
   XS_P_LABEL,
   XS_P_URL
 } from '..';
@@ -46,7 +41,6 @@ import {Expressions} from 'commons-expressions';
 import {JsonUtils} from 'commons-base';
 import {IDistributedFindOptions} from '@typexs/base/libs/distributed_storage/find/IDistributedFindOptions';
 import {IUpdateOptions} from '@typexs/base/libs/storage/framework/IUpdateOptions';
-import {IDeleteOptions} from '@typexs/base/libs/storage/framework/IDeleteOptions';
 import {IDistributedAggregateOptions} from '@typexs/base/libs/distributed_storage/aggregate/IDistributedAggregateOptions';
 import {IDistributedSaveOptions} from '@typexs/base/libs/distributed_storage/save/IDistributedSaveOptions';
 import {IDistributedUpdateOptions} from '@typexs/base/libs/distributed_storage/update/IDistributedUpdateOptions';
@@ -129,7 +123,7 @@ export class DistributedStorageAPIController {
     PERMISSION_ALLOW_DISTRIBUTED_STORAGE_ACCESS_ENTITY,
     PERMISSION_ALLOW_DISTRIBUTED_STORAGE_ACCESS_ENTITY_PATTERN
   ])
-  @Get(API_DISTRIBUTED_STORAGE_FIND_ENTITY)
+  @Get(_API_DISTRIBUTED_STORAGE_FIND_ENTITY)
   async query(
     @Param('name') name: string,
     @QueryParam('query') query: string,
@@ -215,7 +209,7 @@ export class DistributedStorageAPIController {
   @Access([
     PERMISSION_ALLOW_DISTRIBUTED_STORAGE_ACCESS_ENTITY,
     PERMISSION_ALLOW_DISTRIBUTED_STORAGE_ACCESS_ENTITY_PATTERN])
-  @Get(API_DISTRIBUTED_STORAGE_GET_ENTITY)
+  @Get(_API_DISTRIBUTED_STORAGE_GET_ENTITY)
   async get(@Param('name') name: string,
             @Param('nodeId') targetId: string,
             @Param('id') id: string,
@@ -268,7 +262,7 @@ export class DistributedStorageAPIController {
   @Access([
     PERMISSION_ALLOW_DISTRIBUTED_STORAGE_SAVE_ENTITY,
     PERMISSION_ALLOW_DISTRIBUTED_STORAGE_SAVE_ENTITY_PATTERN])
-  @Post(API_DISTRIBUTED_STORAGE_SAVE_ENTITY)
+  @Post(_API_DISTRIBUTED_STORAGE_SAVE_ENTITY)
   async save(@Param('name') name: string,
              @Param('nodeId') targetId: string,
              @Body() data: any,
@@ -296,7 +290,7 @@ export class DistributedStorageAPIController {
   @Access([
     PERMISSION_ALLOW_DISTRIBUTED_STORAGE_UPDATE_ENTITY,
     PERMISSION_ALLOW_DISTRIBUTED_STORAGE_UPDATE_ENTITY_PATTERN])
-  @Post(API_DISTRIBUTED_STORAGE_UPDATE_ENTITY)
+  @Post(_API_DISTRIBUTED_STORAGE_UPDATE_ENTITY)
   async updateById(@Param('name') name: string,
                    @Param('nodeId') targetId: string,
                    @Param('id') id: string,
@@ -326,7 +320,7 @@ export class DistributedStorageAPIController {
   @Access([
     PERMISSION_ALLOW_DISTRIBUTED_STORAGE_UPDATE_ENTITY,
     PERMISSION_ALLOW_DISTRIBUTED_STORAGE_UPDATE_ENTITY_PATTERN])
-  @Put(API_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION)
+  @Put(_API_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION)
   async updateByCondition(@Param('name') name: string,
                           @Param('nodeId') targetId: string,
                           @QueryParam('query') query: any = null,
@@ -371,7 +365,7 @@ export class DistributedStorageAPIController {
   @Access([
     PERMISSION_ALLOW_DISTRIBUTED_STORAGE_DELETE_ENTITY,
     PERMISSION_ALLOW_DISTRIBUTED_STORAGE_DELETE_ENTITY_PATTERN])
-  @Delete(API_DISTRIBUTED_STORAGE_DELETE_ENTITY)
+  @Delete(_API_DISTRIBUTED_STORAGE_DELETE_ENTITY)
   async deleteById(@Param('name') name: string,
                    @Param('nodeId') targetId: string,
                    @Param('id') id: string,
@@ -414,7 +408,7 @@ export class DistributedStorageAPIController {
   @Access([
     PERMISSION_ALLOW_DISTRIBUTED_STORAGE_DELETE_ENTITY,
     PERMISSION_ALLOW_DISTRIBUTED_STORAGE_DELETE_ENTITY_PATTERN])
-  @Delete(API_DISTRIBUTED_STORAGE_DELETE_ENTITIES_BY_CONDITION)
+  @Delete(_API_DISTRIBUTED_STORAGE_DELETE_ENTITIES_BY_CONDITION)
   async deleteByQuery(@Param('name') name: string,
                       @Param('nodeId') targetId: string,
                       @QueryParam('query') query: any = {},
@@ -464,6 +458,7 @@ export class DistributedStorageAPIController {
     }
     return storageRef;
   }
+
 
   private prepareEntities(entityDef: IEntityRef, data: any, options: IDistributedSaveOptions = {}) {
     const buildOpts: IBuildOptions = {

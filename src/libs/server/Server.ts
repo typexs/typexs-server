@@ -18,10 +18,7 @@ export interface IServerApi {
 
 export class Server {
 
-
   _options: IServerOptions;
-
-  // _url: url.Url = null;
 
   _abort = false;
 
@@ -152,6 +149,7 @@ export class Server {
           clearTimeout(this.cache[x].t);
         }
         if (this.cache[x].s) {
+          this.cache[x].s.unref();
           this.cache[x].s.destroy();
         }
         delete this.cache[x];
@@ -296,6 +294,7 @@ export class Server {
           try {
             this.$connections[conn].unref();
             this.$connections[conn].destroy();
+            delete this.$connections[conn];
           } catch (e) {
           }
         }
@@ -322,6 +321,10 @@ export class Server {
       await this.finalize();
       return p;
     }
+  }
+
+  hasServer() {
+    return this.server !== null;
   }
 
   prepare(): void {
