@@ -109,7 +109,8 @@ class TasksControllerSpec {
 
   static async after() {
     if (p) {
-      await p.shutdown();
+      p.shutdown();
+      await p.done;
     }
     if (server) {
       await server.stop();

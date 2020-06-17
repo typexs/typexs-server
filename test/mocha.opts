@@ -1,3 +1,5 @@
 --require ts-node/register
+--extensions ts,tsx
 --timeout 30000
---watch-extensions ts
+--files
+

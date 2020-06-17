@@ -1,9 +1,7 @@
 --require ts-node/register
 --extensions ts,tsx
---watch
 --timeout 30000
 --files
---watch-files
 
 test/**/*.spec.ts
 test/**/**/*.spec.ts
