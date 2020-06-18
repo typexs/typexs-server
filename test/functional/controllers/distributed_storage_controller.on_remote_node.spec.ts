@@ -7,7 +7,6 @@ import {
   API_DISTRIBUTED_STORAGE_SAVE_ENTITY,
   API_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION,
   API_DISTRIBUTED_STORAGE_UPDATE_ENTITY,
-  API_STORAGE_DELETE_ENTITIES_BY_CONDITION,
   K_ROUTE_CONTROLLER
 } from '../../../src/libs/Constants';
 import {expect} from 'chai';
@@ -624,7 +623,7 @@ class DistributedStorageControllerSpec {
     // delete by one id
     let res = await http.delete(URL + '/api' +
 
-      API_STORAGE_DELETE_ENTITIES_BY_CONDITION
+      API_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name)) +
       '?query=' + JSON.stringify(
@@ -633,7 +632,7 @@ class DistributedStorageControllerSpec {
     );
     expect(res).to.not.be.null;
     res = res.body;
-    // expect(res).to.be.deep.eq({fake_app_node: -2});
+    expect(res).to.be.deep.eq({fake_app_node: -2});
 
     const afterDelete = await controller
       .find(DistributedRandomData,
@@ -644,7 +643,7 @@ class DistributedStorageControllerSpec {
       .find(DistributedRandomData,
         {$and: [{id: {$gte: 100}}, {id: {$lte: 110}}]},
         {targetIds: ['fake_app_node']});
-    expect(afterDeleteOnNode).to.have.length(0);
+    expect(afterDeleteOnNode).to.have.length(4);
 
     const notDeleted = await controller
       .find(DistributedRandomData, {id: {$lte: 10}});
