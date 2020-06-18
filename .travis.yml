@@ -22,6 +22,7 @@ compiler:
 
 
 before_install:
+  - export TZ=Europe/Berlin
   - sudo /bin/sh -c 'echo "127.0.0.11 proxy.local\n" >> /etc/hosts'
   - npm install -g nyc
   - npm install -g codecov
