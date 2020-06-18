@@ -380,7 +380,6 @@ class DistributedStorageControllerSpec {
     expect(res).to.not.be.null;
     expect(res[XS_P_$COUNT]).to.be.eq(5);
     expect(res.entities).to.have.length(5);
-    // console.log(res.entities);
     expect(res.entities[0]).to.deep.include({
       bool: true,
       boolNeg: false,
@@ -459,7 +458,6 @@ class DistributedStorageControllerSpec {
     expect(res).to.not.be.null;
     res = res.body;
 
-    console.log(res);
     expect(res).to.have.length(1);
     expect(res[0]).to.be.deep.include({
       bool: false,
