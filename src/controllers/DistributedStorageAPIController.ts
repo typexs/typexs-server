@@ -436,14 +436,10 @@ export class DistributedStorageAPIController {
       options.targetIds = [targetId];
     }
 
-    const results = await controller.remove(
+    return await controller.remove(
       entityDef.getClassRef().getClass() as any,
       query,
       options);
-
-    const res = {};
-    res[targetId] = results;
-    return res;
   }
 
 
