@@ -7,6 +7,7 @@ import {
   Invoker,
   ISaveOptions,
   IStorageRef,
+  Log,
   Storage,
   XS_P_$COUNT,
   XS_P_$LIMIT,
@@ -219,7 +220,7 @@ export class DistributedStorageAPIController {
       throw new HttpResponseError(['distributed_storage', 'find'], 'Entity name or id not set');
     }
     const [entityRef, controller] = this.getControllerForEntityName(name);
-    const options: IDistributedFindOptions = {limit: 1};
+    const options: IDistributedFindOptions = {limit: 50};
     DistributedStorageAPIController.checkOptions(opts, options);
     if (!options.targetIds) {
       options.targetIds = [targetId];
@@ -279,6 +280,7 @@ export class DistributedStorageAPIController {
       const results = await controller.save(entities, options);
       return results;
     } catch (e) {
+      Log.error(e);
       throw new HttpResponseError(['distributed_storage', 'save'], e.message);
     }
   }
@@ -299,6 +301,11 @@ export class DistributedStorageAPIController {
                    @CurrentUser() user: any) {
 
     const [entityDef, controller] = this.getControllerForEntityName(name);
+    // let conditions = Expressions.parseLookupConditions(entityDef, id);
+    // if (conditions.length > 1) {
+    //   // multiple ids should be bound by 'or', else it would be 'and'
+    //   conditions = {$or: conditions};
+    // }
     const options: IDistributedUpdateOptions = {};
     DistributedStorageAPIController.checkOptions(opts, options);
     if (!options.targetIds) {
@@ -310,6 +317,7 @@ export class DistributedStorageAPIController {
       const results = await controller.save(entities, options);
       return results;
     } catch (e) {
+      Log.error(e);
       throw new HttpResponseError(['distributed_storage', 'update'], e.message);
     }
   }
@@ -352,6 +360,7 @@ export class DistributedStorageAPIController {
 
       return results;
     } catch (e) {
+      Log.error(e);
       throw new HttpResponseError(['distributed_storage', 'update'], e.message);
     }
 
@@ -390,7 +399,7 @@ export class DistributedStorageAPIController {
       options);
 
     if (results.length > 0) {
-      return controller.remove(results);
+      return controller.remove(results, options);
     }
     return 0;
   }
@@ -431,7 +440,10 @@ export class DistributedStorageAPIController {
       entityDef.getClassRef().getClass() as any,
       query,
       options);
-    return results;
+
+    const res = {};
+    res[targetId] = results;
+    return res;
   }
 
 
@@ -454,7 +466,8 @@ export class DistributedStorageAPIController {
   private getStorageRef(entityName: string): IStorageRef {
     const storageRef = this.storage.forClass(entityName);
     if (!storageRef) {
-      throw new HttpResponseError(['distributed_storage', 'reference_not_found'], 'Storage containing entity ' + name + ' not found');
+      throw new HttpResponseError(['distributed_storage', 'reference_not_found'],
+        'Storage containing entity ' + entityName + ' not found');
     }
     return storageRef;
   }
