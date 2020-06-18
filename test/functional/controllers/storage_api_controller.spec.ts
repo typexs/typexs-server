@@ -61,7 +61,7 @@ const settingsTemplate: ITypexsOptions & any = {
 
 let bootstrap: Bootstrap = null;
 let server: Server = null;
-let request: IHttp = null;
+let http: IHttp = null;
 
 const carList = [
   'Volvo', 'Renault', 'Ford', 'Suzuki', 'BMW', 'VW',
@@ -78,7 +78,7 @@ class Storage_api_controllerSpec {
 
   static async before() {
     const settings = _.clone(settingsTemplate);
-    request = HttpFactory.create();
+    http = HttpFactory.create();
 
     bootstrap = Bootstrap
       .setConfigSources([{type: 'system'}])
@@ -165,7 +165,7 @@ class Storage_api_controllerSpec {
   @test
   async 'list storages'() {
     const url = server.url();
-    let res: any = await request.get(url + '/api' + API_STORAGE_METADATA_ALL_STORES, {json: true});
+    let res: any = await http.get(url + '/api' + API_STORAGE_METADATA_ALL_STORES, {json: true});
     // console.log(inspect(res, false, 10));
     expect(res).to.not.be.null;
     res = res.body;
@@ -182,7 +182,7 @@ class Storage_api_controllerSpec {
   @test
   async 'list storage default'() {
     const url = server.url();
-    let res: any = await request.get(url + '/api' +
+    let res: any = await http.get(url + '/api' +
       API_STORAGE_METADATA_GET_STORE.replace(':name', 'default'), {json: true});
     // console.log(inspect(res, false, 10));
     expect(res).to.not.be.null;
@@ -201,7 +201,7 @@ class Storage_api_controllerSpec {
   @test
   async 'list all entities'() {
     const url = server.url();
-    let res = await request.get(url + '/api' +
+    let res = await http.get(url + '/api' +
       API_STORAGE_METADATA_ALL_ENTITIES, {json: true});
     expect(res).to.not.be.null;
     res = res.body;
@@ -216,7 +216,7 @@ class Storage_api_controllerSpec {
   @test
   async 'list entity'() {
     const url = server.url();
-    let res: any = await request.get(url + '/api' +
+    let res: any = await http.get(url + '/api' +
 
       API_STORAGE_METADATA_GET_ENTITY.replace(':name', 'driver'), {json: true});
     expect(res).to.not.be.null;
@@ -263,7 +263,7 @@ class Storage_api_controllerSpec {
     d.floatValue = 0.34;
 
     // save one driver
-    let res: any = await request.post(URL + '/api' +
+    let res: any = await http.post(URL + '/api' +
 
       API_STORAGE_SAVE_ENTITY.replace(':name', _.snakeCase(RandomData.name)),
       {
@@ -310,7 +310,7 @@ class Storage_api_controllerSpec {
     d2.floatValue = 0.48;
 
     // save multiple driver
-    let res: any = await request.post(URL + '/api' +
+    let res: any = await http.post(URL + '/api' +
 
       API_STORAGE_SAVE_ENTITY.replace(':name', _.snakeCase(RandomData.name)),
       {
@@ -340,7 +340,7 @@ class Storage_api_controllerSpec {
 
   @test
   async 'get single entity (by numeric id)'() {
-    let res = await request.get(URL + '/api' +
+    let res = await http.get(URL + '/api' +
 
       API_STORAGE_GET_ENTITY.replace(':name', RandomData.name).replace(':id', '1'), {json: true}
     );
@@ -366,7 +366,7 @@ class Storage_api_controllerSpec {
 
   @test
   async 'get multiple entities (by numeric id)'() {
-    let res: any = await request.get(URL + '/api' +
+    let res: any = await http.get(URL + '/api' +
 
       API_STORAGE_GET_ENTITY
         .replace(':name', RandomData.name)
@@ -413,7 +413,7 @@ class Storage_api_controllerSpec {
 
   @test
   async 'find entities'() {
-    let res = await request.get(URL + '/api' +
+    let res = await http.get(URL + '/api' +
 
       API_STORAGE_FIND_ENTITY.replace(':name', RandomData.name) + '?query=' +
       JSON.stringify({short: 'short name 5'}), {json: true}
@@ -442,7 +442,7 @@ class Storage_api_controllerSpec {
   @test
   async 'find entities (by date)'() {
     const date = new Date('2020-06-09T22:00:00.000Z');
-    let res = await request.get(URL + '/api' +
+    let res = await http.get(URL + '/api' +
 
       API_STORAGE_FIND_ENTITY.replace(':name', RandomData.name) + '?query=' +
       JSON.stringify({date: {$gt: date}}), {json: true}
@@ -470,7 +470,7 @@ class Storage_api_controllerSpec {
 
   @test
   async 'aggregate entities'() {
-    let res = await request.get(URL + '/api' +
+    let res = await http.get(URL + '/api' +
 
       API_STORAGE_FIND_ENTITY.replace(':name', RandomData.name) + '?aggr=' +
       JSON.stringify([
@@ -507,7 +507,7 @@ class Storage_api_controllerSpec {
     const dataSaved = (await defaultStorageRef.getController().save(d2)) as any;
 
     dataSaved.long = 'this is an update';
-    let res = await request.post(URL + '/api' +
+    let res = await http.post(URL + '/api' +
 
       API_STORAGE_UPDATE_ENTITY
         .replace(':name', RandomData.name)
@@ -551,7 +551,7 @@ class Storage_api_controllerSpec {
     expect(saved).to.have.length(10);
 
     // save multiple driver
-    let res: any = await request.put(URL + '/api' +
+    let res: any = await http.put(URL + '/api' +
 
       API_STORAGE_UPDATE_ENTITIES_BY_CONDITION.replace(':name', _.snakeCase(RandomData.name)) +
       '?query=' + JSON.stringify({$and: [{id: {$gte: 100}}, {id: {$lte: 110}}]}),
@@ -610,7 +610,7 @@ class Storage_api_controllerSpec {
     expect(saved).to.have.length(10);
 
     // delete by one id
-    let res = await request.delete(URL + '/api' +
+    let res = await http.delete(URL + '/api' +
 
       API_STORAGE_DELETE_ENTITY.replace(':name', RandomData.name)
         .replace(':id', '101'), {json: true}
@@ -621,7 +621,7 @@ class Storage_api_controllerSpec {
     expect(found).to.have.length(0);
 
     // delete by multiple id
-    res = await request.delete(URL + '/api' +
+    res = await http.delete(URL + '/api' +
 
       API_STORAGE_DELETE_ENTITY.replace(':name', RandomData.name)
         .replace(':id', '102,103,104'), {json: true}
@@ -653,7 +653,7 @@ class Storage_api_controllerSpec {
     expect(saved).to.have.length(10);
 
     // delete by one id
-    let res = await request.delete(URL + '/api' +
+    let res = await http.delete(URL + '/api' +
 
       API_STORAGE_DELETE_ENTITIES_BY_CONDITION.replace(':name', RandomData.name) +
       '?query=' + JSON.stringify({$and: [{long: 'test delete'}, {id: {$gte: 105}}]}),
