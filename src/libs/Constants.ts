@@ -171,7 +171,6 @@ export const PERMISSION_ALLOW_DISTRIBUTED_STORAGE_DELETE_ENTITY = 'allow delete 
 export const PERMISSION_ALLOW_DISTRIBUTED_STORAGE_DELETE_ENTITY_PATTERN = 'allow delete distributed storage entity :name';
 
 
-
 export const XS_P_URL = '$url';
 export const XS_P_LABEL = '$label';
 
@@ -227,5 +226,9 @@ export const PERMISSION_ALLOW_TASKS_RUNNING = 'task running_tasks view';
  * File System
  */
 export const API_CTRL_FILESYSTEM = '/fs';
+export const _API_CTRL_FILESYSTEM_READ = '/read';
+export const API_CTRL_FILESYSTEM_READ = API_CTRL_FILESYSTEM + _API_CTRL_FILESYSTEM_READ;
+export const PERMISSION_ACCESS_FILES = 'access files';
+
 
 
