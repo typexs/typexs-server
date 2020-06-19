@@ -149,7 +149,7 @@ class RuntimeInfoControllerSpec {
       route: '/' + C_API + API_CTRL_SYSTEM_ROUTES,
       method: 'get',
       params: [],
-      controller: 'RuntimeInfoController',
+      controller: 'SystemAPIController',
       controllerMethod: 'listRoutes',
       permissions: [PERMISSION_ALLOW_ROUTES_VIEW],
       authorized: true
@@ -166,7 +166,7 @@ class RuntimeInfoControllerSpec {
           'required': true
         }
       ],
-      controller: 'RuntimeInfoController',
+      controller: 'SystemAPIController',
       controllerMethod: 'getStorageEntities',
       permissions: [PERMISSION_ALLOW_STORAGE_ENTITY_VIEW],
       authorized: true
@@ -203,9 +203,10 @@ class RuntimeInfoControllerSpec {
             'context': 'api',
             'controllers': [
               'DistributedStorageAPIController',
-              'RuntimeInfoController',
+              'FileSystemAPIController',
               'StorageAPIController',
-              'TasksController'
+              'SystemAPIController',
+              'TasksAPIController'
             ],
             'currentUserChecker': '',
             'limit': '10mb',

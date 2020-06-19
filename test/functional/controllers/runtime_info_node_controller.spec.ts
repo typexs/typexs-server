@@ -47,7 +47,7 @@ let bootstrap: Bootstrap = null;
 let server: WebServer = null;
 let http: IHttp = null;
 
-@suite(TestHelper.suiteName(__filename)) @timeout(300000)
+@suite('functional/controllers/runtime_info_node_controller') @timeout(300000)
 class RuntimeInfoControllerSpec {
 
 

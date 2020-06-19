@@ -1,0 +1,8 @@
+{
+  "name": "fs_test_app",
+  "version": "0.0.1",
+  "typexs":{
+    "name":"fs_test_app"
+  },
+  "dependencies": {}
+}
