@@ -1,12 +1,12 @@
 import {suite, test, timeout} from 'mocha-typescript';
 import {Bootstrap, Config, Container, DistributedStorageEntityController, Injector, Log, XS_P_$COUNT} from '@typexs/base';
 import {
-  API_DISTRIBUTED_STORAGE_DELETE_ENTITY,
-  API_DISTRIBUTED_STORAGE_FIND_ENTITY,
-  API_DISTRIBUTED_STORAGE_GET_ENTITY,
-  API_DISTRIBUTED_STORAGE_SAVE_ENTITY,
-  API_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION,
-  API_DISTRIBUTED_STORAGE_UPDATE_ENTITY,
+  API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITY,
+  API_CTRL_DISTRIBUTED_STORAGE_FIND_ENTITY,
+  API_CTRL_DISTRIBUTED_STORAGE_GET_ENTITY,
+  API_CTRL_DISTRIBUTED_STORAGE_SAVE_ENTITY,
+  API_CTRL_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION,
+  API_CTRL_DISTRIBUTED_STORAGE_UPDATE_ENTITY,
   K_ROUTE_CONTROLLER
 } from '../../../src/libs/Constants';
 import {expect} from 'chai';
@@ -133,7 +133,7 @@ class DistributedStorageControllerSpec {
     // save one driver
     let res: any = await http.post(URL + '/api' +
 
-      API_DISTRIBUTED_STORAGE_SAVE_ENTITY
+      API_CTRL_DISTRIBUTED_STORAGE_SAVE_ENTITY
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name)),
       {
@@ -168,7 +168,7 @@ class DistributedStorageControllerSpec {
     try {
       const res: any = await http.post(URL + '/api' +
 
-        API_DISTRIBUTED_STORAGE_SAVE_ENTITY
+        API_CTRL_DISTRIBUTED_STORAGE_SAVE_ENTITY
           .replace(':nodeId', 'fake_app_node_not')
           .replace(':name', _.snakeCase(DistributedRandomData.name)),
         {
@@ -213,7 +213,7 @@ class DistributedStorageControllerSpec {
     // save multiple driver
     let res: any = await http.post(URL + '/api' +
 
-      API_DISTRIBUTED_STORAGE_SAVE_ENTITY
+      API_CTRL_DISTRIBUTED_STORAGE_SAVE_ENTITY
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name)),
       {
@@ -244,7 +244,7 @@ class DistributedStorageControllerSpec {
   async 'get single entity (by numeric id)'() {
     let res = await http.get(URL + '/api' +
 
-      API_DISTRIBUTED_STORAGE_GET_ENTITY
+      API_CTRL_DISTRIBUTED_STORAGE_GET_ENTITY
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name))
         .replace(':id', '1'), {json: true}
@@ -276,7 +276,7 @@ class DistributedStorageControllerSpec {
   async 'get multiple entities (by numeric id)'() {
     let res: any = await http.get(URL + '/api' +
 
-      API_DISTRIBUTED_STORAGE_GET_ENTITY
+      API_CTRL_DISTRIBUTED_STORAGE_GET_ENTITY
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name))
         .replace(':id', '1,2'), {json: true}
@@ -325,7 +325,7 @@ class DistributedStorageControllerSpec {
 
   @test
   async 'find entities'() {
-    const _url = (URL + '/api' + API_DISTRIBUTED_STORAGE_FIND_ENTITY).replace(':name', DistributedRandomData.name);
+    const _url = (URL + '/api' + API_CTRL_DISTRIBUTED_STORAGE_FIND_ENTITY).replace(':name', DistributedRandomData.name);
     const res: any = await http.get(_url, {json: true, passBody: true});
     expect(res).to.not.be.null;
     expect(res.entities).to.have.length(10);
@@ -335,7 +335,7 @@ class DistributedStorageControllerSpec {
 
   @test
   async 'find entities by conditions'() {
-    const _url = (URL + '/api' + API_DISTRIBUTED_STORAGE_FIND_ENTITY).replace(':name', DistributedRandomData.name);
+    const _url = (URL + '/api' + API_CTRL_DISTRIBUTED_STORAGE_FIND_ENTITY).replace(':name', DistributedRandomData.name);
     let res: any = null;
     try {
       res = await http.get(_url + '?query=' + JSON.stringify({short: 'short name 1'}), {json: true, passBody: true});
@@ -368,7 +368,7 @@ class DistributedStorageControllerSpec {
   @test
   async 'find entities (by date)'() {
     const date = new Date('2020-06-09T22:00:00.000Z');
-    const _url = (URL + '/api' + API_DISTRIBUTED_STORAGE_FIND_ENTITY)
+    const _url = (URL + '/api' + API_CTRL_DISTRIBUTED_STORAGE_FIND_ENTITY)
       .replace(':name', DistributedRandomData.name);
     let res: any = null;
     res = await http.get(
@@ -404,7 +404,7 @@ class DistributedStorageControllerSpec {
   async 'aggregate entities'() {
     let res = await http.get(URL + '/api' +
 
-      API_DISTRIBUTED_STORAGE_FIND_ENTITY
+      API_CTRL_DISTRIBUTED_STORAGE_FIND_ENTITY
         .replace(':name', DistributedRandomData.name) + '?aggr=' +
       JSON.stringify([
         {$match: {floatValue: {$gt: 2}}},
@@ -449,7 +449,7 @@ class DistributedStorageControllerSpec {
     d2.id = id;
     let res = await http.post(URL + '/api' +
 
-      API_DISTRIBUTED_STORAGE_UPDATE_ENTITY
+      API_CTRL_DISTRIBUTED_STORAGE_UPDATE_ENTITY
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name))
         .replace(':id', id), {body: d2, json: true}
@@ -504,7 +504,7 @@ class DistributedStorageControllerSpec {
     // save multiple driver
     let res: any = await http.put(URL + '/api' +
 
-      API_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION
+      API_CTRL_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name))
       +
@@ -568,7 +568,7 @@ class DistributedStorageControllerSpec {
     // delete by one id
     let res = await http.delete(URL + '/api' +
 
-      API_DISTRIBUTED_STORAGE_DELETE_ENTITY
+      API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITY
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name))
         .replace(':id', '101'), {json: true}
@@ -582,7 +582,7 @@ class DistributedStorageControllerSpec {
     // delete by multiple id
     res = await http.delete(URL + '/api' +
 
-      API_DISTRIBUTED_STORAGE_DELETE_ENTITY
+      API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITY
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name))
         .replace(':id', '102,103,104'), {json: true}
@@ -621,7 +621,7 @@ class DistributedStorageControllerSpec {
     // delete by one id
     let res = await http.delete(URL + '/api' +
 
-      API_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION
+      API_CTRL_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name)) +
       '?query=' + JSON.stringify(

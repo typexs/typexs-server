@@ -2,15 +2,15 @@
 import {suite, test, timeout} from 'mocha-typescript';
 import {Bootstrap, Config, Container, Injector} from '@typexs/base';
 import {
-  API_TASK_EXEC,
-  API_TASK_GET_METADATA,
-  API_TASK_LOG,
-  API_TASK_STATUS,
-  API_TASKS_LIST,
-  API_TASKS_METADATA,
-  API_TASKS_RUNNERS_INFO,
-  API_TASKS_RUNNING,
-  API_TASKS_RUNNING_ON_NODE,
+  API_CTRL_TASK_EXEC,
+  API_CTRL_TASK_GET_METADATA,
+  API_CTRL_TASK_LOG,
+  API_CTRL_TASK_STATUS,
+  API_CTRL_TASKS_LIST,
+  API_CTRL_TASKS_METADATA,
+  API_CTRL_TASKS_RUNNERS_INFO,
+  API_CTRL_TASKS_RUNNING,
+  API_CTRL_TASKS_RUNNING_ON_NODE,
   K_ROUTE_CONTROLLER
 } from '../../../src/libs/Constants';
 import {expect} from 'chai';
@@ -126,10 +126,10 @@ class TasksControllerSpec {
 
   @test
   async 'get tasks list and metadata'() {
-    const _url = (URL + '/api' + API_TASKS_LIST);
-    const _urlTaskLocal = (URL + '/api' + API_TASK_GET_METADATA.replace(':taskName', 'local_simple_task'));
-    const _urlTaskRemote = (URL + '/api' + API_TASK_GET_METADATA.replace(':taskName', 'simple_task'));
-    const _urlTasks = (URL + '/api' + API_TASKS_METADATA);
+    const _url = (URL + '/api' + API_CTRL_TASKS_LIST);
+    const _urlTaskLocal = (URL + '/api' + API_CTRL_TASK_GET_METADATA.replace(':taskName', 'local_simple_task'));
+    const _urlTaskRemote = (URL + '/api' + API_CTRL_TASK_GET_METADATA.replace(':taskName', 'simple_task'));
+    const _urlTasks = (URL + '/api' + API_CTRL_TASKS_METADATA);
 
     let rAfter: any = await request.get(_url, {json: true});
     expect(rAfter).to.not.be.null;
@@ -239,7 +239,7 @@ class TasksControllerSpec {
 
   @test
   async 'execute remote task (without waiting for results)'() {
-    const _url = URL + '/api' + API_TASK_EXEC.replace(':taskName', 'simple_task');
+    const _url = URL + '/api' + API_CTRL_TASK_EXEC.replace(':taskName', 'simple_task');
     const taskEvent: any = await request.get(_url, {json: true, passBody: true});
     expect(taskEvent).to.not.be.null;
     expect(taskEvent).to.be.length(1);
@@ -259,7 +259,7 @@ class TasksControllerSpec {
   async 'execute remote task (waiting for results)'() {
 
     const options: ITaskExectorOptions = {waitForRemoteResults: true};
-    let _url = URL + '/api' + API_TASK_EXEC.replace(':taskName', 'simple_task');
+    let _url = URL + '/api' + API_CTRL_TASK_EXEC.replace(':taskName', 'simple_task');
     _url = _url + '?options=' + JSON.stringify(options);
     const taskEvent: any = await request.get(_url, {json: true, passBody: true});
     expect(taskEvent).to.not.be.null;
@@ -291,14 +291,14 @@ class TasksControllerSpec {
 
   @test
   async 'execute remote task and get status'() {
-    const _url = URL + '/api' + API_TASK_EXEC.replace(':taskName', 'simple_task');
+    const _url = URL + '/api' + API_CTRL_TASK_EXEC.replace(':taskName', 'simple_task');
     // _url = _url + '?options=' + JSON.stringify(options);
     const taskEvents: any = await request.get(_url, {json: true, passBody: true});
     expect(taskEvents).to.not.be.null;
     expect(taskEvents).to.be.length(1);
     await TestHelper.wait(100);
     const taskEvent = taskEvents.shift();
-    const _urlStatus = URL + '/api' + API_TASK_STATUS
+    const _urlStatus = URL + '/api' + API_CTRL_TASK_STATUS
       .replace(':runnerId', taskEvent.id);
 
 
@@ -333,7 +333,7 @@ class TasksControllerSpec {
     const z = new T02();
     await EventBus.register(z);
 
-    const _url = URL + '/api' + API_TASK_EXEC
+    const _url = URL + '/api' + API_CTRL_TASK_EXEC
         .replace(':taskName', 'simple_task_with_params') + '?params=' +
       JSON.stringify({need_this: {really: {important: 'data'}}}) + '&targetIds=' +
       JSON.stringify(['fake_app_node_tasks']);
@@ -348,7 +348,7 @@ class TasksControllerSpec {
     await TestHelper.wait(100);
     // wait till task is finished
     // TODO check status with targetId as options
-    const _urlStatus = URL + '/api' + API_TASK_STATUS
+    const _urlStatus = URL + '/api' + API_CTRL_TASK_STATUS
       .replace(':runnerId', taskEvent.id);
 
 
@@ -393,7 +393,7 @@ class TasksControllerSpec {
 
   @test
   async 'execute remote task without necessary parameters'() {
-    const _url = URL + '/api' + API_TASK_EXEC
+    const _url = URL + '/api' + API_CTRL_TASK_EXEC
         .replace(':taskName', 'simple_task_with_params') + '?targetIds=' +
       JSON.stringify(['fake_app_node_tasks']);
     try {
@@ -408,7 +408,7 @@ class TasksControllerSpec {
 
   @test
   async 'execute remote task without necessary parameters (skip throwing)'() {
-    const _url = URL + '/api' + API_TASK_EXEC
+    const _url = URL + '/api' + API_CTRL_TASK_EXEC
         .replace(':taskName', 'simple_task_with_params') + '?targetIds=' +
       JSON.stringify(['fake_app_node_tasks']) +
       '&options=' + JSON.stringify(<ITaskExectorOptions>{skipThrow: true});
@@ -426,7 +426,7 @@ class TasksControllerSpec {
 
   @test
   async 'execute remote task and wait for results (task error)'() {
-    const _url = URL + '/api' + API_TASK_EXEC
+    const _url = URL + '/api' + API_CTRL_TASK_EXEC
         .replace(':taskName', 'simple_task_with_error')
       + '?options=' + JSON.stringify(<ITaskExectorOptions>{waitForRemoteResults: true});
 
@@ -443,7 +443,7 @@ class TasksControllerSpec {
 
   @test
   async 'execute remote task and wait for results (task error, skip throw)'() {
-    const _url = URL + '/api' + API_TASK_EXEC
+    const _url = URL + '/api' + API_CTRL_TASK_EXEC
         .replace(':taskName', 'simple_task_with_error')
       + '?options=' + JSON.stringify(<ITaskExectorOptions>{skipThrow: true, waitForRemoteResults: true});
 
@@ -475,7 +475,7 @@ class TasksControllerSpec {
     const event = events.shift();
     // console.log(inspect(event, null, 10));
 
-    const _urlLog = URL + '/api' + API_TASK_LOG
+    const _urlLog = URL + '/api' + API_CTRL_TASK_LOG
       .replace(':nodeId', event.nodeId)
       .replace(':runnerId', event.id);
 
@@ -490,7 +490,7 @@ class TasksControllerSpec {
 
   @test
   async 'get all active runners'() {
-    const _urlLog = URL + '/api' + API_TASKS_RUNNERS_INFO;
+    const _urlLog = URL + '/api' + API_CTRL_TASKS_RUNNERS_INFO;
     const runnersStatus = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
 
     const exec = Injector.create(TaskExecutor);
@@ -548,7 +548,7 @@ class TasksControllerSpec {
 
   @test
   async 'get all runnings tasks'() {
-    const _urlLog = URL + '/api' + API_TASKS_RUNNING;
+    const _urlLog = URL + '/api' + API_CTRL_TASKS_RUNNING;
     const runningTasks = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
 
     const exec = Injector.create(TaskExecutor);
@@ -595,7 +595,7 @@ class TasksControllerSpec {
 
   @test
   async 'get runnings tasks from own node'() {
-    const _urlLog = URL + '/api' + API_TASKS_RUNNING_ON_NODE.replace(':nodeId', 'server');
+    const _urlLog = URL + '/api' + API_CTRL_TASKS_RUNNING_ON_NODE.replace(':nodeId', 'server');
     const runningTasks = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
 
     const exec = Injector.create(TaskExecutor);

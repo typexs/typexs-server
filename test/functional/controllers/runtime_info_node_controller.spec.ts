@@ -1,6 +1,6 @@
 import {suite, test, timeout} from 'mocha-typescript';
 import {Bootstrap, Config, Container} from '@typexs/base';
-import {API_SYSTEM_RUNTIME_NODES, C_API, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
+import {API_CTRL_SYSTEM_RUNTIME_NODES, C_API, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
 import {expect} from 'chai';
 import {WebServer} from '../../../src';
 import * as _ from 'lodash';
@@ -87,7 +87,7 @@ class RuntimeInfoControllerSpec {
     await p.started;
     await TestHelper.wait(50);
 
-    let res: any = await http.get(url + API_SYSTEM_RUNTIME_NODES, {json: true});
+    let res: any = await http.get(url + API_CTRL_SYSTEM_RUNTIME_NODES, {json: true});
     expect(res).to.not.be.null;
     res = res.body;
     p.shutdown();

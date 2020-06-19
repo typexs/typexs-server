@@ -1,6 +1,6 @@
 import {suite, test, timeout} from 'mocha-typescript';
 import {Bootstrap, Config, Container} from '@typexs/base';
-import {API_SYSTEM_WORKERS, C_API, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
+import {API_CTRL_SYSTEM_WORKERS, C_API, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
 import {expect} from 'chai';
 import {WebServer} from '../../../src';
 import * as _ from 'lodash';
@@ -83,7 +83,7 @@ class RuntimeInfoControllerSpec {
   @test
   async 'list workers'() {
     const url = server.url() + '/' + C_API;
-    let res: any = await http.get(url + API_SYSTEM_WORKERS, {json: true});
+    let res: any = await http.get(url + API_CTRL_SYSTEM_WORKERS, {json: true});
     expect(res).to.not.be.null;
     res = res.body;
     expect(res).to.have.length(1);

@@ -1,19 +1,19 @@
 import {suite, test, timeout} from 'mocha-typescript';
 import {Bootstrap, Config, Container} from '@typexs/base';
 import {
-  API_SYSTEM_RUNTIME_INFO,
-  API_SYSTEM_RUNTIME_NODE,
-  API_SYSTEM_RUNTIME_NODES,
-  API_SYSTEM_WORKERS,
+  API_CTRL_SYSTEM_RUNTIME_INFO,
+  API_CTRL_SYSTEM_RUNTIME_NODE,
+  API_CTRL_SYSTEM_RUNTIME_NODES,
+  API_CTRL_SYSTEM_WORKERS,
   C_API,
   K_ROUTE_CONTROLLER
 } from '../../../src/libs/Constants';
 import {expect} from 'chai';
 import {
-  API_SYSTEM_CONFIG,
-  API_SYSTEM_MODULES,
-  API_SYSTEM_ROUTES,
-  API_SYSTEM_STORAGES,
+  API_CTRL_SYSTEM_CONFIG,
+  API_CTRL_SYSTEM_MODULES,
+  API_CTRL_SYSTEM_ROUTES,
+  API_CTRL_SYSTEM_STORAGES,
   PERMISSION_ALLOW_ROUTES_VIEW,
   PERMISSION_ALLOW_STORAGE_ENTITY_VIEW,
   WebServer
@@ -96,7 +96,7 @@ class RuntimeInfoControllerSpec {
   @test
   async 'get info'() {
     const url = server.url() + '/' + C_API;
-    let res: any = await http.get(url + API_SYSTEM_RUNTIME_INFO, {json: true});
+    let res: any = await http.get(url + API_CTRL_SYSTEM_RUNTIME_INFO, {json: true});
     expect(res).to.not.be.null;
     res = res.body;
     expect(res.networks).to.not.be.null;
@@ -110,7 +110,7 @@ class RuntimeInfoControllerSpec {
   @test
   async 'get node'() {
     const url = server.url() + '/' + C_API;
-    let res: any = await http.get(url + API_SYSTEM_RUNTIME_NODE, {json: true});
+    let res: any = await http.get(url + API_CTRL_SYSTEM_RUNTIME_NODE, {json: true});
     expect(res).to.not.be.null;
     res = res.body;
     expect(res.hostname).to.not.be.null;
@@ -120,7 +120,7 @@ class RuntimeInfoControllerSpec {
   async 'get nodes'() {
     // empty
     const url = server.url() + '/' + C_API;
-    let res = await http.get(url + API_SYSTEM_RUNTIME_NODES, {json: true});
+    let res = await http.get(url + API_CTRL_SYSTEM_RUNTIME_NODES, {json: true});
     expect(res).to.not.be.null;
     res = res.body;
     expect(res).to.have.length(0);
@@ -130,7 +130,7 @@ class RuntimeInfoControllerSpec {
   @test
   async 'list workers'() {
     const url = server.url() + '/' + C_API;
-    let res: any = await http.get(url + API_SYSTEM_WORKERS, {json: true});
+    let res: any = await http.get(url + API_CTRL_SYSTEM_WORKERS, {json: true});
     expect(res).to.not.be.null;
     res = res.body;
     expect(res.hostname).to.not.be.null;
@@ -140,13 +140,13 @@ class RuntimeInfoControllerSpec {
   @test @timeout(300000)
   async 'list routes'() {
     const url = server.url() + '/' + C_API;
-    let res = await http.get(url + API_SYSTEM_ROUTES, {json: true});
+    let res = await http.get(url + API_CTRL_SYSTEM_ROUTES, {json: true});
     expect(res).to.not.be.null;
     res = res.body;
     expect(res).to.have.length.greaterThan(4);
     expect(_.find(res, {controllerMethod: 'listRoutes'})).to.deep.eq({
       context: 'api',
-      route: '/' + C_API + API_SYSTEM_ROUTES,
+      route: '/' + C_API + API_CTRL_SYSTEM_ROUTES,
       method: 'get',
       params: [],
       controller: 'RuntimeInfoController',
@@ -177,7 +177,7 @@ class RuntimeInfoControllerSpec {
   @test @timeout(300000)
   async 'list config'() {
     const url = server.url() + '/' + C_API;
-    let res: any = await http.get(url + API_SYSTEM_CONFIG, {json: true});
+    let res: any = await http.get(url + API_CTRL_SYSTEM_CONFIG, {json: true});
     res = res.body;
     const baseConfig = res.shift();
     const compare = _.clone(settingsTemplate);
@@ -225,7 +225,7 @@ class RuntimeInfoControllerSpec {
   @test @timeout(300000)
   async 'list modules'() {
     const url = server.url() + '/' + C_API;
-    let res = await http.get(url + API_SYSTEM_MODULES, {json: true});
+    let res = await http.get(url + API_CTRL_SYSTEM_MODULES, {json: true});
     expect(res).to.not.be.null;
     res = res.body;
     expect(_.map(res, r => r.name)).to.deep.include.members([
@@ -236,7 +236,7 @@ class RuntimeInfoControllerSpec {
   @test @timeout(300000)
   async 'list storages'() {
     const url = server.url() + '/' + C_API;
-    let res: any = await http.get(url + API_SYSTEM_STORAGES, {json: true});
+    let res: any = await http.get(url + API_CTRL_SYSTEM_STORAGES, {json: true});
     expect(res.body).to.not.be.null;
     res = res.body;
     expect(res).to.have.length(1);

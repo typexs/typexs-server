@@ -4,7 +4,7 @@ import * as path from 'path';
 // process.env.SQL_LOG = '1';
 import {suite, test} from 'mocha-typescript';
 import {Bootstrap, Config, Container} from '@typexs/base';
-import {API_TASK_GET_METADATA_VALUE, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
+import {API_CTRL_TASK_GET_METADATA_VALUE, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
 import {expect} from 'chai';
 import {Helper, WebServer} from '../../../src';
 import * as _ from 'lodash';
@@ -474,7 +474,7 @@ class TasksControllerSpec {
   async 'get content from value providers'() {
     const url = server.url();
 
-    const _url = url + '/api' + API_TASK_GET_METADATA_VALUE
+    const _url = url + '/api' + API_CTRL_TASK_GET_METADATA_VALUE
       .replace(':taskName', 'local_simple_task_with_params')
       .replace(':incomingName', 'valueStatic');
 
@@ -483,7 +483,7 @@ class TasksControllerSpec {
     valueSuggestions1 = valueSuggestions1.body;
     expect(valueSuggestions1).to.be.deep.eq(['One', 'Two', 'Tree']);
 
-    const _url3 = url + '/api' + API_TASK_GET_METADATA_VALUE
+    const _url3 = url + '/api' + API_CTRL_TASK_GET_METADATA_VALUE
       .replace(':taskName', 'local_simple_task_with_params')
       .replace(':incomingName', 'valueClass');
 
@@ -491,7 +491,7 @@ class TasksControllerSpec {
     expect(valueSuggestions3).to.not.be.null;
     valueSuggestions3 = valueSuggestions3.body;
     expect(valueSuggestions3).to.be.deep.eq(['VP-One1', 'VP-Two2', 'VP-Tree3']);
-    const _url2 = url + '/api' + API_TASK_GET_METADATA_VALUE
+    const _url2 = url + '/api' + API_CTRL_TASK_GET_METADATA_VALUE
       .replace(':taskName', 'local_simple_task_with_params')
       .replace(':incomingName', 'valueFunction');
 
