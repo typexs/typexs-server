@@ -3,19 +3,17 @@ import * as _ from 'lodash';
 import {Get, HttpError, InternalServerError, JsonController, Param, QueryParam} from 'routing-controllers';
 import {Cache, Container, IMessageOptions, Inject, Injector, Invoker, TaskRunnerRegistry, Tasks, TasksExchange} from '@typexs/base';
 import {
-  _API_TASK_EXEC,
-  _API_TASK_GET_METADATA,
-  _API_TASK_GET_METADATA_VALUE,
-  _API_TASK_LOG,
-  _API_TASK_STATUS,
-  _API_TASKS,
-  _API_TASKS_LIST,
-  _API_TASKS_METADATA,
-  _API_TASKS_RUNNERS_INFO,
-  _API_TASKS_RUNNING,
-  _API_TASKS_RUNNING_ON_NODE,
-  Access,
-  ContextGroup,
+  _API_CTRL_TASK_EXEC,
+  _API_CTRL_TASK_GET_METADATA,
+  _API_CTRL_TASK_GET_METADATA_VALUE,
+  _API_CTRL_TASK_LOG,
+  _API_CTRL_TASK_STATUS,
+  _API_CTRL_TASKS,
+  _API_CTRL_TASKS_LIST,
+  _API_CTRL_TASKS_METADATA,
+  _API_CTRL_TASKS_RUNNERS_INFO,
+  _API_CTRL_TASKS_RUNNING,
+  _API_CTRL_TASKS_RUNNING_ON_NODE, C_API,
   PERMISSION_ALLOW_TASK_EXEC,
   PERMISSION_ALLOW_TASK_EXEC_PATTERN,
   PERMISSION_ALLOW_TASK_GET_METADATA,
@@ -26,16 +24,18 @@ import {
   PERMISSION_ALLOW_TASKS_LIST,
   PERMISSION_ALLOW_TASKS_METADATA,
   PERMISSION_ALLOW_TASKS_RUNNING
-} from '..';
+} from '../libs/Constants';
 import {TasksHelper} from '@typexs/base/libs/tasks/TasksHelper';
 import {IValueProvider} from '@typexs/base/libs/tasks/decorators/IValueProvider';
 import {ITaskExectorOptions} from '@typexs/base/libs/tasks/ITaskExectorOptions';
 import {TaskExecutor} from '@typexs/base/libs/tasks/TaskExecutor';
 import {IError} from '@typexs/base/libs/exceptions/IError';
+import {ContextGroup} from '../decorators/ContextGroup';
+import {Access} from '../decorators/Access';
 
-@ContextGroup('api')
-@JsonController(_API_TASKS)
-export class TasksController {
+@ContextGroup(C_API)
+@JsonController(_API_CTRL_TASKS)
+export class TasksAPIController {
 
   @Inject(Tasks.NAME)
   tasks: Tasks;
@@ -58,20 +58,20 @@ export class TasksController {
   }
 
   @Access(PERMISSION_ALLOW_TASKS_LIST)
-  @Get(_API_TASKS_LIST)
+  @Get(_API_CTRL_TASKS_LIST)
   list() {
     return this.tasks.infos(true);
   }
 
   @Access(PERMISSION_ALLOW_TASKS_METADATA)
-  @Get(_API_TASKS_METADATA)
+  @Get(_API_CTRL_TASKS_METADATA)
   tasksMetadata() {
     return this.tasks.toJson();
   }
 
   @Access([PERMISSION_ALLOW_TASK_GET_METADATA,
     PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN])
-  @Get(_API_TASK_GET_METADATA)
+  @Get(_API_CTRL_TASK_GET_METADATA)
   taskMetadata(@Param('taskName') taskName: string) {
     if (this.tasks.contains(taskName)) {
       return this.tasks.get(taskName).toJson();
@@ -82,7 +82,7 @@ export class TasksController {
 
   @Access([PERMISSION_ALLOW_TASK_GET_METADATA,
     PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN])
-  @Get(_API_TASK_GET_METADATA_VALUE)
+  @Get(_API_CTRL_TASK_GET_METADATA_VALUE)
   taskMetadataValueProvider(@Param('taskName') taskName: string,
                             @Param('incomingName') incomingName: string,
                             @QueryParam('values') values: any = null,
@@ -127,7 +127,7 @@ export class TasksController {
    * @param options
    */
   @Access([PERMISSION_ALLOW_TASK_EXEC, PERMISSION_ALLOW_TASK_EXEC_PATTERN])
-  @Get(_API_TASK_EXEC)
+  @Get(_API_CTRL_TASK_EXEC)
   async executeTask(@Param('taskName') taskName: string,
                     @QueryParam('params') parameters: any = {},
                     @QueryParam('targetIds') targetIds: string[] = [],
@@ -197,7 +197,7 @@ export class TasksController {
    * @param number
    */
   @Access(PERMISSION_ALLOW_TASK_LOG)
-  @Get(_API_TASK_LOG)
+  @Get(_API_CTRL_TASK_LOG)
   async getLogContent(@Param('nodeId') nodeId: string,
                       @Param('runnerId') runnerId: string,
                       @QueryParam('limit') limitLine: number = null,
@@ -230,7 +230,7 @@ export class TasksController {
    * @param runnerId
    */
   @Access(PERMISSION_ALLOW_TASK_STATUS)
-  @Get(_API_TASK_STATUS)
+  @Get(_API_CTRL_TASK_STATUS)
   async getTaskStatus(
     @Param('runnerId') runnerId: string,
     @QueryParam('options') options: IMessageOptions = {},
@@ -259,7 +259,7 @@ export class TasksController {
    * @param nodeId
    */
   @Access([PERMISSION_ALLOW_TASKS_RUNNING])
-  @Get(_API_TASKS_RUNNING_ON_NODE)
+  @Get(_API_CTRL_TASKS_RUNNING_ON_NODE)
   async getRunningTasksByNode(@Param('nodeId') nodeId: string,
                               @QueryParam('options') options: IMessageOptions = {}) {
 
@@ -279,7 +279,7 @@ export class TasksController {
    * @param nodeId
    */
   @Access([PERMISSION_ALLOW_TASKS_RUNNING])
-  @Get(_API_TASKS_RUNNING)
+  @Get(_API_CTRL_TASKS_RUNNING)
   async getRunningTasks(@QueryParam('options') options: IMessageOptions = {}) {
 
     let _opts = options || {};
@@ -305,7 +305,7 @@ export class TasksController {
    * @param nodeId
    */
   @Access([PERMISSION_ALLOW_TASK_RUNNER_INFO_VIEW])
-  @Get(_API_TASKS_RUNNERS_INFO)
+  @Get(_API_CTRL_TASKS_RUNNERS_INFO)
   async getRunners(@QueryParam('options') options: IMessageOptions = {}) {
 
     let _opts = options || {};

@@ -12,22 +12,21 @@ import {
   System,
   Workers
 } from '@typexs/base';
-import {ContextGroup} from '../decorators/ContextGroup';
 import {Get, JsonController, Param, QueryParam} from 'routing-controllers';
-import {Access} from '../decorators/Access';
 import {ServerRegistry} from './../libs/server/ServerRegistry';
 import {IRoute} from './../libs/server/IRoute';
 import {getMetadataArgsStorage as ormMetadataArgsStorage} from 'typeorm';
 import {
-  _API_SYSTEM,
-  _API_SYSTEM_CONFIG,
-  _API_SYSTEM_MODULES,
-  _API_SYSTEM_ROUTES,
-  _API_SYSTEM_RUNTIME_INFO,
-  _API_SYSTEM_RUNTIME_NODE,
-  _API_SYSTEM_RUNTIME_NODES,
-  _API_SYSTEM_RUNTIME_REMOTE_INFOS,
-  _API_SYSTEM_STORAGES, _API_SYSTEM_WORKERS,
+  _API_CTRL_SYSTEM,
+  _API_CTRL_SYSTEM_CONFIG,
+  _API_CTRL_SYSTEM_MODULES,
+  _API_CTRL_SYSTEM_ROUTES,
+  _API_CTRL_SYSTEM_RUNTIME_INFO,
+  _API_CTRL_SYSTEM_RUNTIME_NODE,
+  _API_CTRL_SYSTEM_RUNTIME_NODES,
+  _API_CTRL_SYSTEM_RUNTIME_REMOTE_INFOS,
+  _API_CTRL_SYSTEM_STORAGES,
+  _API_CTRL_SYSTEM_WORKERS, C_API,
   PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW,
   PERMISSION_ALLOW_MODULES_VIEW,
   PERMISSION_ALLOW_ROUTES_VIEW,
@@ -41,11 +40,12 @@ import {
 import {ServerNodeInfoApi} from '../api/ServerNodeInfo.api';
 import {IWorkerInfo} from '@typexs/base/libs/worker/IWorkerInfo';
 import {TreeUtils, WalkValues} from 'commons-base';
+import {ContextGroup} from '../decorators/ContextGroup';
+import {Access} from '../decorators/Access';
 
-
-@ContextGroup('api')
-@JsonController(_API_SYSTEM)
-export class RuntimeInfoController {
+@ContextGroup(C_API)
+@JsonController(_API_CTRL_SYSTEM)
+export class SystemAPIController {
 
   @Inject(System.NAME)
   system: System;
@@ -63,29 +63,30 @@ export class RuntimeInfoController {
   invoker: Invoker;
 
 
+
   @Access(PERMISSION_ALLOW_RUNTIME_INFO_VIEW)
-  @Get(_API_SYSTEM_RUNTIME_INFO)
+  @Get(_API_CTRL_SYSTEM_RUNTIME_INFO)
   info(): any {
     return this.system.info;
   }
 
 
   @Access(PERMISSION_ALLOW_RUNTIME_NODE_VIEW)
-  @Get(_API_SYSTEM_RUNTIME_NODE)
+  @Get(_API_CTRL_SYSTEM_RUNTIME_NODE)
   node(): any {
     return this.system.node;
   }
 
 
   @Access(PERMISSION_ALLOW_RUNTIME_NODES_VIEW)
-  @Get(_API_SYSTEM_RUNTIME_NODES)
+  @Get(_API_CTRL_SYSTEM_RUNTIME_NODES)
   nodes(): any {
     return this.system.nodes;
   }
 
 
   @Access(PERMISSION_ALLOW_RUNTIME_REMOTE_INFOS_VIEW)
-  @Get(_API_SYSTEM_RUNTIME_REMOTE_INFOS)
+  @Get(_API_CTRL_SYSTEM_RUNTIME_REMOTE_INFOS)
   nodesInfo(@QueryParam('nodeIds') nodeIds: string[] = []): any {
     return this.system.getNodeInfos(nodeIds);
   }
@@ -93,14 +94,14 @@ export class RuntimeInfoController {
 
   // TODO impl worker statistics
   @Access(PERMISSION_ALLOW_WORKERS_INFO)
-  @Get(_API_SYSTEM_WORKERS)
+  @Get(_API_CTRL_SYSTEM_WORKERS)
   listWorkers(): IWorkerInfo[] {
     return (<Workers>Container.get(Workers.NAME)).infos();
   }
 
 
   @Access(PERMISSION_ALLOW_ROUTES_VIEW)
-  @Get(_API_SYSTEM_ROUTES)
+  @Get(_API_CTRL_SYSTEM_ROUTES)
   listRoutes(): IRoute[] {
     let routes: IRoute[] = [];
     const instanceNames = this.serverRegistry.getInstanceNames();
@@ -114,7 +115,7 @@ export class RuntimeInfoController {
 
 
   @Access(PERMISSION_ALLOW_MODULES_VIEW)
-  @Get(_API_SYSTEM_MODULES)
+  @Get(_API_CTRL_SYSTEM_MODULES)
   listModules(): IModule[] {
     const modules = this.loader.registry.modules();
     this.invoker.use(ServerNodeInfoApi).prepareModules(modules);
@@ -123,7 +124,7 @@ export class RuntimeInfoController {
 
 
   @Access(PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW)
-  @Get(_API_SYSTEM_CONFIG)
+  @Get(_API_CTRL_SYSTEM_CONFIG)
   getConfig(): any {
     const _orgCfg = Config.get();
     const cfg = _.cloneDeepWith(_orgCfg);
@@ -159,7 +160,7 @@ export class RuntimeInfoController {
 
 
   @Access(PERMISSION_ALLOW_STORAGES_VIEW)
-  @Get(_API_SYSTEM_STORAGES)
+  @Get(_API_CTRL_SYSTEM_STORAGES)
   getStorageInfo(): any {
     const options = _.cloneDeepWith(this.storage.getAllOptions());
     const filterKeys = this.getFilterKeys();
