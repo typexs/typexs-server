@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "Servers for typexs",
   "main": "index.js",
+  "browser": "browser.js",
   "directories": {
     "doc": "docs/de"
   },
