@@ -1,7 +1,7 @@
 import * as http from 'http';
 import * as _ from 'lodash';
 import {MetaArgs} from 'commons-base/browser';
-import {ClassLoader, Container, Inject, Log, RuntimeLoader, TodoException} from '@typexs/base';
+import {ClassLoader, Injector, Inject, Log, RuntimeLoader, TodoException} from '@typexs/base';
 import {Action, getMetadataArgsStorage, useContainer} from 'routing-controllers';
 
 import {Server} from './../server/Server';
@@ -20,7 +20,7 @@ import {IRoute, K_CORE_LIB_CONTROLLERS, K_ROUTE_CACHE, K_ROUTE_CONTROLLER, K_ROU
 import {MatchUtils} from '@typexs/base/libs/utils/MatchUtils';
 
 
-useContainer(Container);
+useContainer(Injector.getContainer());
 
 export class WebServer extends Server implements IServer {
 
@@ -195,7 +195,7 @@ export class WebServer extends Server implements IServer {
     for (const cls of classes) {
       const skip = routingMiddleware.find(m => m.target === cls);
       if (!skip) {
-        const instance = <IMiddleware>Container.get(cls);
+        const instance = <IMiddleware>Injector.get(cls);
         if (instance['validate'] && instance.validate(_.clone(this.options()))) {
           this._middlewares.push(instance);
         }

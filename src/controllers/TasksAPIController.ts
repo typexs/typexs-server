@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 
 import {Get, HttpError, InternalServerError, JsonController, Param, QueryParam} from 'routing-controllers';
-import {Cache, Container, IMessageOptions, Inject, Injector, Invoker, TaskRunnerRegistry, Tasks, TasksExchange} from '@typexs/base';
+import {Cache, IMessageOptions, Inject, Injector, Invoker, TaskRunnerRegistry, Tasks, TasksExchange} from '@typexs/base';
 import {
   _API_CTRL_TASK_EXEC,
   _API_CTRL_TASK_GET_METADATA,
@@ -106,7 +106,7 @@ export class TasksAPIController {
     if (_.isFunction(valueProvider)) {
       if (valueProvider.prototype && valueProvider.prototype.constructor) {
         // is a class
-        const providerInstance = <IValueProvider<any>>Container.get(<any>valueProvider);
+        const providerInstance = <IValueProvider<any>>Injector.get(<any>valueProvider);
         return providerInstance.get(values, taskIncomingRef, hint);
       } else {
         // is a function

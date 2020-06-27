@@ -1,6 +1,6 @@
 // process.env.SQL_LOG = '1';
 import {suite, test, timeout} from 'mocha-typescript';
-import {Bootstrap, Config, Container, Injector} from '@typexs/base';
+import {Bootstrap, Config, Injector} from '@typexs/base';
 import {
   API_CTRL_TASK_EXEC,
   API_CTRL_TASK_GET_METADATA,
@@ -95,7 +95,7 @@ class TasksControllerSpec {
     await bootstrap.activateStorage();
     await bootstrap.startup();
 
-    server = Container.get('server.default');
+    server = Injector.get('server.default');
     await server.start();
 
     URL = server.url();
@@ -119,7 +119,7 @@ class TasksControllerSpec {
       await bootstrap.shutdown();
     }
     Bootstrap.reset();
-    Container.reset();
+    Injector.reset();
     Config.clear();
   }
 

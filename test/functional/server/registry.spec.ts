@@ -2,7 +2,7 @@ import {suite, test} from 'mocha-typescript';
 import {ServerRegistry} from '../../../src/libs/server/ServerRegistry';
 
 import {expect} from 'chai';
-import {Container, RuntimeLoader} from '@typexs/base';
+import {Injector, RuntimeLoader} from '@typexs/base';
 import {IWebServerInstanceOptions} from '../../../src/libs/web/IWebServerInstanceOptions';
 
 @suite('functional/server/registry')
@@ -10,18 +10,18 @@ class RegistrySpec {
 
 
   before() {
-    Container.reset();
+    Injector.reset();
   }
 
   after() {
-    Container.reset();
+    Injector.reset();
   }
 
 
   @test
   async 'error creating of web server because of framework missing'() {
     const loader = new RuntimeLoader({});
-    Container.set('RuntimeLoader', loader);
+    Injector.set('RuntimeLoader', loader);
 
     const registry = new ServerRegistry();
     try {
@@ -36,7 +36,7 @@ class RegistrySpec {
   @test
   async 'create a express web server'() {
     const loader = new RuntimeLoader({});
-    Container.set('RuntimeLoader', loader);
+    Injector.set('RuntimeLoader', loader);
 
     const registry = new ServerRegistry();
     const instance = await registry.create('default', <IWebServerInstanceOptions>{type: 'web', framework: 'express'});

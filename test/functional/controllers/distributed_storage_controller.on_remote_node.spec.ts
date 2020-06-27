@@ -1,5 +1,5 @@
 import {suite, test, timeout} from 'mocha-typescript';
-import {Bootstrap, Config, Container, DistributedStorageEntityController, Injector, Log, XS_P_$COUNT} from '@typexs/base';
+import {Bootstrap, Config, DistributedStorageEntityController, Injector, Log, XS_P_$COUNT} from '@typexs/base';
 import {
   API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITY,
   API_CTRL_DISTRIBUTED_STORAGE_FIND_ENTITY,
@@ -88,7 +88,7 @@ class DistributedStorageControllerSpec {
     await bootstrap.startup();
 
 
-    server = Container.get('server.default');
+    server = Injector.get('server.default');
     await server.start();
 
     URL = server.url();
@@ -107,7 +107,7 @@ class DistributedStorageControllerSpec {
     p.shutdown();
     await p.done;
     Bootstrap.reset();
-    Container.reset();
+    Injector.reset();
     Config.clear();
   }
 

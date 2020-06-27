@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {StringOrFunction, Container, Inject} from '@typexs/base';
+import {StringOrFunction, Injector, Inject} from '@typexs/base';
 import {ServerFactory} from './ServerFactory';
 import {IServer} from './IServer';
 import {IServerInstanceOptions} from './IServerInstanceOptions';
@@ -38,7 +38,7 @@ export class ServerRegistry {
     }
     const server: IServer = this.factory.get(options.type);
     server.name = name;
-    Container.set('server.' + name, server);
+    Injector.set('server.' + name, server);
     server.initialize(options);
     await server.prepare();
     this.registry.push(server);

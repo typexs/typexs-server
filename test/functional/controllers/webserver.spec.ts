@@ -1,5 +1,5 @@
 import {suite, test} from 'mocha-typescript';
-import {Bootstrap, Container, RuntimeLoader, Config} from '@typexs/base';
+import {Bootstrap, Injector, RuntimeLoader, Config} from '@typexs/base';
 import {WebServer} from '../../../src/libs/web/WebServer';
 import {C_DEFAULT} from '../../../src/libs/Constants';
 import * as request from 'supertest';
@@ -16,12 +16,12 @@ class WebserverSpec {
 
   before() {
     // (global as any).routingControllersMetadataArgsStorage = null;
-    Container.reset();
+    Injector.reset();
 
   }
 
   after() {
-    Container.reset();
+    Injector.reset();
     Config.clear();
 
   }
@@ -39,9 +39,9 @@ class WebserverSpec {
     });
 
     await loader.prepare();
-    Container.set('RuntimeLoader', loader);
+    Injector.set('RuntimeLoader', loader);
 
-    const web = Container.get(WebServer);
+    const web = Injector.get(WebServer);
     await web.initialize({
       type: 'web', framework: 'express', routes: [{
         type: K_ROUTE_CONTROLLER,
@@ -94,9 +94,9 @@ class WebserverSpec {
     const loader = new RuntimeLoader({});
 
     await loader.prepare();
-    Container.set('RuntimeLoader', loader);
+    Injector.set('RuntimeLoader', loader);
 
-    const web = Container.get(WebServer);
+    const web = Injector.get(WebServer);
     await web.initialize({
       type: 'web', framework: 'express', routes: [<IStaticFiles>{
         type: K_ROUTE_STATIC,
@@ -134,9 +134,9 @@ class WebserverSpec {
     const loader = new RuntimeLoader({});
 
     await loader.prepare();
-    Container.set('RuntimeLoader', loader);
+    Injector.set('RuntimeLoader', loader);
 
-    const web = Container.get(WebServer);
+    const web = Injector.get(WebServer);
     await web.initialize({
       type: 'web', framework: 'express', routes: [<IStaticFiles>{
         type: K_ROUTE_STATIC,
@@ -175,9 +175,9 @@ class WebserverSpec {
     const loader = new RuntimeLoader({});
 
     await loader.prepare();
-    Container.set('RuntimeLoader', loader);
+    Injector.set('RuntimeLoader', loader);
 
-    const web = Container.get(WebServer);
+    const web = Injector.get(WebServer);
     await web.initialize({
       type: 'web', framework: 'express', routes: [<IStaticFiles>{
         type: K_ROUTE_STATIC,
@@ -227,9 +227,9 @@ class WebserverSpec {
     });
 
     await loader.prepare();
-    Container.set('RuntimeLoader', loader);
+    Injector.set('RuntimeLoader', loader);
 
-    const web = Container.get(WebServer);
+    const web = Injector.get(WebServer);
     await web.initialize({
       type: 'web', framework: 'express', routes: [
         {
@@ -307,9 +307,9 @@ class WebserverSpec {
     });
 
     await loader.prepare();
-    Container.set('RuntimeLoader', loader);
+    Injector.set('RuntimeLoader', loader);
 
-    const web = Container.get(WebServer);
+    const web = Injector.get(WebServer);
     await web.initialize({
       type: 'web', framework: 'express', routes: [
         {

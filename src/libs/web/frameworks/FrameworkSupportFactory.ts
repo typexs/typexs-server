@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {StringOrFunction, Container} from '@typexs/base';
+import {Injector, StringOrFunction} from '@typexs/base';
 import {IFrameworkSupport} from './IFrameworkSupport';
 import {ExpressSupport} from './express/ExpressSupport';
 
@@ -10,7 +10,7 @@ export class FrameworkSupportFactory {
     if (_.isString(name)) {
       switch (name) {
         case 'express':
-          return Container.get(ExpressSupport);
+          return Injector.get(ExpressSupport);
         default:
           throw new Error('server type');
       }

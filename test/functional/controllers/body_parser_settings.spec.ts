@@ -1,5 +1,5 @@
 import {suite, test} from 'mocha-typescript';
-import {Bootstrap, Container, RuntimeLoader} from '@typexs/base';
+import {Bootstrap, Injector, RuntimeLoader} from '@typexs/base';
 import {WebServer} from '../../../src/libs/web/WebServer';
 import {C_DEFAULT} from '../../../src/libs/Constants';
 import * as request from 'supertest';
@@ -17,12 +17,12 @@ class BodyParserSettingsSpec {
   before() {
 
     // (global as any).routingControllersMetadataArgsStorage = null;
-    Container.reset();
+    Injector.reset();
 
   }
 
   after() {
-    Container.reset();
+    Injector.reset();
 
   }
 
@@ -39,10 +39,10 @@ class BodyParserSettingsSpec {
     });
 
     await loader.prepare();
-    Container.set('RuntimeLoader', loader);
+    Injector.set('RuntimeLoader', loader);
 
     const creds: string[][] = [];
-    const web = Container.get(WebServer);
+    const web = Injector.get(WebServer);
     await web.initialize(<IWebServerInstanceOptions>{
       type: 'web',
       framework: 'express',
@@ -108,10 +108,10 @@ class BodyParserSettingsSpec {
     });
 
     await loader.prepare();
-    Container.set('RuntimeLoader', loader);
+    Injector.set('RuntimeLoader', loader);
 
     const creds: string[][] = [];
-    const web = Container.get(WebServer);
+    const web = Injector.get(WebServer);
     await web.initialize(<IWebServerInstanceOptions>{
       type: 'web',
       framework: 'express',

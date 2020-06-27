@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {ClassLoader, Container, Log, StringOrFunction} from '@typexs/base';
+import {ClassLoader, Injector, Log, StringOrFunction} from '@typexs/base';
 import {ClassType} from 'commons-schema-api';
 
 import {WebServer} from '../web/WebServer';
@@ -84,7 +84,7 @@ export class ServerFactory {
   get(name: StringOrFunction): IServer {
     const instance = ServerFactory.getServerClass(name);
     if (instance) {
-      return Container.get(instance);
+      return Injector.get(instance);
     }
     throw new Error('can not find server class');
   }

@@ -1,5 +1,5 @@
 import {suite, test, timeout} from 'mocha-typescript';
-import {Bootstrap, Config, Container} from '@typexs/base';
+import {Bootstrap, Config,  Injector} from '@typexs/base';
 import {API_CTRL_FILESYSTEM_READ, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
 import {WebServer} from '../../../src';
 import * as _ from 'lodash';
@@ -86,7 +86,7 @@ class FileSystemApiControllerSpec {
     await bootstrap.activateStorage();
     await bootstrap.startup();
 
-    server = Container.get('server.default');
+    server = Injector.get('server.default');
     await server.start();
   }
 
@@ -96,7 +96,7 @@ class FileSystemApiControllerSpec {
     }
     await bootstrap.shutdown();
     Bootstrap.reset();
-    Container.reset();
+    Injector.reset();
     Config.clear();
   }
 

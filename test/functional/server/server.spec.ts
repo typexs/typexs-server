@@ -2,7 +2,7 @@
 import {suite, test} from 'mocha-typescript';
 
 import {expect} from 'chai';
-import {Container, Log} from '@typexs/base';
+import {Injector, Log} from '@typexs/base';
 import {Server} from '../../../src/libs/server/Server';
 import {HttpFactory, IHttp} from 'commons-http';
 

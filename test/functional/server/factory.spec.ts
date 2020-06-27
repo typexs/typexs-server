@@ -1,8 +1,7 @@
 import {suite, test} from 'mocha-typescript';
 
 import {expect} from 'chai';
-import {Container} from 'typedi';
-import {PlatformUtils, RuntimeLoader} from '@typexs/base';
+import {Injector, PlatformUtils, RuntimeLoader} from '@typexs/base';
 import {IServer} from '../../../src/libs/server/IServer';
 import {IServerInstanceOptions} from '../../../src/libs/server/IServerInstanceOptions';
 import {ServerFactory} from '../../../src/libs/server/ServerFactory';
@@ -15,18 +14,18 @@ class FactorySpec {
 
 
   before() {
-    Container.reset();
+    Injector.reset();
   }
 
   after() {
-    Container.reset();
+    Injector.reset();
   }
 
   @test
   async 'get web server'() {
     const loader = new RuntimeLoader({});
-    Container.set(RuntimeLoader, loader);
-    Container.set('RuntimeLoader', loader);
+    Injector.set(RuntimeLoader, loader);
+    Injector.set('RuntimeLoader', loader);
     const r = new ServerFactory();
     const web = r.get('web');
     expect(web instanceof WebServer).to.be.true;

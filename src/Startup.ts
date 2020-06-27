@@ -4,7 +4,7 @@ import {C_SERVER} from './libs/Constants';
 import {ServerRegistry} from './libs/server/ServerRegistry';
 
 
-export class Bootstrap implements IBootstrap {
+export class Startup implements IBootstrap {
 
   @Inject('ServerRegistry')
   serverRegistry: ServerRegistry;

@@ -1,5 +1,5 @@
 import {suite, test} from 'mocha-typescript';
-import {Bootstrap, Config, Container, Injector, RuntimeLoader} from '@typexs/base';
+import {Bootstrap, Config, Injector, RuntimeLoader} from '@typexs/base';
 import {WebServer} from '../../../src/libs/web/WebServer';
 import {C_DEFAULT, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
 import {IRoutingController} from '../../../src';
@@ -14,12 +14,12 @@ class WebserverSpec {
 
   before() {
     // (global as any).routingControllersMetadataArgsStorage = null;
-    Container.reset();
+    Injector.reset();
     Config.clear();
   }
 
   after() {
-    Container.reset();
+    Injector.reset();
     Config.clear();
 
   }
@@ -37,7 +37,7 @@ class WebserverSpec {
     });
 
     await loader.prepare();
-    Container.set(RuntimeLoader.NAME, loader);
+    Injector.set(RuntimeLoader.NAME, loader);
 
     const web = Injector.get(WebServer) as WebServer;
     await web.initialize({
@@ -75,9 +75,9 @@ class WebserverSpec {
     });
 
     await loader.prepare();
-    Container.set('RuntimeLoader', loader);
+    Injector.set('RuntimeLoader', loader);
 
-    const web = Container.get(WebServer);
+    const web = Injector.get(WebServer);
     await web.initialize({
       type: 'web',
       framework: 'express',

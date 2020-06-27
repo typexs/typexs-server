@@ -1,5 +1,5 @@
 import {suite, test, timeout} from 'mocha-typescript';
-import {Bootstrap, Config, Container} from '@typexs/base';
+import {Bootstrap, Config, Injector} from '@typexs/base';
 import {
   API_CTRL_SYSTEM_RUNTIME_INFO,
   API_CTRL_SYSTEM_RUNTIME_NODE,
@@ -78,7 +78,7 @@ class RuntimeInfoControllerSpec {
     await bootstrap.activateStorage();
     await bootstrap.startup();
 
-    server = Container.get('server.default');
+    server = Injector.get('server.default');
     await server.start();
   }
 
@@ -88,7 +88,7 @@ class RuntimeInfoControllerSpec {
     }
     await bootstrap.shutdown();
     Bootstrap.reset();
-    Container.reset();
+    Injector.reset();
     Config.clear();
   }
 

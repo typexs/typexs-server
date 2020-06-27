@@ -3,9 +3,8 @@ import {
   C_CONFIG_FILTER_KEYS,
   ClassLoader,
   Config,
-  Container,
   IModule,
-  Inject,
+  Inject, Injector,
   Invoker,
   RuntimeLoader,
   Storage,
@@ -96,7 +95,7 @@ export class SystemAPIController {
   @Access(PERMISSION_ALLOW_WORKERS_INFO)
   @Get(_API_CTRL_SYSTEM_WORKERS)
   listWorkers(): IWorkerInfo[] {
-    return (<Workers>Container.get(Workers.NAME)).infos();
+    return (<Workers>Injector.get(Workers.NAME)).infos();
   }
 
 

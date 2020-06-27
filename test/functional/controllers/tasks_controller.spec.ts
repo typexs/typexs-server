@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 // process.env.SQL_LOG = '1';
 import {suite, test} from 'mocha-typescript';
-import {Bootstrap, Config, Container} from '@typexs/base';
+import {Bootstrap, Config, Injector} from '@typexs/base';
 import {API_CTRL_TASK_GET_METADATA_VALUE, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
 import {expect} from 'chai';
 import {Helper, WebServer} from '../../../src';
@@ -70,7 +70,7 @@ class TasksControllerSpec {
     await bootstrap.activateStorage();
     await bootstrap.startup();
 
-    server = Container.get('server.default');
+    server = Injector.get('server.default');
     await server.start();
   }
 
@@ -81,7 +81,7 @@ class TasksControllerSpec {
     }
     await bootstrap.shutdown();
     Bootstrap.reset();
-    Container.reset();
+    Injector.reset();
     Config.clear();
   }
 
@@ -252,7 +252,7 @@ class TasksControllerSpec {
   //   const _urlStatus = url + '/api' + API_TASK_STATUS.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id);
   //
   //   await TestHelper.waitFor(() => events.length >= 4, 10);
-  //   const s = await (<StorageRef>Container.get(C_STORAGE_DEFAULT)).getController().find(TaskLog);
+  //   const s = await (<StorageRef>Injector.get(C_STORAGE_DEFAULT)).getController().find(TaskLog);
   //   let taskStatus1: any = await request.get(_urlStatus, {json: true});
   //   expect(taskStatus1).to.not.be.null;
   //   taskStatus1 = taskStatus1.body;

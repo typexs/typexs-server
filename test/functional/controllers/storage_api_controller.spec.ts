@@ -1,5 +1,5 @@
 import {suite, test, timeout} from 'mocha-typescript';
-import {Bootstrap, C_STORAGE_DEFAULT, Config, Container, Injector, IRuntimeLoaderOptions, ITypexsOptions, StorageRef} from '@typexs/base';
+import {Bootstrap, C_STORAGE_DEFAULT, Config, Injector,  IRuntimeLoaderOptions, ITypexsOptions, StorageRef} from '@typexs/base';
 import {
   API_CTRL_STORAGE_DELETE_ENTITIES_BY_CONDITION,
   API_CTRL_STORAGE_DELETE_ENTITY,
@@ -152,7 +152,7 @@ class Storage_api_controllerSpec {
     await bootstrap.getStorage().shutdown();
     await bootstrap.shutdown();
     Bootstrap.reset();
-    Container.reset();
+    Injector.reset();
     Config.clear();
   }
 
