@@ -11,7 +11,7 @@ export interface IServerNodeInfo {
    * Return key list which should be removed before configuration
    * delivered by controller
    */
-  filterConfigKeys(): string[];
+  filterConfigKeys?(): string[];
 
   /**
    * Gives the possiblity to append/change/remove settings in the config object
@@ -19,21 +19,21 @@ export interface IServerNodeInfo {
    *
    * @param config
    */
-  prepareConfig(config: any): void;
+  prepareConfig?(config: any): void;
 
   /**
    * Gives the possiblity to append/change/remove settings in the route objects
    * before they are delivered to the frontend
    * @param routes
    */
-  prepareRoutes(routes: IRoute[]): void;
+  prepareRoutes?(routes: IRoute[]): void;
 
   /**
    * Gives the possiblity to append/change/remove settings in the module objects
    * before they are delivered to the frontend
    * @param modules
    */
-  prepareModules(modules: IModule[]): void;
+  prepareModules?(modules: IModule[]): void;
 
   /**
    * Gives the possiblity to append/change/remove settings in the storage info objects
@@ -49,6 +49,15 @@ export interface IServerNodeInfo {
    *
    * @param config
    */
-  prepareStorageEntities(tables: TableMetadataArgs[]): void;
+  prepareStorageEntities?(tables: TableMetadataArgs[]): void;
+
+
+  /**
+   * Gives the possiblity to append/change/remove settings to the free accessible server status
+   * before they are delivered to the frontend
+   *
+   * @param status
+   */
+  prepareServerStatus?(status: any, user: any): void;
 
 }

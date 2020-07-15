@@ -4,7 +4,8 @@ import {
   ClassLoader,
   Config,
   IModule,
-  Inject, Injector,
+  Inject,
+  Injector,
   Invoker,
   RuntimeLoader,
   Storage,
@@ -25,7 +26,8 @@ import {
   _API_CTRL_SYSTEM_RUNTIME_NODES,
   _API_CTRL_SYSTEM_RUNTIME_REMOTE_INFOS,
   _API_CTRL_SYSTEM_STORAGES,
-  _API_CTRL_SYSTEM_WORKERS, C_API,
+  _API_CTRL_SYSTEM_WORKERS,
+  C_API,
   PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW,
   PERMISSION_ALLOW_MODULES_VIEW,
   PERMISSION_ALLOW_ROUTES_VIEW,
@@ -34,7 +36,8 @@ import {
   PERMISSION_ALLOW_RUNTIME_NODES_VIEW,
   PERMISSION_ALLOW_RUNTIME_REMOTE_INFOS_VIEW,
   PERMISSION_ALLOW_STORAGE_ENTITY_VIEW,
-  PERMISSION_ALLOW_STORAGES_VIEW, PERMISSION_ALLOW_WORKERS_INFO
+  PERMISSION_ALLOW_STORAGES_VIEW,
+  PERMISSION_ALLOW_WORKERS_INFO
 } from '../libs/Constants';
 import {ServerNodeInfoApi} from '../api/ServerNodeInfo.api';
 import {IWorkerInfo} from '@typexs/base/libs/worker/IWorkerInfo';
@@ -60,7 +63,6 @@ export class SystemAPIController {
 
   @Inject(Invoker.NAME)
   invoker: Invoker;
-
 
 
   @Access(PERMISSION_ALLOW_RUNTIME_INFO_VIEW)

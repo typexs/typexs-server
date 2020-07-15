@@ -19,7 +19,7 @@ export class ServerNodeInfoApi implements IServerNodeInfo {
   }
 
   /**
-   * Gives the possiblity to append/change/remove settings in the config object
+   * Gives the possibility to append/change/remove settings in the config object
    * before it is delivered to the frontend
    *
    * @param config
@@ -28,7 +28,7 @@ export class ServerNodeInfoApi implements IServerNodeInfo {
   }
 
   /**
-   * Gives the possiblity to append/change/remove settings in the route objects
+   * Gives the possibility to append/change/remove settings in the route objects
    * before they are delivered to the frontend
    * @param routes
    */
@@ -36,7 +36,7 @@ export class ServerNodeInfoApi implements IServerNodeInfo {
   }
 
   /**
-   * Gives the possiblity to append/change/remove settings in the module objects
+   * Gives the possibility to append/change/remove settings in the module objects
    * before they are delivered to the frontend
    * @param modules
    */
@@ -44,7 +44,7 @@ export class ServerNodeInfoApi implements IServerNodeInfo {
   }
 
   /**
-   * Gives the possiblity to append/change/remove settings in the storage info objects
+   * Gives the possibility to append/change/remove settings in the storage info objects
    * before there are delivered to the frontend
    * @param options
    */
@@ -52,7 +52,7 @@ export class ServerNodeInfoApi implements IServerNodeInfo {
   }
 
   /**
-   * Gives the possiblity to append/change/remove settings in the storage entities object
+   * Gives the possibility to append/change/remove settings in the storage entities object
    * before they are delivered to the frontend
    *
    * @param config
@@ -60,5 +60,13 @@ export class ServerNodeInfoApi implements IServerNodeInfo {
   prepareStorageEntities(tables: TableMetadataArgs[]): void {
   }
 
+  /**
+   * Gives the possibility to append/change/remove settings to the free accessible server status
+   * before they are delivered to the frontend
+   *
+   * @param status
+   */
+  prepareServerStatus?(status: any, user: any): void {
+  }
 
 }

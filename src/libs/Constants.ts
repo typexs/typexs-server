@@ -11,10 +11,21 @@ export type ROUTE_TYPE = 'static_files' | 'routing_controller';
 export const C_API = 'api';
 
 /**
+ * Server status controller links
+ */
+export const _API_CTRL_SERVER_PING = '/ping';
+export const API_CTRL_SERVER_PING = _API_CTRL_SERVER_PING;
+
+export const _API_CTRL_SERVER_STATUS = '/status';
+export const API_CTRL_SERVER_STATUS = _API_CTRL_SERVER_STATUS;
+
+
+/**
  * System
  */
 export const _API_CTRL_SYSTEM = '/system';
 // export const API_CTRL_SYSTEM = '/api' + _API_CTRL_SYSTEM;
+
 
 export const PERMISSION_ALLOW_MODULES_VIEW = 'allow modules view';
 export const _API_CTRL_SYSTEM_MODULES = '/modules';
