@@ -204,6 +204,7 @@ class RuntimeInfoControllerSpec {
             'controllers': [
               'DistributedStorageAPIController',
               'FileSystemAPIController',
+              'ServerStatusAPIController',
               'StorageAPIController',
               'SystemAPIController',
               'TasksAPIController'
