@@ -5,5 +5,3 @@ services:
     image: redis:5
     ports:
       - 127.0.0.1:6379:6379
-    volumes:
-      - ./local/redis/db:/data
