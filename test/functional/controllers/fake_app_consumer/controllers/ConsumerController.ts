@@ -1,5 +1,4 @@
-import {Body, Get, JsonController, Post} from "routing-controllers";
-import {Access} from "../../../../../src";
+import {Body, JsonController, Post} from 'routing-controllers';
 
 
 @JsonController()

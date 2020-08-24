@@ -1,11 +1,10 @@
-import {suite, test} from 'mocha-typescript';
+import {suite, test, timeout} from '@testdeck/mocha';
 import {Bootstrap, Injector, RuntimeLoader, Config} from '@typexs/base';
 import {WebServer} from '../../../src/libs/web/WebServer';
-import {C_DEFAULT} from '../../../src/libs/Constants';
+import {C_DEFAULT, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from '../../../src/libs/Constants';
 import * as request from 'supertest';
 import {expect} from 'chai';
 import {IStaticFiles} from '../../../src/libs/web/IStaticFiles';
-import {K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from '../../../src';
 
 process.setMaxListeners(1000);
 Bootstrap._().activateErrorHandling();

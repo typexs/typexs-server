@@ -1,14 +1,14 @@
-import {suite, test, timeout} from 'mocha-typescript';
+import {suite, test, timeout} from '@testdeck/mocha';
 import {Bootstrap, Config, Injector} from '@typexs/base';
 import {API_CTRL_SYSTEM_RUNTIME_NODES, C_API, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
 import {expect} from 'chai';
-import {WebServer} from '../../../src';
 import * as _ from 'lodash';
 import {SpawnHandle} from '../SpawnHandle';
 import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
 import {IEventBusConfiguration} from 'commons-eventbus';
 import {HttpFactory, IHttp} from 'commons-http';
+import {WebServer} from '../../../src/libs/web/WebServer';
 
 const LOG_EVENT = TestHelper.logEnable(false);
 

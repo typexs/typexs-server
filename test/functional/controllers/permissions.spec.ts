@@ -1,12 +1,12 @@
-import {suite, test} from 'mocha-typescript';
+import {suite, test, timeout} from '@testdeck/mocha';
 import {Bootstrap, Injector, RuntimeLoader} from '@typexs/base';
 import {WebServer} from '../../../src/libs/web/WebServer';
-import {C_DEFAULT} from '../../../src/libs/Constants';
+import {C_DEFAULT, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
 import * as request from 'supertest';
 import {expect} from 'chai';
-import {IWebServerInstanceOptions, K_ROUTE_CONTROLLER} from '../../../src';
 import {Action} from 'routing-controllers';
 import {RoutePermissionsHelper} from '../../../src/libs/RoutePermissionsHelper';
+import {IWebServerInstanceOptions} from '../../../src/libs/web/IWebServerInstanceOptions';
 
 @suite('functional/controllers/permissions')
 class PermissionsSpec {

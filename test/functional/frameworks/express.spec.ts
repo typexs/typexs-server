@@ -1,4 +1,4 @@
-// import {suite, test} from 'mocha-typescript';
+// import {suite, test, timeout} from '@testdeck/mocha';
 // import {Express} from '../../../src/libs/web/frameworks/express/Express';
 //
 //

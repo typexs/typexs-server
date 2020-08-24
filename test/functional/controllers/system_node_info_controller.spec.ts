@@ -1,27 +1,21 @@
-import {suite, test, timeout} from 'mocha-typescript';
+import {suite, test, timeout} from '@testdeck/mocha';
 import {Bootstrap, Config, Injector} from '@typexs/base';
 import {
+  API_CTRL_SYSTEM_MODULES,
   API_CTRL_SYSTEM_RUNTIME_INFO,
   API_CTRL_SYSTEM_RUNTIME_NODE,
-  API_CTRL_SYSTEM_RUNTIME_NODES,
+  API_CTRL_SYSTEM_RUNTIME_NODES, API_CTRL_SYSTEM_STORAGES,
   API_CTRL_SYSTEM_WORKERS,
   C_API,
   K_ROUTE_CONTROLLER
 } from '../../../src/libs/Constants';
 import {expect} from 'chai';
-import {
-  API_CTRL_SYSTEM_CONFIG,
-  API_CTRL_SYSTEM_MODULES,
-  API_CTRL_SYSTEM_ROUTES,
-  API_CTRL_SYSTEM_STORAGES,
-  PERMISSION_ALLOW_ROUTES_VIEW,
-  PERMISSION_ALLOW_STORAGE_ENTITY_VIEW,
-  WebServer
-} from '../../../src';
+
 import * as _ from 'lodash';
 import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
 import {HttpFactory, IHttp} from 'commons-http';
+import {WebServer} from '../../../src/libs/web/WebServer';
 
 
 const LOG_EVENT = TestHelper.logEnable(false);
@@ -137,91 +131,6 @@ class RuntimeInfoControllerSpec {
   }
 
 
-  @test @timeout(300000)
-  async 'list routes'() {
-    const url = server.url() + '/' + C_API;
-    let res = await http.get(url + API_CTRL_SYSTEM_ROUTES, {json: true});
-    expect(res).to.not.be.null;
-    res = res.body;
-    expect(res).to.have.length.greaterThan(4);
-    expect(_.find(res, {controllerMethod: 'listRoutes'})).to.deep.eq({
-      context: 'api',
-      route: '/' + C_API + API_CTRL_SYSTEM_ROUTES,
-      method: 'get',
-      params: [],
-      controller: 'SystemAPIController',
-      controllerMethod: 'listRoutes',
-      permissions: [PERMISSION_ALLOW_ROUTES_VIEW],
-      authorized: true
-    });
-    expect(_.find(res, {controllerMethod: 'getStorageEntities'})).to.deep.eq({
-      context: 'api',
-      route: '/api/system/storage/:name/entities',
-      method: 'get',
-      params: [
-        {
-          'index': 0,
-          'name': 'name',
-          'parse': false,
-          'required': true
-        }
-      ],
-      controller: 'SystemAPIController',
-      controllerMethod: 'getStorageEntities',
-      permissions: [PERMISSION_ALLOW_STORAGE_ENTITY_VIEW],
-      authorized: true
-    });
-  }
-
-
-  @test @timeout(300000)
-  async 'list config'() {
-    const url = server.url() + '/' + C_API;
-    let res: any = await http.get(url + API_CTRL_SYSTEM_CONFIG, {json: true});
-    res = res.body;
-    const baseConfig = res.shift();
-    const compare = _.clone(settingsTemplate);
-
-    compare.storage.default.name = 'default';
-    delete compare.storage.default.entities;
-    delete baseConfig.storage.default.entities;
-    expect(baseConfig.storage).to.deep.include(compare.storage);
-
-    expect(baseConfig.server).to.have.deep.eq({
-      'default': {
-        '_debug': false,
-        'fn': 'root',
-        'framework': 'express',
-        'host': 'localhost',
-        'ip': '127.0.0.1',
-        'port': 4500,
-        'protocol': 'http',
-        'routes': [
-          {
-            'authorizationChecker': '',
-            'classTransformer': false,
-            'context': 'api',
-            'controllers': [
-              'DistributedStorageAPIController',
-              'FileSystemAPIController',
-              'ServerStatusAPIController',
-              'StorageAPIController',
-              'SystemAPIController',
-              'TasksAPIController'
-            ],
-            'currentUserChecker': '',
-            'limit': '10mb',
-            'middlewares': [],
-            'routePrefix': 'api',
-            'type': 'routing_controller',
-          }
-        ],
-        'stall': 0,
-        'timeout': 60000,
-        'type': 'web',
-      }
-    });
-  }
 
 
   @test @timeout(300000)

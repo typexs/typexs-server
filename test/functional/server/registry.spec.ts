@@ -1,4 +1,4 @@
-import {suite, test} from 'mocha-typescript';
+import {suite, test, timeout} from '@testdeck/mocha';
 import {ServerRegistry} from '../../../src/libs/server/ServerRegistry';
 
 import {expect} from 'chai';

@@ -1,4 +1,4 @@
-import {suite, test} from 'mocha-typescript';
+import {suite, test, timeout} from '@testdeck/mocha';
 import {expect} from 'chai';
 import {Config, IFileConfigOptions, PlatformUtils} from '@typexs/base';
 import {C_SERVER} from '../../../src/libs/Constants';

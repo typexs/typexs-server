@@ -1,4 +1,4 @@
-import {suite, test, timeout} from 'mocha-typescript';
+import {suite, test, timeout} from '@testdeck/mocha';
 import {Bootstrap, C_STORAGE_DEFAULT, Config, Injector,  IRuntimeLoaderOptions, ITypexsOptions, StorageRef} from '@typexs/base';
 import {
   API_CTRL_STORAGE_DELETE_ENTITIES_BY_CONDITION,
@@ -16,13 +16,13 @@ import {
   K_ROUTE_CONTROLLER
 } from '../../../src/libs/Constants';
 import {expect} from 'chai';
-import {Server} from '../../../src';
 import * as _ from 'lodash';
 import {Driver} from './fake_app_storage/entities/Driver';
 import {TEST_STORAGE_OPTIONS} from '../config';
 import {HttpFactory, IHttp} from 'commons-http';
 import {Car} from './fake_app_storage/entities/Car';
 import {RandomData} from './fake_app_storage/entities/RandomData';
+import {Server} from '../../../src/libs/server/Server';
 
 
 const settingsTemplate: ITypexsOptions & any = {

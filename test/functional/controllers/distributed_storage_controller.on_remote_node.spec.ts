@@ -1,4 +1,4 @@
-import {suite, test, timeout} from 'mocha-typescript';
+import {suite, test, timeout} from '@testdeck/mocha';
 import {Bootstrap, Config, DistributedStorageEntityController, Injector, Log, XS_P_$COUNT} from '@typexs/base';
 import {
   API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITY,
@@ -10,7 +10,6 @@ import {
   K_ROUTE_CONTROLLER
 } from '../../../src/libs/Constants';
 import {expect} from 'chai';
-import {WebServer} from '../../../src';
 import * as _ from 'lodash';
 import {SpawnHandle} from '../SpawnHandle';
 import {TestHelper} from '../TestHelper';
@@ -19,6 +18,7 @@ import {IEventBusConfiguration} from 'commons-eventbus';
 import {HttpFactory, IHttp} from 'commons-http';
 import {DistributedRandomData} from './fake_app_node/entities/DistributedRandomData';
 import {RandomData} from './fake_app_storage/entities/RandomData';
+import {WebServer} from '../../../src/libs/web/WebServer';
 
 const LOG_EVENT = TestHelper.logEnable(false);
 const carList = [

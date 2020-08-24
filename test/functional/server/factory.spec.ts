@@ -1,4 +1,4 @@
-import {suite, test} from 'mocha-typescript';
+import {suite, test} from '@testdeck/mocha';
 
 import {expect} from 'chai';
 import {Injector, PlatformUtils, RuntimeLoader} from '@typexs/base';
@@ -6,8 +6,8 @@ import {IServer} from '../../../src/libs/server/IServer';
 import {IServerInstanceOptions} from '../../../src/libs/server/IServerInstanceOptions';
 import {ServerFactory} from '../../../src/libs/server/ServerFactory';
 import {WebServer} from '../../../src/libs/web/WebServer';
-import {IRoute} from '../../../src';
 import {ServerTmpl} from './classes/ServerTmpl';
+import {IRoute} from '../../../src/libs/server/IRoute';
 
 @suite('functional/server/factory')
 class FactorySpec {

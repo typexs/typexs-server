@@ -1,12 +1,12 @@
-import {suite, test} from 'mocha-typescript';
+import {suite, test, timeout} from '@testdeck/mocha';
 import {Bootstrap, Injector, RuntimeLoader} from '@typexs/base';
 import {WebServer} from '../../../src/libs/web/WebServer';
-import {C_DEFAULT} from '../../../src/libs/Constants';
+import {C_DEFAULT, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
 import * as request from 'supertest';
 import {expect} from 'chai';
-import {IWebServerInstanceOptions, K_ROUTE_CONTROLLER} from '../../../src';
 import * as _ from 'lodash';
 import {CryptUtils} from 'commons-base';
+import {IWebServerInstanceOptions} from '../../../src/libs/web/IWebServerInstanceOptions';
 
 process.setMaxListeners(1000);
 Bootstrap._().activateErrorHandling();

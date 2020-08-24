@@ -1,13 +1,13 @@
-import {suite, test, timeout} from 'mocha-typescript';
+import {suite, test, timeout} from '@testdeck/mocha';
 import {Bootstrap, Config, Injector} from '@typexs/base';
-import {API_CTRL_SERVER_PING, API_CTRL_SERVER_STATUS, C_API, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
+import {API_CTRL_SYSTEM_WORKERS, C_API, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
 import {expect} from 'chai';
-import {WebServer} from '../../../src';
 import * as _ from 'lodash';
 import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
+import {IEventBusConfiguration} from 'commons-eventbus';
 import {HttpFactory, IHttp} from 'commons-http';
-
+import {WebServer} from '../../../src/libs/web/WebServer';
 
 const LOG_EVENT = TestHelper.logEnable(false);
 
@@ -37,7 +37,9 @@ const settingsTemplate: any = {
         routePrefix: 'api'
       }]
     }
-  }
+  },
+  eventbus: {default: <IEventBusConfiguration>{adapter: 'redis', extra: {host: '127.0.0.1', port: 6379}}},
+  workers: {access: [{name: 'TaskQueueWorker', access: 'allow'}]}
 
 };
 
@@ -45,7 +47,7 @@ let bootstrap: Bootstrap = null;
 let server: WebServer = null;
 let http: IHttp = null;
 
-@suite('functional/controllers/server_status_controller') @timeout(300000)
+@suite('functional/controllers/runtime_info_worker_controller') @timeout(300000)
 class RuntimeInfoControllerSpec {
 
 
@@ -79,24 +81,23 @@ class RuntimeInfoControllerSpec {
 
 
   @test
-  async 'ping'() {
+  async 'list workers'() {
     const url = server.url() + '/' + C_API;
-    let res: any = await http.get(url + API_CTRL_SERVER_PING, {json: true});
+    let res: any = await http.get(url + API_CTRL_SYSTEM_WORKERS, {json: true});
     expect(res).to.not.be.null;
     res = res.body;
-    expect(res.time).to.not.be.null;
-    expect(new Date(res.time)).to.be.lte(new Date());
-  }
-
-
-  @test
-  async 'status'() {
-    const url = server.url() + '/' + C_API;
-    let res: any = await http.get(url + API_CTRL_SERVER_STATUS, {json: true});
-    expect(res).to.not.be.null;
-    res = res.body;
-    expect(res.time).to.not.be.null;
-    expect(new Date(res.time)).to.be.lte(new Date());
+    expect(res).to.have.length(1);
+    expect(res[0]).to.deep.eq({
+      name: 'task_queue_worker',
+      className: 'TaskQueueWorker',
+      statistics: {
+        stats: {all: 0, done: 0, running: 0, enqueued: 0, active: 0},
+        paused: false,
+        idle: true,
+        occupied: false,
+        running: false
+      }
+    });
   }
 
 

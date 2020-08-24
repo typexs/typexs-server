@@ -1,7 +1,7 @@
-import {suite, test} from 'mocha-typescript';
+import {suite, test, timeout} from '@testdeck/mocha';
 
 import {expect} from 'chai';
-import {Helper} from '../../../src';
+import {Helper} from '../../../src/libs/Helper';
 
 
 @suite('functional/helper/helper')

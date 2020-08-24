@@ -1,5 +1,5 @@
 // process.env.SQL_LOG = '1';
-import {suite, test, timeout} from 'mocha-typescript';
+import {suite, test, timeout} from '@testdeck/mocha';
 import {Bootstrap, Config, Injector} from '@typexs/base';
 import {
   API_CTRL_TASK_EXEC,
@@ -14,7 +14,6 @@ import {
   K_ROUTE_CONTROLLER
 } from '../../../src/libs/Constants';
 import {expect} from 'chai';
-import {WebServer} from '../../../src';
 import * as _ from 'lodash';
 import {SpawnHandle} from '../SpawnHandle';
 import {TestHelper} from '../TestHelper';
@@ -25,6 +24,7 @@ import {HttpFactory, IHttp} from 'commons-http';
 import {TaskExecutor} from '@typexs/base/libs/tasks/TaskExecutor';
 import {ITaskRunnerResult} from '@typexs/base/libs/tasks/ITaskRunnerResult';
 import {ITaskExectorOptions} from '@typexs/base/libs/tasks/ITaskExectorOptions';
+import {WebServer} from '../../../src/libs/web/WebServer';
 
 const LOG_EVENT = TestHelper.logEnable(false);
 

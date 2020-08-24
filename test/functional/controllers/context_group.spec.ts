@@ -1,4 +1,4 @@
-import {suite, test} from 'mocha-typescript';
+import {suite, test, timeout} from '@testdeck/mocha';
 import {ClassLoader, MetaArgs} from '@typexs/base';
 import {expect} from 'chai';
 import * as _ from 'lodash';
