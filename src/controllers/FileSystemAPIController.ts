@@ -4,8 +4,8 @@ import {_API_CTRL_FILESYSTEM_READ, API_CTRL_FILESYSTEM, C_API, PERMISSION_ACCESS
 import {FileSystemExchange, Inject} from '@typexs/base';
 import {Access} from '../decorators/Access';
 import {IFileOptions, IFileSelectOptions} from '@typexs/base/adapters/exchange/filesystem/IFileOptions';
-import {HttpResponseError} from '..';
 import * as _ from 'lodash';
+import {HttpResponseError} from '../libs/exceptions/HttpResponseError';
 
 /**
  * TODO Implements file exchange between client and server (supports distributed mode)

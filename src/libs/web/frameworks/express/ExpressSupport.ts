@@ -4,7 +4,7 @@ import {IRoutingController} from '../../IRoutingController';
 
 import * as http from 'http';
 import {IRoute} from '../../../server/IRoute';
-import {IApplication} from '../../../../';
+import {IApplication} from '../../../server/IApplication';
 
 
 export class ExpressSupport implements IFrameworkSupport {

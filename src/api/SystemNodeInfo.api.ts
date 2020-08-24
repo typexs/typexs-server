@@ -1,14 +1,14 @@
 import {TableMetadataArgs} from 'typeorm/metadata-args/TableMetadataArgs';
 
-import {IRoute} from '..';
 import {IModule, IStorageOptions} from '@typexs/base';
-import {IServerNodeInfo} from './IServerNodeInfo';
+import {ISystemNodeInfo} from './ISystemNodeInfo';
+import {IRoute} from '../libs/server/IRoute';
 
 
 /**
  * Abstract declaration for the api used by invoker
  */
-export class ServerNodeInfoApi implements IServerNodeInfo {
+export class SystemNodeInfoApi implements ISystemNodeInfo {
 
   /**
    * Return key list which should be removed before configuration
@@ -32,7 +32,7 @@ export class ServerNodeInfoApi implements IServerNodeInfo {
    * before they are delivered to the frontend
    * @param routes
    */
-  prepareRoutes(routes: IRoute[]): void {
+  prepareRoutes(routes: IRoute[], user: any): void {
   }
 
   /**

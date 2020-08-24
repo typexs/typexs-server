@@ -49,7 +49,7 @@ import {HttpResponseError} from '../libs/exceptions/HttpResponseError';
 import {IBuildOptions, IEntityRef, IEntityRefMetadata} from 'commons-schema-api';
 import {Expressions} from 'commons-expressions';
 import {IStorageRefMetadata} from '../libs/storage_api/IStorageRefMetadata';
-import {ServerNodeInfoApi} from '../api/ServerNodeInfo.api';
+import {SystemNodeInfoApi} from '../api/SystemNodeInfo.api';
 import {StorageAPIControllerApi} from '../api/StorageAPIController.api';
 import {JsonUtils, TreeUtils, WalkValues} from 'commons-base';
 import {IDeleteOptions} from '@typexs/base/libs/storage/framework/IDeleteOptions';
@@ -598,7 +598,7 @@ export class StorageAPIController {
     }
 
     filterKeys = ['user', 'username', 'password'];
-    const res: string[][] = <string[][]><any>this.invoker.use(ServerNodeInfoApi).filterConfigKeys();
+    const res: string[][] = <string[][]><any>this.invoker.use(SystemNodeInfoApi).filterConfigKeys();
     if (res && _.isArray(res)) {
       filterKeys = _.uniq(_.concat(filterKeys, ...res.filter(x => _.isArray(x))).filter(x => !_.isEmpty(x)));
     }

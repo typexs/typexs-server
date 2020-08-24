@@ -8,6 +8,19 @@ export const K_ROUTE_STATIC = 'static_files';
 export const K_ROUTE_CONTROLLER = 'routing_controller';
 export type ROUTE_TYPE = 'static_files' | 'routing_controller';
 
+
+export const K_CONFIG_ANONYMOUS_ALLOW = 'config.anonymous.allow';
+
+/**
+ * Access key for config key permissions, the logic is
+ *
+ * config:
+ *  permissions:
+ *    'key.to.secure':
+ *      - 'allow this some stuff'
+ */
+export const K_CONFIG_PERMISSIONS = 'config.permissions';
+
 export const C_API = 'api';
 
 /**
@@ -19,6 +32,22 @@ export const API_CTRL_SERVER_PING = _API_CTRL_SERVER_PING;
 export const _API_CTRL_SERVER_STATUS = '/status';
 export const API_CTRL_SERVER_STATUS = _API_CTRL_SERVER_STATUS;
 
+// moved from system in 1.0.4 cause this is a server context
+// export const PERMISSION_SERVER_ROUTES_VIEW = 'allow routes view';
+export const _API_CTRL_SERVER_ROUTES = '/routes';
+export const API_CTRL_SERVER_ROUTES = _API_CTRL_SERVER_ROUTES;
+
+export const _API_CTRL_SERVER_CONFIG = '/config';
+export const API_CTRL_SERVER_CONFIG = _API_CTRL_SERVER_CONFIG;
+
+export const _API_CTRL_SERVER_CONFIG_KEY = '/config/:key';
+export const API_CTRL_SERVER_CONFIG_KEY = _API_CTRL_SERVER_CONFIG_KEY;
+
+
+/**
+ * User
+ */
+export const DEFAULT_ANONYMOUS = '__DEFAULT_ANONYMOUS__';
 
 /**
  * System
@@ -31,13 +60,9 @@ export const PERMISSION_ALLOW_MODULES_VIEW = 'allow modules view';
 export const _API_CTRL_SYSTEM_MODULES = '/modules';
 export const API_CTRL_SYSTEM_MODULES = _API_CTRL_SYSTEM + _API_CTRL_SYSTEM_MODULES;
 
-export const PERMISSION_ALLOW_ROUTES_VIEW = 'allow routes view';
-export const _API_CTRL_SYSTEM_ROUTES = '/routes';
-export const API_CTRL_SYSTEM_ROUTES = _API_CTRL_SYSTEM + _API_CTRL_SYSTEM_ROUTES;
-
-export const PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW = 'allow global config view';
-export const _API_CTRL_SYSTEM_CONFIG = '/config';
-export const API_CTRL_SYSTEM_CONFIG = _API_CTRL_SYSTEM + _API_CTRL_SYSTEM_CONFIG;
+// export const PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW = 'allow global config view';
+// export const _API_CTRL_SYSTEM_CONFIG = '/config';
+// export const API_CTRL_SYSTEM_CONFIG = _API_CTRL_SYSTEM + _API_CTRL_SYSTEM_CONFIG;
 
 export const PERMISSION_ALLOW_STORAGES_VIEW = 'allow storages view';
 export const _API_CTRL_SYSTEM_STORAGES = '/storages';

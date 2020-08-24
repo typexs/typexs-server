@@ -11,11 +11,11 @@ import {Config} from '@typexs/base';
 import * as http from 'http';
 import {IRoute} from '../../../server/IRoute';
 import {C_DEFAULT, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from '../../../Constants';
-import {IApplication} from '../../../../';
 import {ActionMetadataArgs} from 'routing-controllers/metadata/args/ActionMetadataArgs';
 import {ActionType} from 'routing-controllers/metadata/types/ActionType';
 import {RoutePermissionsHelper} from '../../../RoutePermissionsHelper';
 import * as path from 'path';
+import {IApplication} from '../../../server/IApplication';
 
 // import * as bodyParser from "body-parser";
 

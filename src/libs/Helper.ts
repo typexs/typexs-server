@@ -1,10 +1,18 @@
 import * as _ from 'lodash';
-import {C_DEFAULT} from './Constants';
+import {C_DEFAULT, K_META_CONTEXT_ARGS} from './Constants';
 import {MetaArgs} from 'commons-base/browser';
-import {K_META_CONTEXT_ARGS} from './Constants';
-import {Stats} from 'fs';
 import * as fs from 'fs';
+import {Stats} from 'fs';
 
+
+export interface WalkValues {
+  value: any;
+  key: string | number;
+  index: number;
+  location: any;
+  parent: any;
+  isLeaf: boolean;
+}
 
 export class Helper {
 
@@ -156,6 +164,59 @@ export class Helper {
     };
 
     return do_while_loop();
+  }
+
+
+  // todo move this to @allgemein/base
+  static async walk(root: any, fn: (x: WalkValues) => void) {
+    async function walk(obj: any, parent: any = null, key: string | number = null, location: any[] = []) {
+      if (obj === null || obj === undefined) {
+        return;
+      }
+      if (_.isArray(obj)) {
+        for (let j = 0; j < obj.length; j++) {
+          const el = obj[j];
+          const isLeaf = !_.isArray(el) && !_.isPlainObject(el);
+          await fn({
+            value: el,
+            key: key,
+            index: j,
+            location: [...location, ...[j]],
+            parent: obj,
+            isLeaf: isLeaf
+          });
+          if (!isLeaf) {
+            await walk(el, j, el, key ? [...location, ...[key], ...[j]] : [...location, ...[j]]);
+          }
+        }
+      } else if (_.isPlainObject(obj)) {
+        for (const _key of _.keys(obj)) {
+          const isLeaf = !_.isArray(obj[_key]) && !_.isPlainObject(obj[_key]);
+          await fn({
+            value: obj[_key],
+            key: _key,
+            parent: obj,
+            index: null,
+            location: [...location, ...[_key]],
+            isLeaf: isLeaf
+          });
+          if (!isLeaf) {
+            await walk(obj[_key], obj, _key, [...location, ...[_key]]);
+          }
+        }
+      } else {
+        await fn({
+          value: obj,
+          key: key,
+          parent: parent,
+          index: null,
+          location: [...location],
+          isLeaf: true
+        });
+      }
+    }
+
+    await walk(root);
   }
 
 }

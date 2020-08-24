@@ -1,5 +1,5 @@
 import {IApplication} from './IApplication';
-import {ROUTE} from '../..';
+import {ROUTE} from '../web/IWebServerInstanceOptions';
 
 
 

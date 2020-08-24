@@ -56,8 +56,14 @@ export * from 'routing-controllers/http-error/MethodNotAllowedError';
 export * from 'routing-controllers/http-error/NotFoundError';
 export * from 'routing-controllers/http-error/UnauthorizedError';
 
-export * from './api/IServerNodeInfo';
-export * from './api/ServerNodeInfo.api';
+/**
+ * Implemented APIs
+ */
+export * from './api/ISystemNodeInfo';
+export * from './api/SystemNodeInfo.api';
+
+export * from './api/IServerStatus';
+export * from './api/ServerStatus.api';
 
 /**
  * Used for results modifications returned by the controller

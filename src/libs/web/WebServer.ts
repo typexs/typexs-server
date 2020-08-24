@@ -8,7 +8,7 @@ import {Server} from './../server/Server';
 
 
 import {IFrameworkSupport} from './frameworks/IFrameworkSupport';
-import {C_DEFAULT} from '../Constants';
+import {C_DEFAULT, DEFAULT_ANONYMOUS, K_CORE_LIB_CONTROLLERS, K_ROUTE_CACHE, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from '../Constants';
 import {FrameworkSupportFactory} from './frameworks/FrameworkSupportFactory';
 import {IStaticFiles} from './IStaticFiles';
 import {IRoutingController} from './IRoutingController';
@@ -16,8 +16,8 @@ import {Helper} from './../Helper';
 import {IWebServerInstanceOptions} from './IWebServerInstanceOptions';
 import {IServer} from '../server/IServer';
 import {IMiddleware} from '../server/IMiddleware';
-import {IRoute, K_CORE_LIB_CONTROLLERS, K_ROUTE_CACHE, K_ROUTE_CONTROLLER, K_ROUTE_STATIC} from '../../';
 import {MatchUtils} from '@typexs/base/libs/utils/MatchUtils';
+import {IRoute} from '../server/IRoute';
 
 
 useContainer(Injector.getContainer());
@@ -170,7 +170,7 @@ export class WebServer extends Server implements IServer {
     }
     if (!_.has(options, 'currentUserChecker')) {
       options.currentUserChecker = (action: Action) => {
-        return {};
+        return DEFAULT_ANONYMOUS;
       };
     }
   }

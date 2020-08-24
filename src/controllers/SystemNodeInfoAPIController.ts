@@ -13,14 +13,10 @@ import {
   Workers
 } from '@typexs/base';
 import {Get, JsonController, Param, QueryParam} from 'routing-controllers';
-import {ServerRegistry} from './../libs/server/ServerRegistry';
-import {IRoute} from './../libs/server/IRoute';
 import {getMetadataArgsStorage as ormMetadataArgsStorage} from 'typeorm';
 import {
   _API_CTRL_SYSTEM,
-  _API_CTRL_SYSTEM_CONFIG,
   _API_CTRL_SYSTEM_MODULES,
-  _API_CTRL_SYSTEM_ROUTES,
   _API_CTRL_SYSTEM_RUNTIME_INFO,
   _API_CTRL_SYSTEM_RUNTIME_NODE,
   _API_CTRL_SYSTEM_RUNTIME_NODES,
@@ -28,9 +24,7 @@ import {
   _API_CTRL_SYSTEM_STORAGES,
   _API_CTRL_SYSTEM_WORKERS,
   C_API,
-  PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW,
   PERMISSION_ALLOW_MODULES_VIEW,
-  PERMISSION_ALLOW_ROUTES_VIEW,
   PERMISSION_ALLOW_RUNTIME_INFO_VIEW,
   PERMISSION_ALLOW_RUNTIME_NODE_VIEW,
   PERMISSION_ALLOW_RUNTIME_NODES_VIEW,
@@ -39,15 +33,16 @@ import {
   PERMISSION_ALLOW_STORAGES_VIEW,
   PERMISSION_ALLOW_WORKERS_INFO
 } from '../libs/Constants';
-import {ServerNodeInfoApi} from '../api/ServerNodeInfo.api';
+import {SystemNodeInfoApi} from '../api/SystemNodeInfo.api';
 import {IWorkerInfo} from '@typexs/base/libs/worker/IWorkerInfo';
 import {TreeUtils, WalkValues} from 'commons-base';
 import {ContextGroup} from '../decorators/ContextGroup';
 import {Access} from '../decorators/Access';
+import {ServerStatusApi} from '../api/ServerStatus.api';
 
 @ContextGroup(C_API)
 @JsonController(_API_CTRL_SYSTEM)
-export class SystemAPIController {
+export class SystemNodeInfoAPIController {
 
   @Inject(System.NAME)
   system: System;
@@ -55,8 +50,6 @@ export class SystemAPIController {
   @Inject(RuntimeLoader.NAME)
   loader: RuntimeLoader;
 
-  @Inject(ServerRegistry.NAME)
-  serverRegistry: ServerRegistry;
 
   @Inject(Storage.NAME)
   storage: Storage;
@@ -101,63 +94,18 @@ export class SystemAPIController {
   }
 
 
-  @Access(PERMISSION_ALLOW_ROUTES_VIEW)
-  @Get(_API_CTRL_SYSTEM_ROUTES)
-  listRoutes(): IRoute[] {
-    let routes: IRoute[] = [];
-    const instanceNames = this.serverRegistry.getInstanceNames();
-    for (const instanceName of instanceNames) {
-      const instance = this.serverRegistry.get(instanceName);
-      routes = _.concat(routes, instance.getRoutes());
-    }
-    this.invoker.use(ServerNodeInfoApi).prepareRoutes(routes);
-    return routes;
-  }
-
 
   @Access(PERMISSION_ALLOW_MODULES_VIEW)
   @Get(_API_CTRL_SYSTEM_MODULES)
   listModules(): IModule[] {
     const modules = this.loader.registry.modules();
-    this.invoker.use(ServerNodeInfoApi).prepareModules(modules);
+    this.invoker.use(SystemNodeInfoApi).prepareModules(modules);
     return modules;
   }
 
 
-  @Access(PERMISSION_ALLOW_GLOBAL_CONFIG_VIEW)
-  @Get(_API_CTRL_SYSTEM_CONFIG)
-  getConfig(): any {
-    const _orgCfg = Config.get();
-    const cfg = _.cloneDeepWith(_orgCfg);
-    const filterKeys = this.getFilterKeys();
-
-    TreeUtils.walk(cfg, (x: WalkValues) => {
-      // TODO make this list configurable! system.info.hide.keys!
-      if (_.isString(x.key) && filterKeys.indexOf(x.key) !== -1) {
-        delete x.parent[x.key];
-      }
-      if (_.isFunction(x.value)) {
-        if (_.isArray(x.parent)) {
-          x.parent[x.index] = ClassLoader.getClassName(x.value);
-        } else {
-          x.parent[x.key] = ClassLoader.getClassName(x.value);
-        }
-      }
-    });
-    this.invoker.use(ServerNodeInfoApi).prepareConfig(cfg);
-    return cfg;
-  }
 
 
-  getFilterKeys(): string[] {
-    // TODO cache this!
-    let filterKeys = C_CONFIG_FILTER_KEYS; // get them from base/ConfigUtils
-    const res: string[][] = <string[][]><any>this.invoker.use(ServerNodeInfoApi).filterConfigKeys();
-    if (res && _.isArray(res)) {
-      filterKeys = _.uniq(_.concat(filterKeys, ...res.filter(x => _.isArray(x))).filter(x => !_.isEmpty(x)));
-    }
-    return filterKeys;
-  }
 
 
   @Access(PERMISSION_ALLOW_STORAGES_VIEW)
@@ -177,7 +125,7 @@ export class SystemAPIController {
         }
       }
     });
-    this.invoker.use(ServerNodeInfoApi).prepareStorageInfo(options);
+    this.invoker.use(SystemNodeInfoApi).prepareStorageInfo(options);
     return options;
   }
 
@@ -208,9 +156,19 @@ export class SystemAPIController {
         }
       }
     });
-    this.invoker.use(ServerNodeInfoApi).prepareStorageEntities(tables);
+    this.invoker.use(SystemNodeInfoApi).prepareStorageEntities(tables);
     return tables;
   }
 
+
+  private getFilterKeys(): string[] {
+    // TODO cache this!
+    let filterKeys = C_CONFIG_FILTER_KEYS; // get them from base/ConfigUtils
+    const res: string[][] = <string[][]><any>this.invoker.use(ServerStatusApi).filterConfigKeys();
+    if (res && _.isArray(res)) {
+      filterKeys = _.uniq(_.concat(filterKeys, ...res.filter(x => _.isArray(x))).filter(x => !_.isEmpty(x)));
+    }
+    return filterKeys;
+  }
 
 }

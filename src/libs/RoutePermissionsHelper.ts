@@ -20,7 +20,7 @@ export class RoutePermissionsHelper {
       actionMetadatas.map(p => p.permissions && _.isArray(p.permissions) ? permissions = permissions.concat(p.permissions) : null);
       if (!_.isEmpty(permissions)) {
         return _.map(permissions, right => {
-          Object.keys(params).forEach(p => {
+          _.keys(params).forEach(p => {
             right = right.replace(':' + p, params[p]);
           });
           return right;
