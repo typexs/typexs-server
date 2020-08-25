@@ -1,11 +1,18 @@
 import {Get, JsonController, QueryParam} from 'routing-controllers';
 import {ContextGroup} from '../decorators/ContextGroup';
-import {_API_CTRL_FILESYSTEM_READ, API_CTRL_FILESYSTEM, C_API, PERMISSION_ACCESS_FILES} from '../libs/Constants';
+import {
+  _API_CTRL_FILESYSTEM_READ,
+  API_CTRL_FILESYSTEM,
+  C_API,
+  PERMISSION_ACCESS_FILE_PATH,
+  PERMISSION_ACCESS_FILES
+} from '../libs/Constants';
 import {FileSystemExchange, Inject} from '@typexs/base';
 import {Access} from '../decorators/Access';
 import {IFileOptions, IFileSelectOptions} from '@typexs/base/adapters/exchange/filesystem/IFileOptions';
 import * as _ from 'lodash';
 import {HttpResponseError} from '../libs/exceptions/HttpResponseError';
+import {CurrentUser} from 'routing-controllers/index';
 
 /**
  * TODO Implements file exchange between client and server (supports distributed mode)
@@ -49,13 +56,16 @@ export class FileSystemAPIController {
   /**
    * TODO works only with exchangemessageworker online
    *
+   * TODO check access permissions for paths?
+   *
    * @param path
    * @param opts
    */
-  @Access([PERMISSION_ACCESS_FILES])
+  @Access([PERMISSION_ACCESS_FILES, PERMISSION_ACCESS_FILE_PATH])
   @Get(_API_CTRL_FILESYSTEM_READ)
   getFile(@QueryParam('path') path: string,
           @QueryParam('opts') opts: IFileSelectOptions = {},
+          @CurrentUser() user?: any
   ) {
     if (!path) {
       throw new HttpResponseError(['fs', 'file'], 'path is empty');

@@ -104,10 +104,9 @@ export class SystemNodeInfoAPIController {
   }
 
 
-
-
-
-
+  /**
+   * TODO move to StorageAPIController
+   */
   @Access(PERMISSION_ALLOW_STORAGES_VIEW)
   @Get(_API_CTRL_SYSTEM_STORAGES)
   getStorageInfo(): any {
@@ -130,6 +129,9 @@ export class SystemNodeInfoAPIController {
   }
 
 
+  /**
+   * TODO move to StorageAPIController
+   */
   @Access(PERMISSION_ALLOW_STORAGE_ENTITY_VIEW)
   @Get('/storage/:name/entities')
   getStorageEntities(@Param('name') name: string): any[] {

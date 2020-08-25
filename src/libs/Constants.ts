@@ -262,9 +262,12 @@ export const PERMISSION_ALLOW_TASKS_RUNNING = 'task running_tasks view';
  * File System
  */
 export const API_CTRL_FILESYSTEM = '/fs';
+
 export const _API_CTRL_FILESYSTEM_READ = '/read';
 export const API_CTRL_FILESYSTEM_READ = API_CTRL_FILESYSTEM + _API_CTRL_FILESYSTEM_READ;
+
 export const PERMISSION_ACCESS_FILES = 'access files';
 
+export const PERMISSION_ACCESS_FILE_PATH = 'access files on :path';
 
 
