@@ -1,6 +1,7 @@
 import {suite, test, timeout} from '@testdeck/mocha';
 import {Bootstrap, C_STORAGE_DEFAULT, Config, Injector,  IRuntimeLoaderOptions, ITypexsOptions, StorageRef} from '@typexs/base';
 import {
+  API_CTRL_STORAGE_AGGREGATE_ENTITY,
   API_CTRL_STORAGE_DELETE_ENTITIES_BY_CONDITION,
   API_CTRL_STORAGE_DELETE_ENTITY,
   API_CTRL_STORAGE_FIND_ENTITY,
@@ -472,7 +473,7 @@ class Storage_api_controllerSpec {
   async 'aggregate entities'() {
     let res = await http.get(URL + '/api' +
 
-      API_CTRL_STORAGE_FIND_ENTITY.replace(':name', RandomData.name) + '?aggr=' +
+      API_CTRL_STORAGE_AGGREGATE_ENTITY.replace(':name', RandomData.name) + '?aggr=' +
       JSON.stringify([
         {$match: {floatValue: {$gt: 2}}},
         {$group: {_id: '$bool', sum: {$sum: '$floatValue'}}},
