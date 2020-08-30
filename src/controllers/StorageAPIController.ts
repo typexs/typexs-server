@@ -19,6 +19,7 @@ import {
 } from '@typexs/base';
 import {EntitySchema} from 'typeorm';
 import {
+  _API_CTRL_STORAGE_AGGREGATE_ENTITY,
   _API_CTRL_STORAGE_DELETE_ENTITIES_BY_CONDITION,
   _API_CTRL_STORAGE_DELETE_ENTITY,
   _API_CTRL_STORAGE_FIND_ENTITY,
@@ -32,7 +33,8 @@ import {
   _API_CTRL_STORAGE_UPDATE_ENTITIES_BY_CONDITION,
   _API_CTRL_STORAGE_UPDATE_ENTITY,
   API_CTRL_STORAGE_GET_ENTITY,
-  API_CTRL_STORAGE_PREFIX, C_API,
+  API_CTRL_STORAGE_PREFIX,
+  C_API,
   PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY,
   PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN,
   PERMISSION_ALLOW_ACCESS_STORAGE_METADATA,
@@ -171,7 +173,6 @@ export class StorageAPIController {
     throw new NotYetImplementedError();
   }
 
-
   /**
    * Run a query for entity or an aggregation
    */
@@ -179,15 +180,45 @@ export class StorageAPIController {
     PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY,
     PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN])
   @Get(_API_CTRL_STORAGE_FIND_ENTITY)
-  async query(
-    @Param('name') name: string,
-    @QueryParam('query') query: string,
-    @QueryParam('aggr') aggr: string,
-    @QueryParam('sort') sort: string = null,
-    @QueryParam('limit') limit: number = 50,
-    @QueryParam('offset') offset: number = 0,
-    @QueryParam('opts') opts: IFindOptions = {},
-    @CurrentUser() user: any
+  query(@Param('name') name: string,
+        @QueryParam('query') query: string,
+        @QueryParam('sort') sort: string = null,
+        @QueryParam('limit') limit: number = 50,
+        @QueryParam('offset') offset: number = 0,
+        @QueryParam('opts') opts: IFindOptions = {},
+        @CurrentUser() user: any) {
+    return this._query(name, query, null, sort, limit, offset, opts, user);
+  }
+
+  /**
+   * Run a query for entity or an aggregation
+   */
+  @Access([
+    PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY,
+    PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN])
+  @Get(_API_CTRL_STORAGE_AGGREGATE_ENTITY)
+  aggregate(@Param('name') name: string,
+            @QueryParam('aggr') aggr: string,
+            @QueryParam('sort') sort: string = null,
+            @QueryParam('limit') limit: number = 50,
+            @QueryParam('offset') offset: number = 0,
+            @QueryParam('opts') opts: IFindOptions = {},
+            @CurrentUser() user: any) {
+    return this._query(name, null, aggr, sort, limit, offset, opts, user);
+  }
+
+  /**
+   * Run a query for entity or an aggregation
+   */
+  private async _query(
+    name: string,
+    query: string,
+    aggr: string,
+    sort: string = null,
+    limit: number = 50,
+    offset: number = 0,
+    opts: IFindOptions = {},
+    user: any
   ) {
     const [entityRef, controller] = this.getControllerForEntityName(name);
 
@@ -291,17 +322,6 @@ export class StorageAPIController {
     }
 
     const [entityRef, controller] = this.getControllerForEntityName(name);
-
-    // try {
-    //   this.invoker.use(StorageAPIControllerApi).prepareParams('get', entityRef, {
-    //     name: name,
-    //     id: id,
-    //     opts: opts,
-    //     user: user,
-    //   });
-    // } catch (e) {
-    //   throw new HttpResponseError(['storage', 'get'], e.message);
-    // }
 
     const options: IFindOptions = {
       limit: 0
