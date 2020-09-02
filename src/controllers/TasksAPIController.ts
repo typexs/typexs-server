@@ -13,7 +13,8 @@ import {
   _API_CTRL_TASKS_METADATA,
   _API_CTRL_TASKS_RUNNERS_INFO,
   _API_CTRL_TASKS_RUNNING,
-  _API_CTRL_TASKS_RUNNING_ON_NODE, C_API,
+  _API_CTRL_TASKS_RUNNING_ON_NODE,
+  C_API,
   PERMISSION_ALLOW_TASK_EXEC,
   PERMISSION_ALLOW_TASK_EXEC_PATTERN,
   PERMISSION_ALLOW_TASK_GET_METADATA,
@@ -32,6 +33,7 @@ import {TaskExecutor} from '@typexs/base/libs/tasks/TaskExecutor';
 import {IError} from '@typexs/base/libs/exceptions/IError';
 import {ContextGroup} from '../decorators/ContextGroup';
 import {Access} from '../decorators/Access';
+import {K_INST_ID, K_NODE_ID} from '@typexs/base/libs/messaging/Constants';
 
 @ContextGroup(C_API)
 @JsonController(_API_CTRL_TASKS)
@@ -202,21 +204,35 @@ export class TasksAPIController {
                       @Param('runnerId') runnerId: string,
                       @QueryParam('limit') limitLine: number = null,
                       @QueryParam('offset') offsetLine: number = null,
-                      @QueryParam('tail') tail: number = 50) {
+                      @QueryParam('tail') tail: number = 50,
+                      @QueryParam('options') options: any = {}) {
+
+    let _opts = options || {};
+    _opts = _.defaults(_opts, <IMessageOptions>{
+      filterErrors: false,
+      outputMode: 'only_value',
+      targetIds: [nodeId],
+      tail: tail,
+      offset: offsetLine,
+      limit: limitLine
+    });
 
     try {
-      const responses = await this.taskExchange.getLogFile(runnerId,
-        {
-          targetIds: [nodeId],
-          outputMode: 'only_value',
-          filterErrors: true,
-          tail: tail,
-          offset: offsetLine,
-          limit: limitLine
-        });
+      const responses = await this.taskExchange.getLogFile(runnerId, _opts);
+      for (let i = 0; i < responses.length; i++) {
+        const response = responses[i];
+        if (response instanceof Error) {
+          responses[i] = {
+            error: response.name,
+            message: response.message,
+            nodeId: response[K_NODE_ID],
+            instNr: response[K_INST_ID],
+          };
+        }
+      }
       return responses;
     } catch (e) {
-      throw new HttpError(404, e.message);
+      throw new InternalServerError(e.message);
     }
 
 
