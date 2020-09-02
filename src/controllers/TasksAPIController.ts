@@ -34,6 +34,7 @@ import {IError} from '@typexs/base/libs/exceptions/IError';
 import {ContextGroup} from '../decorators/ContextGroup';
 import {Access} from '../decorators/Access';
 import {K_INST_ID, K_NODE_ID} from '@typexs/base/libs/messaging/Constants';
+import {Helper} from '..';
 
 @ContextGroup(C_API)
 @JsonController(_API_CTRL_TASKS)
@@ -219,17 +220,7 @@ export class TasksAPIController {
 
     try {
       const responses = await this.taskExchange.getLogFile(runnerId, _opts);
-      for (let i = 0; i < responses.length; i++) {
-        const response = responses[i];
-        if (response instanceof Error) {
-          responses[i] = {
-            error: response.name,
-            message: response.message,
-            nodeId: response[K_NODE_ID],
-            instNr: response[K_INST_ID],
-          };
-        }
-      }
+      Helper.convertError(responses);
       return responses;
     } catch (e) {
       throw new InternalServerError(e.message);
@@ -258,6 +249,7 @@ export class TasksAPIController {
     });
     try {
       const status = await this.taskExchange.getStatus(runnerId, _opts);
+      Helper.convertError(status);
       if (_.isArray(status) && _opts.outputMode === 'only_value') {
         return status.filter(x => !!x);
       }
@@ -305,6 +297,7 @@ export class TasksAPIController {
     });
     try {
       const results = await this.taskExchange.getRunningTasks(_opts);
+      Helper.convertError(results);
       if (_.isArray(results) && _opts.outputMode === 'only_value') {
         return _.concat([], ...results.filter(x => x && !_.isEmpty(x)));
       }
@@ -331,6 +324,7 @@ export class TasksAPIController {
     });
     try {
       const results = await this.taskExchange.getRunners(_opts);
+      Helper.convertError(results);
       if (_.isArray(results) && _opts.outputMode === 'only_value') {
         return _.concat([], ...results.filter(x => x && !_.isEmpty(x)));
       }

@@ -3,6 +3,7 @@ import {C_DEFAULT, K_META_CONTEXT_ARGS} from './Constants';
 import {MetaArgs} from 'commons-base/browser';
 import * as fs from 'fs';
 import {Stats} from 'fs';
+import {K_INST_ID, K_NODE_ID} from '@typexs/base/libs/messaging/Constants';
 
 
 export interface WalkValues {
@@ -217,6 +218,23 @@ export class Helper {
     }
 
     await walk(root);
+  }
+
+
+  static convertError(responses: any[]) {
+    if (_.isArray(responses)) {
+      for (let i = 0; i < responses.length; i++) {
+        const response = responses[i];
+        if (response instanceof Error) {
+          responses[i] = {
+            error: response.name,
+            message: response.message,
+            nodeId: response[K_NODE_ID],
+            instNr: response[K_INST_ID],
+          };
+        }
+      }
+    }
   }
 
 }

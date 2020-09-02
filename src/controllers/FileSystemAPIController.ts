@@ -13,6 +13,7 @@ import {IFileOptions, IFileSelectOptions} from '@typexs/base/adapters/exchange/f
 import * as _ from 'lodash';
 import {HttpResponseError} from '../libs/exceptions/HttpResponseError';
 import {CurrentUser} from 'routing-controllers/index';
+import {Helper} from '..';
 
 /**
  * TODO Implements file exchange between client and server (supports distributed mode)
@@ -63,7 +64,7 @@ export class FileSystemAPIController {
    */
   @Access([PERMISSION_ACCESS_FILES, PERMISSION_ACCESS_FILE_PATH])
   @Get(_API_CTRL_FILESYSTEM_READ)
-  getFile(@QueryParam('path') path: string,
+  async getFile(@QueryParam('path') path: string,
           @QueryParam('opts') opts: IFileSelectOptions = {},
           @CurrentUser() user?: any
   ) {
@@ -76,7 +77,9 @@ export class FileSystemAPIController {
     FileSystemAPIController.checkOptions(opts, options);
 
     try {
-      return this.fsExchange.file(options);
+      const results = await this.fsExchange.file(options);
+      Helper.convertError(results);
+      return results;
     } catch (e) {
       throw new HttpResponseError(['fs', 'file'], e.message);
     }
