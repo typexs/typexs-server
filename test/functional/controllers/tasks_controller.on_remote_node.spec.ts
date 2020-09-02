@@ -25,6 +25,7 @@ import {TaskExecutor} from '@typexs/base/libs/tasks/TaskExecutor';
 import {ITaskRunnerResult} from '@typexs/base/libs/tasks/ITaskRunnerResult';
 import {ITaskExectorOptions} from '@typexs/base/libs/tasks/ITaskExectorOptions';
 import {WebServer} from '../../../src/libs/web/WebServer';
+import {IMessageOptions} from '@typexs/base/index';
 
 const LOG_EVENT = TestHelper.logEnable(false);
 
@@ -476,13 +477,11 @@ class TasksControllerSpec {
     // console.log(inspect(event, null, 10));
 
     const _urlLog = URL + '/api' + API_CTRL_TASK_LOG
-      .replace(':nodeId', event.nodeId)
-      .replace(':runnerId', event.id);
+        .replace(':nodeId', event.nodeId)
+        .replace(':runnerId', event.id) +
+      '?options=' + JSON.stringify(<IMessageOptions>{filterErrors: true});
 
     const taskEvent = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
-    // expect(taskEvent).to.not.be.null;
-    // taskEvent = taskEvent.body;
-    // console.log(inspect(taskEvent, null, 10));
     expect(taskEvent).to.have.length(1);
     const te = taskEvent.shift();
     expect(te).to.contain('"message":"taskRef start: simple_task"');
@@ -490,19 +489,56 @@ class TasksControllerSpec {
 
 
   @test
-  async 'error on try get remote log content'() {
+  async 'error on try get remote log content; cause wrong task id'() {
     const _urlLog = URL + '/api' + API_CTRL_TASK_LOG
       .replace(':nodeId', 'fake_app_node_tasks')
       .replace(':runnerId', 'none_existing_runnerid');
 
-    const taskEvent = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
-    // expect(taskEvent).to.not.be.null;
-    // taskEvent = taskEvent.body;
-    // console.log(inspect(taskEvent, null, 10));
-    expect(taskEvent).to.have.length(1);
-    const te = taskEvent.shift();
-    expect(te).to.contain('"message":"taskRef start: simple_task"');
+    const taskEvent = (await request.get(_urlLog, {json: true, passBody: true, retry: 0})) as unknown as any[];
+    expect(taskEvent).to.be.deep.eq([
+      {
+        'error': 'Error',
+        'instNr': 0,
+        'message': 'access to path not allowed',
+        'nodeId': 'server',
+      },
+      {
+        'error': 'Error',
+        'instNr': 0,
+        'message': 'file not found',
+        'nodeId': 'fake_app_node_tasks'
+      }
+    ]);
   }
+
+
+  @test
+  async 'error on try get remote log content; cause filesystem access'() {
+    const exec = Injector.create(TaskExecutor);
+    const events = await exec
+      .create(
+        ['simple_task'],
+        {},
+        {
+          remote: true,
+          waitForRemoteResults: true,
+          skipTargetCheck: true
+        })
+      .run() as ITaskRunnerResult[];
+
+    const event = events.shift();
+    // console.log(inspect(event, null, 10));
+
+    const _urlLog = URL + '/api' + API_CTRL_TASK_LOG
+      .replace(':nodeId', event.nodeId)
+      .replace(':runnerId', event.id);
+
+    const taskEvent = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
+    expect(taskEvent).to.have.length(2);
+    expect(taskEvent[0]).to.be.have.keys(['error', 'message', 'nodeId', 'instNr']);
+    expect(typeof taskEvent[1]).to.be.eq('string');
+  }
+
 
   @test
   async 'get all active runners'() {
