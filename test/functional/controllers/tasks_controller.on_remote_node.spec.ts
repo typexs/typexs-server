@@ -488,6 +488,22 @@ class TasksControllerSpec {
     expect(te).to.contain('"message":"taskRef start: simple_task"');
   }
 
+
+  @test
+  async 'error on try get remote log content'() {
+    const _urlLog = URL + '/api' + API_CTRL_TASK_LOG
+      .replace(':nodeId', 'fake_app_node_tasks')
+      .replace(':runnerId', 'none_existing_runnerid');
+
+    const taskEvent = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
+    // expect(taskEvent).to.not.be.null;
+    // taskEvent = taskEvent.body;
+    // console.log(inspect(taskEvent, null, 10));
+    expect(taskEvent).to.have.length(1);
+    const te = taskEvent.shift();
+    expect(te).to.contain('"message":"taskRef start: simple_task"');
+  }
+
   @test
   async 'get all active runners'() {
     const _urlLog = URL + '/api' + API_CTRL_TASKS_RUNNERS_INFO;
