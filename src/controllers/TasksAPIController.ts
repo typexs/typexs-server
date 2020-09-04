@@ -34,6 +34,7 @@ import {IError} from '@typexs/base/libs/exceptions/IError';
 import {ContextGroup} from '../decorators/ContextGroup';
 import {Access} from '../decorators/Access';
 import {Helper} from '..';
+import {IFileSelectOptions} from '@typexs/base/adapters/exchange/filesystem/IFileOptions';
 
 @ContextGroup(C_API)
 @JsonController(_API_CTRL_TASKS)
@@ -208,10 +209,12 @@ export class TasksAPIController {
                       @QueryParam('options') options: any = {}) {
 
     let _opts = options || {};
-    _opts = _.defaults(_opts, <IMessageOptions>{
+    _opts = _.defaults(_opts, <IMessageOptions & IFileSelectOptions>{
       filterErrors: false,
       outputMode: 'only_value',
       targetIds: [nodeId],
+      unit: 'line'
+
       // tail: tail,
       // offset: offsetLine,
       // limit: limitLine
@@ -241,8 +244,6 @@ export class TasksAPIController {
     } catch (e) {
       throw new InternalServerError(e.message);
     }
-
-
   }
 
 
