@@ -33,7 +33,6 @@ import {TaskExecutor} from '@typexs/base/libs/tasks/TaskExecutor';
 import {IError} from '@typexs/base/libs/exceptions/IError';
 import {ContextGroup} from '../decorators/ContextGroup';
 import {Access} from '../decorators/Access';
-import {K_INST_ID, K_NODE_ID} from '@typexs/base/libs/messaging/Constants';
 import {Helper} from '..';
 
 @ContextGroup(C_API)
@@ -205,7 +204,7 @@ export class TasksAPIController {
                       @Param('runnerId') runnerId: string,
                       @QueryParam('limit') limitLine: number = null,
                       @QueryParam('offset') offsetLine: number = null,
-                      @QueryParam('tail') tail: number = 50,
+                      @QueryParam('tail') tail: number = null,
                       @QueryParam('options') options: any = {}) {
 
     let _opts = options || {};
@@ -213,10 +212,27 @@ export class TasksAPIController {
       filterErrors: false,
       outputMode: 'only_value',
       targetIds: [nodeId],
-      tail: tail,
-      offset: offsetLine,
-      limit: limitLine
+      // tail: tail,
+      // offset: offsetLine,
+      // limit: limitLine
     });
+
+    let less = false;
+    if (_.isNumber(offsetLine)) {
+      _opts.offset = offsetLine;
+      less = true;
+    }
+
+    if (_.isNumber(limitLine)) {
+      _opts.limit = limitLine;
+      less = true;
+    }
+
+    if (less && _.isNumber(tail)) {
+      _opts.tail = tail;
+    } else if (!less) {
+      _opts.tail = 50;
+    }
 
     try {
       const responses = await this.taskExchange.getLogFile(runnerId, _opts);
