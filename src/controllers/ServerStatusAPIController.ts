@@ -21,6 +21,7 @@ import {ForbiddenError, Param} from 'routing-controllers/index';
 import {ServerRegistry} from '../libs/server/ServerRegistry';
 import {Helper} from '../libs/Helper';
 import {IRoute} from '../libs/server/IRoute';
+import {ServerUtils} from '..';
 
 @ContextGroup(C_API)
 @JsonController()
@@ -34,10 +35,14 @@ export class ServerStatusAPIController {
 
   @Inject(ServerRegistry.NAME)
   serverRegistry: ServerRegistry;
-
-  private static isAnonymous(user: any) {
-    return !user || (_.isString(user) && user === DEFAULT_ANONYMOUS);
-  }
+ //
+ //  private static isAnonymous(user: any) {
+ //    return !user || (_.isString(user) && user === DEFAULT_ANONYMOUS);
+ //  }
+ //
+ // static hasPermissionCheck(user: any) {
+ //    return !ServerStatusAPIController.isAnonymous(user) || _.isNull(user) || _.isUndefined(user);
+ //  }
 
   /**
    * Ping for server time
@@ -79,7 +84,7 @@ export class ServerStatusAPIController {
    */
   @Get(_API_CTRL_SERVER_CONFIG_KEY)
   async getConfig(@Param('key') key?: string, @CurrentUser() user?: any) {
-    const permissionsCheck = !ServerStatusAPIController.isAnonymous(user);
+    const permissionsCheck = ServerUtils.hasPermissionCheck(user);
     let userPermissions = user && user.getRoles ? PermissionHelper.getPermissionFromRoles(user.getRoles()) : [];
     // config key => permission
     // TODO cache results for permissions combination
@@ -144,7 +149,7 @@ export class ServerStatusAPIController {
   @Get(_API_CTRL_SERVER_ROUTES)
   async listRoutes(@CurrentUser() user: IRolesHolder): Promise<IRoute[]> {
     // if null and userchecker not configured then list all, else check if user has permissions
-    const permissionsCheck = !ServerStatusAPIController.isAnonymous(user);
+    const permissionsCheck = ServerUtils.hasPermissionCheck(user);
     const userPermissions = user && user.getRoles ? PermissionHelper.getPermissionFromRoles(user.getRoles()) : [];
     const routes: IRoute[] = [];
     const instanceNames = this.serverRegistry.getInstanceNames();
