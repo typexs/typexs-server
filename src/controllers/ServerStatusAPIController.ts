@@ -7,7 +7,6 @@ import {
   _API_CTRL_SERVER_ROUTES,
   _API_CTRL_SERVER_STATUS,
   C_API,
-  DEFAULT_ANONYMOUS,
   K_CONFIG_ANONYMOUS_ALLOW,
   K_CONFIG_PERMISSIONS
 } from '../libs/Constants';
@@ -35,14 +34,6 @@ export class ServerStatusAPIController {
 
   @Inject(ServerRegistry.NAME)
   serverRegistry: ServerRegistry;
- //
- //  private static isAnonymous(user: any) {
- //    return !user || (_.isString(user) && user === DEFAULT_ANONYMOUS);
- //  }
- //
- // static hasPermissionCheck(user: any) {
- //    return !ServerStatusAPIController.isAnonymous(user) || _.isNull(user) || _.isUndefined(user);
- //  }
 
   /**
    * Ping for server time
@@ -54,12 +45,18 @@ export class ServerStatusAPIController {
 
 
   @Get(_API_CTRL_SERVER_STATUS)
-  async status(@CurrentUser() user: any) {
+  async status(@CurrentUser() user: IRolesHolder) {
     const nodeId = _.get(this.system, 'node.nodeId', null);
     const status: any = {
       time: new Date(),
       nodeId: nodeId,
     };
+
+    // if (ServerUtils.hasPermissionCheck(user) && user) {
+    //   const perms = PermissionHelper.getPermissionFromRoles(user.getRoles());
+    //   // if()
+    // }
+
     await this.invoker.use(ServerStatusApi).prepareServerStatus(status, user);
     return status;
   }
