@@ -158,7 +158,7 @@ export class ServerStatusAPIController {
         if (permissionsCheck && hasPermissions) {
 
           if (!_.isEmpty(userPermissions)) {
-            if (_.isArray(_route.permissions) && await PermissionHelper.checkPermissions(userPermissions, _route.permissions)) {
+            if (_.isArray(_route.permissions) && await PermissionHelper.checkOnePermission(userPermissions, _route.permissions)) {
               routes.push(_route);
             } else if (_.isString(_route.permissions) && await PermissionHelper.checkPermission(userPermissions, _route.permissions)) {
               routes.push(_route);

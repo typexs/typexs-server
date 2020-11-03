@@ -626,8 +626,18 @@ export class StorageAPIController {
     return filterKeys;
   }
 
-
-  private async getStorageSchema(storageName: string, withCollections: boolean = false, refresh: boolean = false) {
+  /**
+   * Integrate
+   *
+   * TODO fetch only if permissions for the entities is set
+   *
+   * @param storageName
+   * @param withCollections
+   * @param refresh
+   * @param user
+   * @private
+   */
+  private async getStorageSchema(storageName: string, withCollections: boolean = false, refresh: boolean = false, user?: any) {
     const cacheKey = 'storage-schema-' + storageName + (withCollections ? '-with-collection' : '');
     const cacheBin = 'storage-info';
     let entry: IStorageRefMetadata = await this.cache.get(cacheKey, cacheBin);
