@@ -21,7 +21,7 @@ export class RoutePermissionsHelper {
       if (!_.isEmpty(permissions)) {
         return _.map(permissions, right => {
           _.keys(params).forEach(p => {
-            right = right.replace(':' + p, params[p]);
+            right = right.replace(':' + p, _.snakeCase(params[p] + ''));
           });
           return right;
         });
