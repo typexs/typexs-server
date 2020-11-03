@@ -35,6 +35,7 @@ export class ServerStatusAPIController {
   @Inject(ServerRegistry.NAME)
   serverRegistry: ServerRegistry;
 
+
   /**
    * Ping for server time
    */
@@ -113,7 +114,7 @@ export class ServerStatusAPIController {
           if (hasPermissions) {
             if (!_.isEmpty(userPermissions)) {
               if (_.isArray(cfgPermission)) {
-                if (!await PermissionHelper.checkPermissions(userPermissions, cfgPermission)) {
+                if (!await PermissionHelper.checkOnePermission(userPermissions, cfgPermission)) {
                   delete x.parent[x.key];
                   return;
                 }
@@ -158,9 +159,10 @@ export class ServerStatusAPIController {
         if (permissionsCheck && hasPermissions) {
 
           if (!_.isEmpty(userPermissions)) {
-            if (_.isArray(_route.permissions) && await PermissionHelper.checkOnePermission(userPermissions, _route.permissions)) {
-              routes.push(_route);
-            } else if (_.isString(_route.permissions) && await PermissionHelper.checkPermission(userPermissions, _route.permissions)) {
+            // use reverse check up
+            let routePermissions = !_.isArray(_route.permissions) ? [_route.permissions] : _route.permissions;
+            routePermissions = routePermissions.map(x => x.replace(/:[^\s]+/g, ' * ').replace(/\s{2,}/g, ' ').trim());
+            if (await PermissionHelper.checkOnePermission(userPermissions, routePermissions)) {
               routes.push(_route);
             }
           }
