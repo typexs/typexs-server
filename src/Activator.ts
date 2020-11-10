@@ -128,6 +128,8 @@ export class Activator implements IActivator, IPermissions {
       }
     }
 
+    permissions = _.uniq(permissions);
+
 
     // TODO how to solve dynamic task injection and concret permissions?
 
