@@ -14,6 +14,7 @@ export class HttpResponseError extends InternalServerError {
     this.objects = data;
   }
 
+
   toJSON() {
     return {
       status: this.httpCode,
