@@ -9,6 +9,12 @@ jobs:
 
     steps:
       - run:
+          name: Update env
+          command: |
+            export TZ=Europe/Berlin
+            sh -c 'echo "127.0.0.11 proxy.local\n" >> /etc/hosts'
+
+      - run:
           name: NVM
           command: |
             nvm install 14 && nvm use 14 && nvm alias default 14
