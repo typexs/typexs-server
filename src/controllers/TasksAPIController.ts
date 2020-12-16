@@ -35,6 +35,7 @@ import {ContextGroup} from '../decorators/ContextGroup';
 import {Access} from '../decorators/Access';
 import {Helper} from '..';
 import {IFileSelectOptions} from '@typexs/base/adapters/exchange/filesystem/IFileOptions';
+import {IEntityRefMetadata} from 'commons-schema-api/browser';
 
 @ContextGroup(C_API)
 @JsonController(_API_CTRL_TASKS)
@@ -68,14 +69,14 @@ export class TasksAPIController {
 
   @Access(PERMISSION_ALLOW_TASKS_METADATA)
   @Get(_API_CTRL_TASKS_METADATA)
-  tasksMetadata() {
+  tasksMetadata(): IEntityRefMetadata[] {
     return this.tasks.toJson();
   }
 
   @Access([PERMISSION_ALLOW_TASK_GET_METADATA,
     PERMISSION_ALLOW_TASK_GET_METADATA_PATTERN])
   @Get(_API_CTRL_TASK_GET_METADATA)
-  taskMetadata(@Param('taskName') taskName: string) {
+  taskMetadata(@Param('taskName') taskName: string): IEntityRefMetadata {
     if (this.tasks.contains(taskName)) {
       return this.tasks.get(taskName).toJson();
     }
