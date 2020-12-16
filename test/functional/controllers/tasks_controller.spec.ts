@@ -10,7 +10,7 @@ import * as _ from 'lodash';
 import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
 import {IEventBusConfiguration} from 'commons-eventbus';
-import {HttpFactory, IHttp} from 'commons-http';
+import {HttpFactory, IHttp} from '@allgemein/http';
 import {WebServer} from '../../../src/libs/web/WebServer';
 import {Helper} from '../../../src/libs/Helper';
 
@@ -95,7 +95,7 @@ class TasksControllerSpec {
   //   const _urlTaskLocal = (url + '/api' + API_TASK_GET_METADATA.replace(':taskName', 'local_simple_task'));
   //   const _urlTaskRemote = (url + '/api' + API_TASK_GET_METADATA.replace(':taskName', 'simple_task'));
   //   const _urlTasks = (url + '/api' + API_TASKS_METADATA);
-  //   let rBefore: any = await request.get(_url, {json: true});
+  //   let rBefore: any = await request.get(_url, {responseType: 'json'});
   //   expect(rBefore).to.not.be.null;
   //   rBefore = rBefore.body;
   //
@@ -103,16 +103,16 @@ class TasksControllerSpec {
   //   await p.started;
   //   await TestHelper.wait(50);
   //
-  //   let rAfter: any = await request.get(_url, {json: true});
+  //   let rAfter: any = await request.get(_url, {responseType: 'json'});
   //   expect(rAfter).to.not.be.null;
   //   rAfter = rAfter.body;
-  //   let rTasks: any = await request.get(_urlTasks, {json: true});
+  //   let rTasks: any = await request.get(_urlTasks, {responseType: 'json'});
   //   expect(rTasks).to.not.be.null;
   //   rTasks = rTasks.body;
-  //   let rTaskLocal: any = await request.get(_urlTaskLocal, {json: true});
+  //   let rTaskLocal: any = await request.get(_urlTaskLocal, {responseType: 'json'});
   //   expect(rTaskLocal).to.not.be.null;
   //   rTaskLocal = rTaskLocal.body;
-  //   let rTaskRemote: any = await request.get(_urlTaskRemote, {json: true});
+  //   let rTaskRemote: any = await request.get(_urlTaskRemote, {responseType: 'json'});
   //   expect(rTaskRemote).to.not.be.null;
   //   rTaskRemote = rTaskRemote.body;
   //
@@ -120,7 +120,7 @@ class TasksControllerSpec {
   //   await p.done;
   //   await TestHelper.wait(50);
   //
-  //   let rFinished: any = await request.get(_url, {json: true});
+  //   let rFinished: any = await request.get(_url, {responseType: 'json'});
   //   expect(rFinished).to.not.be.null;
   //   rFinished = rFinished.body;
   //   expect(rTasks).to.have.length(4);
@@ -246,7 +246,7 @@ class TasksControllerSpec {
   //
   //
   //   const _url = url + '/api' + API_TASK_EXEC.replace(':taskName', 'simple_task');
-  //   let taskEvent: any = await request.get(_url, {json: true});
+  //   let taskEvent: any = await request.get(_url, {responseType: 'json'});
   //   expect(taskEvent).to.not.be.null;
   //   taskEvent = taskEvent.body;
   //
@@ -254,7 +254,7 @@ class TasksControllerSpec {
   //
   //   await TestHelper.waitFor(() => events.length >= 4, 10);
   //   const s = await (<StorageRef>Injector.get(C_STORAGE_DEFAULT)).getController().find(TaskLog);
-  //   let taskStatus1: any = await request.get(_urlStatus, {json: true});
+  //   let taskStatus1: any = await request.get(_urlStatus, {responseType: 'json'});
   //   expect(taskStatus1).to.not.be.null;
   //   taskStatus1 = taskStatus1.body;
   //
@@ -264,7 +264,7 @@ class TasksControllerSpec {
   //   const _urlLog = url + '/api' + API_TASK_LOG
   //     .replace(':nodeId', taskEvent.respId)
   //     .replace(':runnerId', taskEvent.id);
-  //   let taskLog: any = await request.get(_urlLog, {json: true});
+  //   let taskLog: any = await request.get(_urlLog, {responseType: 'json'});
   //   expect(taskLog).to.not.be.null;
   //   taskLog = taskLog.body;
   //
@@ -272,7 +272,7 @@ class TasksControllerSpec {
   //   const _urlLog2 = url + '/api' + API_TASK_LOG
   //     .replace(':nodeId', taskEvent.respId)
   //     .replace(':runnerId', taskEvent.id) + '?from=0&offset=20';
-  //   let taskLog2: any = await request.get(_urlLog2, {json: true});
+  //   let taskLog2: any = await request.get(_urlLog2, {responseType: 'json'});
   //   expect(taskLog2).to.not.be.null;
   //   taskLog2 = taskLog2.body;
   //
@@ -283,13 +283,13 @@ class TasksControllerSpec {
   //
   //   let taskLog3: IncomingMessage;
   //   try {
-  //     taskLog3 = await request.get(_urlLog3, {json: true});
+  //     taskLog3 = await request.get(_urlLog3, {responseType: 'json'});
   //   } catch (e) {
   //
   //   }
   //
   //
-  //   let taskStatus2 = await request.get(_urlStatus, {json: true});
+  //   let taskStatus2 = await request.get(_urlStatus, {responseType: 'json'});
   //   expect(taskStatus2).to.not.be.null;
   //   taskStatus2 = taskStatus2.body;
   //   p.shutdown();
@@ -375,7 +375,7 @@ class TasksControllerSpec {
   //       .replace(':taskName', 'simple_task_with_params') + '?parameters=' +
   //     JSON.stringify({need_this: {really: {important: 'data'}}}) + '&targetIds=' +
   //     JSON.stringify(['fake_app_node_tasks']);
-  //   let taskEvent: any = await request.get(_url, {json: true});
+  //   let taskEvent: any = await request.get(_url, {responseType: 'json'});
   //   expect(taskEvent).to.not.be.null;
   //   taskEvent = taskEvent.body;
   //   await TestHelper.waitFor(() => events.length >= 6);
@@ -385,7 +385,7 @@ class TasksControllerSpec {
   //   await EventBus.unregister(z);
   //
   //   const _urlStatus = url + '/api' + API_TASK_STATUS.replace(':nodeId', taskEvent.respId).replace(':runnerId', taskEvent.id);
-  //   let taskStatus1: any = await request.get(_urlStatus, {json: true});
+  //   let taskStatus1: any = await request.get(_urlStatus, {responseType: 'json'});
   //   expect(taskStatus1).to.not.be.null;
   //   taskStatus1 = taskStatus1.body;
   //   expect(taskEvent).to.be.deep.include({
@@ -446,7 +446,7 @@ class TasksControllerSpec {
   //
   //   const _url = url + '/api' + API_TASK_EXEC
   //     .replace(':taskName', 'simple_task_with_params') + '?targetIds=' + JSON.stringify(['fake_app_node_tasks']);
-  //   let taskEvent: any = await request.get(_url, {json: true});
+  //   let taskEvent: any = await request.get(_url, {responseType: 'json'});
   //   expect(taskEvent).to.not.be.null;
   //   taskEvent = taskEvent.body;
   //   p.shutdown();
@@ -479,7 +479,7 @@ class TasksControllerSpec {
       .replace(':taskName', 'local_simple_task_with_params')
       .replace(':incomingName', 'valueStatic');
 
-    let valueSuggestions1 = await request.get(_url, {json: true});
+    let valueSuggestions1 = await request.get(_url, {responseType: 'json'});
     expect(valueSuggestions1).to.not.be.null;
     valueSuggestions1 = valueSuggestions1.body;
     expect(valueSuggestions1).to.be.deep.eq(['One', 'Two', 'Tree']);
@@ -488,7 +488,7 @@ class TasksControllerSpec {
       .replace(':taskName', 'local_simple_task_with_params')
       .replace(':incomingName', 'valueClass');
 
-    let valueSuggestions3 = await request.get(_url3, {json: true});
+    let valueSuggestions3 = await request.get(_url3, {responseType: 'json'});
     expect(valueSuggestions3).to.not.be.null;
     valueSuggestions3 = valueSuggestions3.body;
     expect(valueSuggestions3).to.be.deep.eq(['VP-One1', 'VP-Two2', 'VP-Tree3']);
@@ -496,7 +496,7 @@ class TasksControllerSpec {
       .replace(':taskName', 'local_simple_task_with_params')
       .replace(':incomingName', 'valueFunction');
 
-    let valueSuggestions2 = await request.get(_url2, {json: true});
+    let valueSuggestions2 = await request.get(_url2, {responseType: 'json'});
     expect(valueSuggestions2).to.not.be.null;
     valueSuggestions2 = valueSuggestions2.body;
     expect(valueSuggestions2).to.be.deep.eq(['One1', 'Two2', 'Tree3']);

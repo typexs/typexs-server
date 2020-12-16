@@ -1,6 +1,7 @@
 import {suite, test, timeout} from '@testdeck/mocha';
 import {Bootstrap, Config, DistributedStorageEntityController, Injector, Log, XS_P_$COUNT} from '@typexs/base';
 import {
+  API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITIES_BY_CONDITION,
   API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITY,
   API_CTRL_DISTRIBUTED_STORAGE_FIND_ENTITY,
   API_CTRL_DISTRIBUTED_STORAGE_GET_ENTITY,
@@ -15,7 +16,7 @@ import {SpawnHandle} from '../SpawnHandle';
 import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
 import {IEventBusConfiguration} from 'commons-eventbus';
-import {HttpFactory, IHttp} from 'commons-http';
+import {HttpFactory, IHttp} from '@allgemein/http';
 import {DistributedRandomData} from './fake_app_node/entities/DistributedRandomData';
 import {RandomData} from './fake_app_storage/entities/RandomData';
 import {WebServer} from '../../../src/libs/web/WebServer';
@@ -35,7 +36,7 @@ const settingsTemplate: any = {
   modules: {
     paths: [
       __dirname + '/fake_app_node'
-    ]
+    ], disableCache: true
   },
   logging: {
     enable: LOG_EVENT,
@@ -137,8 +138,8 @@ class DistributedStorageControllerSpec {
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name)),
       {
-        body: d,
-        json: true
+        json: d,
+        responseType: 'json'
       }
     );
 
@@ -172,13 +173,13 @@ class DistributedStorageControllerSpec {
           .replace(':nodeId', 'fake_app_node_not')
           .replace(':name', _.snakeCase(DistributedRandomData.name)),
         {
-          body: {},
-          json: true
+          json: {},
+          responseType: 'json'
         }
       );
       expect(true).to.be.false;
     } catch (e) {
-      expect(e.body).to.deep.eq({
+      expect(e.response.body).to.deep.eq({
         status: 500,
         context: 'distributed_storage.save',
         message: 'no distributed worker found to execute the query.',
@@ -217,8 +218,8 @@ class DistributedStorageControllerSpec {
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name)),
       {
-        body: [d1, d2],
-        json: true
+        json: [d1, d2],
+        responseType: 'json'
       }
     );
 
@@ -247,7 +248,7 @@ class DistributedStorageControllerSpec {
       API_CTRL_DISTRIBUTED_STORAGE_GET_ENTITY
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name))
-        .replace(':id', '1'), {json: true}
+        .replace(':id', '1'), {responseType: 'json'}
     );
 
     expect(res).to.not.be.null;
@@ -279,7 +280,7 @@ class DistributedStorageControllerSpec {
       API_CTRL_DISTRIBUTED_STORAGE_GET_ENTITY
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name))
-        .replace(':id', '1,2'), {json: true}
+        .replace(':id', '1,2'), {responseType: 'json'}
     );
 
     expect(res).to.not.be.null;
@@ -326,7 +327,7 @@ class DistributedStorageControllerSpec {
   @test
   async 'find entities'() {
     const _url = (URL + '/api' + API_CTRL_DISTRIBUTED_STORAGE_FIND_ENTITY).replace(':name', DistributedRandomData.name);
-    const res: any = await http.get(_url, {json: true, passBody: true});
+    const res: any = await http.get(_url, {responseType: 'json', passBody: true});
     expect(res).to.not.be.null;
     expect(res.entities).to.have.length(10);
     expect(res.entities.map((x: any) => x.id)).to.deep.eq(_.range(1, 11));
@@ -338,7 +339,7 @@ class DistributedStorageControllerSpec {
     const _url = (URL + '/api' + API_CTRL_DISTRIBUTED_STORAGE_FIND_ENTITY).replace(':name', DistributedRandomData.name);
     let res: any = null;
     try {
-      res = await http.get(_url + '?query=' + JSON.stringify({short: 'short name 1'}), {json: true, passBody: true});
+      res = await http.get(_url + '?query=' + JSON.stringify({short: 'short name 1'}), {responseType: 'json', passBody: true});
     } catch (err) {
       Log.error(err);
     }
@@ -374,7 +375,7 @@ class DistributedStorageControllerSpec {
     res = await http.get(
       _url + '?query=' +
       JSON.stringify({date: {$gt: date}}),
-      {json: true, passBody: true});
+      {responseType: 'json', passBody: true});
 
     expect(res).to.not.be.null;
     expect(res).to.not.be.null;
@@ -409,7 +410,7 @@ class DistributedStorageControllerSpec {
       JSON.stringify([
         {$match: {floatValue: {$gt: 2}}},
         {$group: {_id: '$bool', sum: {$sum: '$floatValue'}}},
-      ]), {json: true}
+      ]), {responseType: 'json'}
     ) as any;
 
     expect(res).to.not.be.null;
@@ -418,12 +419,18 @@ class DistributedStorageControllerSpec {
     expect(res.entities[0]).to.be.deep.eq({
       'bool': 0,
       'sum': 21.432000000000002,
-      '__nodeId__': 'fake_app_node'
+      '__nodeId__': 'fake_app_node',
+      '__class__': 'DistributedRandomData',
+      '__registry__': 'typeorm',
+
+
     });
     expect(res.entities[1]).to.be.deep.eq({
       'bool': 1,
       'sum': 25.003999999999998,
-      '__nodeId__': 'fake_app_node'
+      '__nodeId__': 'fake_app_node',
+      '__class__': 'DistributedRandomData',
+      '__registry__': 'typeorm',
     });
 
   }
@@ -452,7 +459,7 @@ class DistributedStorageControllerSpec {
       API_CTRL_DISTRIBUTED_STORAGE_UPDATE_ENTITY
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name))
-        .replace(':id', id), {body: d2, json: true}
+        .replace(':id', id), {json: d2, responseType: 'json'}
     ) as any;
 
     expect(res).to.not.be.null;
@@ -510,13 +517,13 @@ class DistributedStorageControllerSpec {
       +
       '?query=' + JSON.stringify({$and: [{id: {$gte: 100}}, {id: {$lte: 110}}]}),
       <any>{
-        body: {
+        json: {
           $set: {
             numValue: 123,
             long: 'this is an update'
           }
         },
-        json: true
+        responseType: 'json'
       }
     );
     expect(res).to.not.be.null;
@@ -571,7 +578,7 @@ class DistributedStorageControllerSpec {
       API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITY
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name))
-        .replace(':id', '101'), {json: true}
+        .replace(':id', '101'), {responseType: 'json'}
     );
     expect(res).to.not.be.null;
     res = res.body;
@@ -585,7 +592,7 @@ class DistributedStorageControllerSpec {
       API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITY
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name))
-        .replace(':id', '102,103,104'), {json: true}
+        .replace(':id', '102,103,104'), {responseType: 'json'}
     );
     expect(res).to.not.be.null;
     res = res.body;
@@ -621,12 +628,12 @@ class DistributedStorageControllerSpec {
     // delete by one id
     let res = await http.delete(URL + '/api' +
 
-      API_CTRL_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION
+      API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITIES_BY_CONDITION
         .replace(':nodeId', 'fake_app_node')
         .replace(':name', _.snakeCase(DistributedRandomData.name)) +
       '?query=' + JSON.stringify(
         {$and: [{long: 'test delete'}, {id: {$gte: 105}}]}),
-      {json: true}
+      {responseType: 'json'}
     );
     expect(res).to.not.be.null;
     res = res.body;

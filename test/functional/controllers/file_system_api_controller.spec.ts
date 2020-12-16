@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
 import {IEventBusConfiguration} from 'commons-eventbus';
-import {HttpFactory, IHttp} from 'commons-http';
+import {HttpFactory, IHttp} from '@allgemein/http';
 import {expect} from 'chai';
 import {WebServer} from '../../../src/libs/web/WebServer';
 
@@ -106,7 +106,7 @@ class FileSystemApiControllerSpec {
     const url = server.url();
     let res: any = await http.get(url + '/api' +
       API_CTRL_FILESYSTEM_READ + '?path=myfiles',
-      {json: true});
+      {responseType: 'json'});
     res = res.body;
     expect(res).to.not.be.null;
     expect(res).to.have.length(1);
@@ -120,7 +120,7 @@ class FileSystemApiControllerSpec {
     const url = server.url();
     let res: any = await http.get(url + '/api' +
       API_CTRL_FILESYSTEM_READ + '?path=myfiles/file03_with_content.txt',
-      {json: true});
+      {responseType: 'json'});
     res = res.body;
     expect(res).to.not.be.null;
     expect(res).to.have.length(1);
@@ -137,10 +137,10 @@ class FileSystemApiControllerSpec {
     const url = server.url();
     try {
       const res: any = await http.get(url + '/api' +
-        API_CTRL_FILESYSTEM_READ, {json: true});
+        API_CTRL_FILESYSTEM_READ, {responseType: 'json'});
       expect(true).to.be.false;
     } catch (e) {
-      expect(e.body).to.be.deep.eq({
+      expect(e.response.body).to.be.deep.eq({
         status: 500,
         context: 'fs.file',
         message: 'path is empty',

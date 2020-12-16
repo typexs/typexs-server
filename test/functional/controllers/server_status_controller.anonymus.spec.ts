@@ -11,7 +11,7 @@ import {
 import * as _ from 'lodash';
 import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
-import {HttpFactory, IHttp} from 'commons-http';
+import {HttpFactory, IHttp} from '@allgemein/http';
 
 import {expect} from 'chai';
 import {WebServer} from '../../../src/libs/web/WebServer';
@@ -94,7 +94,7 @@ class ServerStatusControllerSpec {
 
     expect(Config.get(K_CONFIG_ANONYMOUS_ALLOW)).to.be.true;
 
-    const baseConfig = await http.get(url + API_CTRL_SERVER_CONFIG, {json: true, passBody: true}) as any;
+    const baseConfig = await http.get(url + API_CTRL_SERVER_CONFIG, {responseType: 'json', passBody: true}) as any;
     const compare = _.clone(settingsTemplate);
 
     compare.storage.default.name = 'default';
@@ -144,12 +144,12 @@ class ServerStatusControllerSpec {
     Config.set(K_CONFIG_ANONYMOUS_ALLOW, false);
     expect(Config.get(K_CONFIG_ANONYMOUS_ALLOW)).to.be.false;
     try {
-      const results = await http.get(url + API_CTRL_SERVER_CONFIG, {json: true, passBody: true});
+      const results = await http.get(url + API_CTRL_SERVER_CONFIG, {responseType: 'json', passBody: true});
       expect(true).to.be.false;
     } catch (err) {
-      expect(err.statusCode).to.be.eq(403);
+      expect(err.response.statusCode).to.be.eq(403);
       expect(err.message).to.be.eq('Response code 403 (Forbidden)');
-      expect(err.body.message).to.be.eq('Access not allowed');
+      expect(err.response.body.message).to.be.eq('Access not allowed');
     }
   }
 
@@ -162,7 +162,7 @@ class ServerStatusControllerSpec {
     expect(Config.get(K_CONFIG_ANONYMOUS_ALLOW)).to.be.true;
 
     const baseConfig = await http.get(url + API_CTRL_SERVER_CONFIG_KEY.replace(':key', 'server.default'), {
-      json: true,
+      responseType: 'json',
       passBody: true
     }) as any;
 
@@ -203,7 +203,7 @@ class ServerStatusControllerSpec {
 
   @test
   async 'list routes (in anonymous mode)'() {
-    const response = await http.get(url + API_CTRL_SERVER_ROUTES, {json: true, passBody: true});
+    const response = await http.get(url + API_CTRL_SERVER_ROUTES, {responseType: 'json', passBody: true});
     expect(response).to.not.be.null;
 
     expect(response).to.have.length.greaterThan(4);

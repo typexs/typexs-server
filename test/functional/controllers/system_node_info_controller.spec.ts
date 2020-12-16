@@ -14,7 +14,7 @@ import {expect} from 'chai';
 import * as _ from 'lodash';
 import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
-import {HttpFactory, IHttp} from 'commons-http';
+import {HttpFactory, IHttp} from '@allgemein/http';
 import {WebServer} from '../../../src/libs/web/WebServer';
 
 
@@ -90,7 +90,7 @@ class RuntimeInfoControllerSpec {
   @test
   async 'get info'() {
     const url = server.url() + '/' + C_API;
-    let res: any = await http.get(url + API_CTRL_SYSTEM_RUNTIME_INFO, {json: true});
+    let res: any = await http.get(url + API_CTRL_SYSTEM_RUNTIME_INFO, {responseType: 'json'});
     expect(res).to.not.be.null;
     res = res.body;
     expect(res.networks).to.not.be.null;
@@ -104,7 +104,7 @@ class RuntimeInfoControllerSpec {
   @test
   async 'get node'() {
     const url = server.url() + '/' + C_API;
-    let res: any = await http.get(url + API_CTRL_SYSTEM_RUNTIME_NODE, {json: true});
+    let res: any = await http.get(url + API_CTRL_SYSTEM_RUNTIME_NODE, {responseType: 'json'});
     expect(res).to.not.be.null;
     res = res.body;
     expect(res.hostname).to.not.be.null;
@@ -114,7 +114,7 @@ class RuntimeInfoControllerSpec {
   async 'get nodes'() {
     // empty
     const url = server.url() + '/' + C_API;
-    let res = await http.get(url + API_CTRL_SYSTEM_RUNTIME_NODES, {json: true});
+    let res = await http.get(url + API_CTRL_SYSTEM_RUNTIME_NODES, {responseType: 'json'});
     expect(res).to.not.be.null;
     res = res.body;
     expect(res).to.have.length(0);
@@ -124,7 +124,7 @@ class RuntimeInfoControllerSpec {
   @test
   async 'list workers'() {
     const url = server.url() + '/' + C_API;
-    let res: any = await http.get(url + API_CTRL_SYSTEM_WORKERS, {json: true});
+    let res: any = await http.get(url + API_CTRL_SYSTEM_WORKERS, {responseType: 'json'});
     expect(res).to.not.be.null;
     res = res.body;
     expect(res.hostname).to.not.be.null;
@@ -136,7 +136,7 @@ class RuntimeInfoControllerSpec {
   @test @timeout(300000)
   async 'list modules'() {
     const url = server.url() + '/' + C_API;
-    let res = await http.get(url + API_CTRL_SYSTEM_MODULES, {json: true});
+    let res = await http.get(url + API_CTRL_SYSTEM_MODULES, {responseType: 'json'});
     expect(res).to.not.be.null;
     res = res.body;
     expect(_.map(res, r => r.name)).to.deep.include.members([
@@ -147,7 +147,7 @@ class RuntimeInfoControllerSpec {
   @test @timeout(300000)
   async 'list storages'() {
     const url = server.url() + '/' + C_API;
-    let res: any = await http.get(url + API_CTRL_SYSTEM_STORAGES, {json: true});
+    let res: any = await http.get(url + API_CTRL_SYSTEM_STORAGES, {responseType: 'json'});
     expect(res.body).to.not.be.null;
     res = res.body;
     expect(res).to.have.length(1);

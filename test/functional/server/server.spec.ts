@@ -4,7 +4,7 @@ import {suite, test, timeout} from '@testdeck/mocha';
 import {expect} from 'chai';
 import {Injector, Log} from '@typexs/base';
 import {Server} from '../../../src/libs/server/Server';
-import {HttpFactory, IHttp} from 'commons-http';
+import {HttpFactory, IHttp} from '@allgemein/http';
 
 
 let server: Server = null;

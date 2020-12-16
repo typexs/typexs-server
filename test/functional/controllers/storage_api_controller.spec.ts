@@ -20,7 +20,7 @@ import {expect} from 'chai';
 import * as _ from 'lodash';
 import {Driver} from './fake_app_storage/entities/Driver';
 import {TEST_STORAGE_OPTIONS} from '../config';
-import {HttpFactory, IHttp} from 'commons-http';
+import {HttpFactory, IHttp} from '@allgemein/http';
 import {Car} from './fake_app_storage/entities/Car';
 import {RandomData} from './fake_app_storage/entities/RandomData';
 import {Server} from '../../../src/libs/server/Server';
@@ -166,7 +166,7 @@ class Storage_api_controllerSpec {
   @test
   async 'list storages'() {
     const url = server.url();
-    let res: any = await http.get(url + '/api' + API_CTRL_STORAGE_METADATA_ALL_STORES, {json: true});
+    let res: any = await http.get(url + '/api' + API_CTRL_STORAGE_METADATA_ALL_STORES, {responseType: 'json'});
     // console.log(inspect(res, false, 10));
     expect(res).to.not.be.null;
     res = res.body;
@@ -184,7 +184,7 @@ class Storage_api_controllerSpec {
   async 'list storage default'() {
     const url = server.url();
     let res: any = await http.get(url + '/api' +
-      API_CTRL_STORAGE_METADATA_GET_STORE.replace(':name', 'default'), {json: true});
+      API_CTRL_STORAGE_METADATA_GET_STORE.replace(':name', 'default'), {responseType: 'json'});
     // console.log(inspect(res, false, 10));
     expect(res).to.not.be.null;
     res = res.body;
@@ -203,7 +203,7 @@ class Storage_api_controllerSpec {
   async 'list all entities'() {
     const url = server.url();
     let res = await http.get(url + '/api' +
-      API_CTRL_STORAGE_METADATA_ALL_ENTITIES, {json: true});
+      API_CTRL_STORAGE_METADATA_ALL_ENTITIES, {responseType: 'json'});
     expect(res).to.not.be.null;
     res = res.body;
     expect(res).to.have.length(5);
@@ -219,7 +219,7 @@ class Storage_api_controllerSpec {
     const url = server.url();
     let res: any = await http.get(url + '/api' +
 
-      API_CTRL_STORAGE_METADATA_GET_ENTITY.replace(':name', 'driver'), {json: true});
+      API_CTRL_STORAGE_METADATA_GET_ENTITY.replace(':name', 'driver'), {responseType: 'json'});
     expect(res).to.not.be.null;
     res = res.body;
     expect(res).to.exist;
@@ -268,8 +268,8 @@ class Storage_api_controllerSpec {
 
       API_CTRL_STORAGE_SAVE_ENTITY.replace(':name', _.snakeCase(RandomData.name)),
       {
-        body: d,
-        json: true
+        json: d,
+        responseType: 'json'
       }
     );
 
@@ -315,8 +315,8 @@ class Storage_api_controllerSpec {
 
       API_CTRL_STORAGE_SAVE_ENTITY.replace(':name', _.snakeCase(RandomData.name)),
       {
-        body: [d1, d2],
-        json: true
+        json: [d1, d2],
+        responseType: 'json'
       }
     );
 
@@ -343,7 +343,7 @@ class Storage_api_controllerSpec {
   async 'get single entity (by numeric id)'() {
     let res = await http.get(URL + '/api' +
 
-      API_CTRL_STORAGE_GET_ENTITY.replace(':name', RandomData.name).replace(':id', '1'), {json: true}
+      API_CTRL_STORAGE_GET_ENTITY.replace(':name', RandomData.name).replace(':id', '1'), {responseType: 'json'}
     );
 
     expect(res).to.not.be.null;
@@ -371,7 +371,7 @@ class Storage_api_controllerSpec {
 
       API_CTRL_STORAGE_GET_ENTITY
         .replace(':name', RandomData.name)
-        .replace(':id', '1,2'), {json: true}
+        .replace(':id', '1,2'), {responseType: 'json'}
     );
 
     expect(res).to.not.be.null;
@@ -417,7 +417,7 @@ class Storage_api_controllerSpec {
     let res = await http.get(URL + '/api' +
 
       API_CTRL_STORAGE_FIND_ENTITY.replace(':name', RandomData.name) + '?query=' +
-      JSON.stringify({short: 'short name 5'}), {json: true}
+      JSON.stringify({short: 'short name 5'}), {responseType: 'json'}
     ) as any;
 
     expect(res).to.not.be.null;
@@ -446,7 +446,7 @@ class Storage_api_controllerSpec {
     let res = await http.get(URL + '/api' +
 
       API_CTRL_STORAGE_FIND_ENTITY.replace(':name', RandomData.name) + '?query=' +
-      JSON.stringify({date: {$gt: date}}), {json: true}
+      JSON.stringify({date: {$gt: date}}), {responseType: 'json'}
     ) as any;
 
     expect(res).to.not.be.null;
@@ -477,7 +477,7 @@ class Storage_api_controllerSpec {
       JSON.stringify([
         {$match: {floatValue: {$gt: 2}}},
         {$group: {_id: '$bool', sum: {$sum: '$floatValue'}}},
-      ]), {json: true}
+      ]), {responseType: 'json'}
     ) as any;
 
     expect(res).to.not.be.null;
@@ -512,7 +512,7 @@ class Storage_api_controllerSpec {
 
       API_CTRL_STORAGE_UPDATE_ENTITY
         .replace(':name', RandomData.name)
-        .replace(':id', dataSaved.id), {body: dataSaved, json: true}
+        .replace(':id', dataSaved.id), {json: dataSaved, responseType: 'json'}
     ) as any;
 
     expect(res).to.not.be.null;
@@ -557,13 +557,13 @@ class Storage_api_controllerSpec {
       API_CTRL_STORAGE_UPDATE_ENTITIES_BY_CONDITION.replace(':name', _.snakeCase(RandomData.name)) +
       '?query=' + JSON.stringify({$and: [{id: {$gte: 100}}, {id: {$lte: 110}}]}),
       <any>{
-        body: {
+        json: {
           $set: {
             numValue: 123,
             long: 'this is an update'
           }
         },
-        json: true
+        responseType: 'json'
       }
     );
     expect(res).to.not.be.null;
@@ -614,7 +614,7 @@ class Storage_api_controllerSpec {
     let res = await http.delete(URL + '/api' +
 
       API_CTRL_STORAGE_DELETE_ENTITY.replace(':name', RandomData.name)
-        .replace(':id', '101'), {json: true}
+        .replace(':id', '101'), {responseType: 'json'}
     );
     expect(res).to.not.be.null;
     res = res.body;
@@ -625,7 +625,7 @@ class Storage_api_controllerSpec {
     res = await http.delete(URL + '/api' +
 
       API_CTRL_STORAGE_DELETE_ENTITY.replace(':name', RandomData.name)
-        .replace(':id', '102,103,104'), {json: true}
+        .replace(':id', '102,103,104'), {responseType: 'json'}
     );
     expect(res).to.not.be.null;
     res = res.body;
@@ -658,7 +658,7 @@ class Storage_api_controllerSpec {
 
       API_CTRL_STORAGE_DELETE_ENTITIES_BY_CONDITION.replace(':name', RandomData.name) +
       '?query=' + JSON.stringify({$and: [{long: 'test delete'}, {id: {$gte: 105}}]}),
-      {json: true}
+      {responseType: 'json'}
     );
     expect(res).to.not.be.null;
     res = res.body;

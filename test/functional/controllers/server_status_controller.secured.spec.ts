@@ -16,7 +16,7 @@ import {WebServer} from '../../../src/libs/web/WebServer';
 import * as _ from 'lodash';
 import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
-import {HttpFactory, IHttp} from 'commons-http';
+import {HttpFactory, IHttp} from '@allgemein/http';
 
 import {expect} from 'chai';
 import {Action} from 'routing-controllers/Action';
@@ -126,7 +126,7 @@ class ServerStatusControllerSpec {
 
     expect(Config.get(K_CONFIG_ANONYMOUS_ALLOW)).to.be.false;
 
-    const baseConfig = await http.get(url + API_CTRL_SERVER_CONFIG, {json: true, passBody: true}) as any;
+    const baseConfig = await http.get(url + API_CTRL_SERVER_CONFIG, {responseType: 'json', passBody: true}) as any;
     expect(baseConfig.server).to.have.deep.eq({
       'default': {
         '_debug': false,
@@ -164,7 +164,7 @@ class ServerStatusControllerSpec {
 
     expect(Config.get(K_CONFIG_ANONYMOUS_ALLOW)).to.be.false;
 
-    const baseConfig = await http.get(url + API_CTRL_SERVER_CONFIG, {json: true, passBody: true}) as any;
+    const baseConfig = await http.get(url + API_CTRL_SERVER_CONFIG, {responseType: 'json', passBody: true}) as any;
     expect(baseConfig.server).to.have.deep.eq({
       'default': {
         '_debug': false,
@@ -224,7 +224,7 @@ class ServerStatusControllerSpec {
     expect(Config.get(K_CONFIG_ANONYMOUS_ALLOW)).to.be.false;
 
     const baseConfig = await http.get(url + API_CTRL_SERVER_CONFIG_KEY
-      .replace(':key', 'server.default'), {json: true, passBody: true}) as any;
+      .replace(':key', 'server.default'), {responseType: 'json', passBody: true}) as any;
     expect(baseConfig).to.have.deep.eq({
       '_debug': false,
       'fn': 'root',
@@ -282,7 +282,7 @@ class ServerStatusControllerSpec {
     expect(Config.get(K_CONFIG_ANONYMOUS_ALLOW)).to.be.false;
 
     const baseConfig = await http.get(url + API_CTRL_SERVER_CONFIG_KEY
-      .replace(':key', 'server.default'), {json: true, passBody: true}) as any;
+      .replace(':key', 'server.default'), {responseType: 'json', passBody: true}) as any;
     expect(baseConfig).to.have.deep.eq({
       '_debug': false,
       'fn': 'root',
@@ -311,7 +311,7 @@ class ServerStatusControllerSpec {
       };
     };
 
-    const res = await http.get(url + API_CTRL_SERVER_ROUTES, {json: true, passBody: true});
+    const res = await http.get(url + API_CTRL_SERVER_ROUTES, {responseType: 'json', passBody: true});
     expect(res).to.not.be.null;
     expect(res).to.have.length(5);
     expect(_.filter(res, {authorized: false})).to.have.length(5);
@@ -342,7 +342,7 @@ class ServerStatusControllerSpec {
       };
     };
 
-    const res = await http.get(url + API_CTRL_SERVER_ROUTES, {json: true, passBody: true});
+    const res = await http.get(url + API_CTRL_SERVER_ROUTES, {responseType: 'json', passBody: true});
     expect(res).to.not.be.null;
     expect(res).to.have.length(6);
     expect(_.filter(res, {authorized: false})).to.have.length(5);

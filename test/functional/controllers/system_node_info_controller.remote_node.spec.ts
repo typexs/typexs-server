@@ -7,7 +7,7 @@ import {SpawnHandle} from '../SpawnHandle';
 import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
 import {IEventBusConfiguration} from 'commons-eventbus';
-import {HttpFactory, IHttp} from 'commons-http';
+import {HttpFactory, IHttp} from '@allgemein/http';
 import {WebServer} from '../../../src/libs/web/WebServer';
 
 const LOG_EVENT = TestHelper.logEnable(false);
@@ -87,7 +87,7 @@ class RuntimeInfoControllerSpec {
     await p.started;
     await TestHelper.wait(50);
 
-    let res: any = await http.get(url + API_CTRL_SYSTEM_RUNTIME_NODES, {json: true});
+    let res: any = await http.get(url + API_CTRL_SYSTEM_RUNTIME_NODES, {responseType: 'json'});
     expect(res).to.not.be.null;
     res = res.body;
     p.shutdown();

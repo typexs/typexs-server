@@ -20,7 +20,7 @@ import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
 import {EventBus, IEventBusConfiguration, subscribe} from 'commons-eventbus';
 import {TaskEvent} from '@typexs/base/libs/tasks/worker/TaskEvent';
-import {HttpFactory, IHttp} from 'commons-http';
+import {HttpFactory, IHttp} from '@allgemein/http';
 import {TaskExecutor} from '@typexs/base/libs/tasks/TaskExecutor';
 import {ITaskRunnerResult} from '@typexs/base/libs/tasks/ITaskRunnerResult';
 import {ITaskExectorOptions} from '@typexs/base/libs/tasks/ITaskExectorOptions';
@@ -37,7 +37,7 @@ const settingsTemplate: any = {
 
   app: {name: 'demo', path: __dirname + '/fake_app_tasks', nodeId: 'server'},
 
-  modules: {paths: [__dirname + '/../../..']},
+  modules: {paths: [__dirname + '/../../..'], disableCache: true},
 
   logging: {
     enable: LOG_EVENT,
@@ -132,16 +132,16 @@ class TasksControllerSpec {
     const _urlTaskRemote = (URL + '/api' + API_CTRL_TASK_GET_METADATA.replace(':taskName', 'simple_task'));
     const _urlTasks = (URL + '/api' + API_CTRL_TASKS_METADATA);
 
-    let rAfter: any = await request.get(_url, {json: true});
+    let rAfter: any = await request.get(_url, {responseType: 'json'});
     expect(rAfter).to.not.be.null;
     rAfter = rAfter.body;
-    let rTasks: any = await request.get(_urlTasks, {json: true});
+    let rTasks: any = await request.get(_urlTasks, {responseType: 'json'});
     expect(rTasks).to.not.be.null;
     rTasks = rTasks.body;
-    let rTaskLocal: any = await request.get(_urlTaskLocal, {json: true});
+    let rTaskLocal: any = await request.get(_urlTaskLocal, {responseType: 'json'});
     expect(rTaskLocal).to.not.be.null;
     rTaskLocal = rTaskLocal.body;
-    let rTaskRemote: any = await request.get(_urlTaskRemote, {json: true});
+    let rTaskRemote: any = await request.get(_urlTaskRemote, {responseType: 'json'});
     expect(rTaskRemote).to.not.be.null;
     rTaskRemote = rTaskRemote.body;
 
@@ -241,7 +241,7 @@ class TasksControllerSpec {
   @test
   async 'execute remote task (without waiting for results)'() {
     const _url = URL + '/api' + API_CTRL_TASK_EXEC.replace(':taskName', 'simple_task');
-    const taskEvent: any = await request.get(_url, {json: true, passBody: true});
+    const taskEvent: any = await request.get(_url, {responseType: 'json', passBody: true});
     expect(taskEvent).to.not.be.null;
     expect(taskEvent).to.be.length(1);
     expect(taskEvent[0]).to.be.deep.include({
@@ -262,7 +262,7 @@ class TasksControllerSpec {
     const options: ITaskExectorOptions = {waitForRemoteResults: true};
     let _url = URL + '/api' + API_CTRL_TASK_EXEC.replace(':taskName', 'simple_task');
     _url = _url + '?options=' + JSON.stringify(options);
-    const taskEvent: any = await request.get(_url, {json: true, passBody: true});
+    const taskEvent: any = await request.get(_url, {responseType: 'json', passBody: true});
     expect(taskEvent).to.not.be.null;
     expect(taskEvent).to.be.length(1);
     // console.log(inspect(taskEvent, false, 10));
@@ -294,7 +294,7 @@ class TasksControllerSpec {
   async 'execute remote task and get status'() {
     const _url = URL + '/api' + API_CTRL_TASK_EXEC.replace(':taskName', 'simple_task');
     // _url = _url + '?options=' + JSON.stringify(options);
-    const taskEvents: any = await request.get(_url, {json: true, passBody: true});
+    const taskEvents: any = await request.get(_url, {responseType: 'json', passBody: true});
     expect(taskEvents).to.not.be.null;
     expect(taskEvents).to.be.length(1);
     await TestHelper.wait(100);
@@ -303,7 +303,7 @@ class TasksControllerSpec {
       .replace(':runnerId', taskEvent.id);
 
 
-    const taskStatuses: any = await request.get(_urlStatus, {json: true, passBody: true});
+    const taskStatuses: any = await request.get(_urlStatus, {responseType: 'json', passBody: true});
     // console.log(inspect(taskEvent, false, 10));
     // console.log(inspect(taskStatuses, false, 10));
     expect(taskStatuses).to.not.be.null;
@@ -338,7 +338,7 @@ class TasksControllerSpec {
         .replace(':taskName', 'simple_task_with_params') + '?params=' +
       JSON.stringify({need_this: {really: {important: 'data'}}}) + '&targetIds=' +
       JSON.stringify(['fake_app_node_tasks']);
-    const taskEvents: TaskEvent[] = await request.get(_url, {passBody: true, json: true}) as any;
+    const taskEvents: TaskEvent[] = await request.get(_url, {passBody: true, responseType: 'json'}) as any;
     expect(taskEvents).to.not.be.null;
     expect(taskEvents.length).to.be.gt(0);
     const taskEvent = taskEvents.shift();
@@ -353,7 +353,7 @@ class TasksControllerSpec {
       .replace(':runnerId', taskEvent.id);
 
 
-    const taskStatuses: any = await request.get(_urlStatus, {passBody: true, json: true});
+    const taskStatuses: any = await request.get(_urlStatus, {passBody: true, responseType: 'json'});
     expect(taskStatuses).to.not.be.null;
     expect(taskStatuses.length).to.be.gt(0);
     const taskStatus1 = taskStatuses.shift();
@@ -398,10 +398,10 @@ class TasksControllerSpec {
         .replace(':taskName', 'simple_task_with_params') + '?targetIds=' +
       JSON.stringify(['fake_app_node_tasks']);
     try {
-      const taskEvents: TaskEvent[] = await request.get(_url, {passBody: true, json: true}) as any;
+      const taskEvents: TaskEvent[] = await request.get(_url, {passBody: true, responseType: 'json'}) as any;
       expect(true).to.be.eq(false);
     } catch (err) {
-      const body = err.body;
+      const body = err.response.body;
       expect(body.message).to.be.eq('The required value is not passed. data: {"required":"needThis"}');
     }
   }
@@ -413,7 +413,7 @@ class TasksControllerSpec {
         .replace(':taskName', 'simple_task_with_params') + '?targetIds=' +
       JSON.stringify(['fake_app_node_tasks']) +
       '&options=' + JSON.stringify(<ITaskExectorOptions>{skipThrow: true});
-    const taskEvents: TaskEvent[] = await request.get(_url, {passBody: true, json: true}) as any;
+    const taskEvents: TaskEvent[] = await request.get(_url, {passBody: true, responseType: 'json'}) as any;
     expect(taskEvents).to.have.length(1);
     expect(taskEvents[0].errors).to.have.length(1);
     expect(taskEvents[0].errors[0].message).to.be.eq('The required value is not passed.');
@@ -433,10 +433,10 @@ class TasksControllerSpec {
 
     try {
       const runnerResults: ITaskRunnerResult[] = await request.get(_url,
-        {passBody: true, json: true}) as any;
+        {passBody: true, responseType: 'json'}) as any;
       expect(true).to.be.eq(false);
     } catch (err) {
-      const body = err.body;
+      const body = err.response.body;
       expect(body.message).to.be.eq('never ready');
     }
   }
@@ -448,7 +448,7 @@ class TasksControllerSpec {
         .replace(':taskName', 'simple_task_with_error')
       + '?options=' + JSON.stringify(<ITaskExectorOptions>{skipThrow: true, waitForRemoteResults: true});
 
-    const runnerResults: ITaskRunnerResult[] = await request.get(_url, {passBody: true, json: true}) as any;
+    const runnerResults: ITaskRunnerResult[] = await request.get(_url, {passBody: true, responseType: 'json'}) as any;
     expect(runnerResults).to.have.length(1);
     expect(runnerResults[0].results).to.have.length(1);
     expect(runnerResults[0].results[0].error).to.not.be.empty;
@@ -481,7 +481,7 @@ class TasksControllerSpec {
         .replace(':runnerId', event.id) +
       '?options=' + JSON.stringify(<IMessageOptions>{filterErrors: true});
 
-    const taskEvent = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
+    const taskEvent = (await request.get(_urlLog, {responseType: 'json', passBody: true})) as unknown as any[];
     expect(taskEvent).to.have.length(1);
     const te = taskEvent.shift();
     expect(te).to.contain('"message":"taskRef start: simple_task"');
@@ -494,14 +494,8 @@ class TasksControllerSpec {
       .replace(':nodeId', 'fake_app_node_tasks')
       .replace(':runnerId', 'none_existing_runnerid');
 
-    const taskEvent = (await request.get(_urlLog, {json: true, passBody: true, retry: 0})) as unknown as any[];
+    const taskEvent = (await request.get(_urlLog, {responseType: 'json', passBody: true, retry: 0})) as unknown as any[];
     expect(taskEvent).to.be.deep.eq([
-      {
-        'error': 'Error',
-        'instNr': 0,
-        'message': 'access to path not allowed',
-        'nodeId': 'server',
-      },
       {
         'error': 'Error',
         'instNr': 0,
@@ -533,17 +527,17 @@ class TasksControllerSpec {
       .replace(':nodeId', event.nodeId)
       .replace(':runnerId', event.id);
 
-    const taskEvent = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
-    expect(taskEvent).to.have.length(2);
-    expect(taskEvent[0]).to.be.have.keys(['error', 'message', 'nodeId', 'instNr']);
-    expect(typeof taskEvent[1]).to.be.eq('string');
+    const taskEvent = (await request.get(_urlLog, {responseType: 'json', passBody: true})) as unknown as any[];
+    expect(taskEvent).to.have.length(1);
+    // expect(JSON.parse(taskEvent[0])).to.be.have.keys(['error', 'message', 'nodeId', 'instNr']);
+    expect(typeof taskEvent[0]).to.be.eq('string');
   }
 
 
   @test
   async 'get all active runners'() {
     const _urlLog = URL + '/api' + API_CTRL_TASKS_RUNNERS_INFO;
-    const runnersStatus = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
+    const runnersStatus = (await request.get(_urlLog, {responseType: 'json', passBody: true})) as unknown as any[];
 
     const exec = Injector.create(TaskExecutor);
     const executionEvent = await exec
@@ -559,7 +553,7 @@ class TasksControllerSpec {
 
 
     await TestHelper.wait(200);
-    const runnersStatus2 = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
+    const runnersStatus2 = (await request.get(_urlLog, {responseType: 'json', passBody: true})) as unknown as any[];
     await TestHelper.wait(1000);
     expect(runnersStatus).to.have.length(0);
 
@@ -601,7 +595,7 @@ class TasksControllerSpec {
   @test
   async 'get all runnings tasks'() {
     const _urlLog = URL + '/api' + API_CTRL_TASKS_RUNNING;
-    const runningTasks = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
+    const runningTasks = (await request.get(_urlLog, {responseType: 'json', passBody: true})) as unknown as any[];
 
     const exec = Injector.create(TaskExecutor);
     const executionEvent = await exec
@@ -617,7 +611,7 @@ class TasksControllerSpec {
 
 
     await TestHelper.wait(200);
-    const runningTasks2 = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
+    const runningTasks2 = (await request.get(_urlLog, {responseType: 'json', passBody: true})) as unknown as any[];
     await TestHelper.wait(1000);
     // console.log(inspect(runningTasks, false, 10));
     // console.log(inspect(executionEvent, false, 10));
@@ -648,7 +642,7 @@ class TasksControllerSpec {
   @test
   async 'get runnings tasks from own node'() {
     const _urlLog = URL + '/api' + API_CTRL_TASKS_RUNNING_ON_NODE.replace(':nodeId', 'server');
-    const runningTasks = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
+    const runningTasks = (await request.get(_urlLog, {responseType: 'json', passBody: true})) as unknown as any[];
 
     const exec = Injector.create(TaskExecutor);
     const executionEvent = await exec
@@ -664,7 +658,7 @@ class TasksControllerSpec {
 
 
     await TestHelper.wait(200);
-    const runningTasks2 = (await request.get(_urlLog, {json: true, passBody: true})) as unknown as any[];
+    const runningTasks2 = (await request.get(_urlLog, {responseType: 'json', passBody: true})) as unknown as any[];
     await TestHelper.wait(1000);
     expect(runningTasks).to.have.length(0);
 
