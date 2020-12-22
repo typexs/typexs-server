@@ -1,5 +1,5 @@
 import {suite, test, timeout} from '@testdeck/mocha';
-import {Bootstrap, C_STORAGE_DEFAULT, Config, Injector,  IRuntimeLoaderOptions, ITypexsOptions, StorageRef} from '@typexs/base';
+import {Bootstrap, C_STORAGE_DEFAULT, Config, Injector, IRuntimeLoaderOptions, ITypexsOptions, StorageRef} from '@typexs/base';
 import {
   API_CTRL_STORAGE_AGGREGATE_ENTITY,
   API_CTRL_STORAGE_DELETE_ENTITIES_BY_CONDITION,
@@ -10,7 +10,6 @@ import {
   API_CTRL_STORAGE_METADATA_ALL_STORES,
   API_CTRL_STORAGE_METADATA_GET_ENTITY,
   API_CTRL_STORAGE_METADATA_GET_STORE,
-  API_CTRL_STORAGE_PREFIX,
   API_CTRL_STORAGE_SAVE_ENTITY,
   API_CTRL_STORAGE_UPDATE_ENTITIES_BY_CONDITION,
   API_CTRL_STORAGE_UPDATE_ENTITY,
@@ -351,7 +350,9 @@ class Storage_api_controllerSpec {
 
     expect(res).to.deep.eq({
       '$label': '1',
-      '$url': 'api/storage/entity/random_data/1',
+      '$url': '/storage/entity/random_data/1',
+      '__class__': 'RandomData',
+      '__registry__': 'typeorm',
       'bool': false,
       'boolNeg': false,
       'date': '2020-02-01T23:00:00.000Z',
@@ -381,7 +382,9 @@ class Storage_api_controllerSpec {
     // expect(res).to.have.length(2);
     expect(res.entities[0]).to.deep.eq({
       '$label': '1',
-      '$url': 'api/storage/entity/random_data/1',
+      '$url': '/storage/entity/random_data/1',
+      '__class__': 'RandomData',
+      '__registry__': 'typeorm',
       'bool': false,
       'boolNeg': false,
       'date': '2020-02-01T23:00:00.000Z',
@@ -393,7 +396,9 @@ class Storage_api_controllerSpec {
     });
     expect(res.entities[1]).to.deep.eq({
       '$label': '2',
-      '$url': 'api/storage/entity/random_data/2',
+      '$url': '/storage/entity/random_data/2',
+      '__class__': 'RandomData',
+      '__registry__': 'typeorm',
       'bool': true,
       'boolNeg': false,
       'date': '2020-03-03T23:00:00.000Z',
@@ -426,7 +431,9 @@ class Storage_api_controllerSpec {
     expect(res.entities).to.have.length(1);
     expect(res.entities[0]).to.be.deep.eq({
       '$label': '5',
-      '$url': 'api/storage/entity/random_data/5',
+      '$url': '/storage/entity/random_data/5',
+      '__class__': 'RandomData',
+      '__registry__': 'typeorm',
       'bool': false,
       'boolNeg': false,
       'date': '2020-06-09T22:00:00.000Z',
@@ -455,7 +462,10 @@ class Storage_api_controllerSpec {
     expect(res.entities).to.have.length(5);
     expect(res.entities[0]).to.be.deep.eq({
       '$label': '6',
-      '$url': 'api/storage/entity/random_data/6',
+      '$url': '/storage/entity/random_data/6',
+      '__class__': 'RandomData',
+      '__registry__': 'typeorm',
+
       'bool': true,
       'boolNeg': false,
       'date': '2020-07-11T22:00:00.000Z',
