@@ -211,8 +211,8 @@ export const PERMISSION_ALLOW_DISTRIBUTED_STORAGE_DELETE_ENTITY = 'allow delete 
 export const PERMISSION_ALLOW_DISTRIBUTED_STORAGE_DELETE_ENTITY_PATTERN = 'allow delete distributed storage entity :name';
 
 
-export const XS_P_URL = '$url';
-export const XS_P_LABEL = '$label';
+export const XS_P_$URL = '$url';
+export const XS_P_$LABEL = '$label';
 
 /**
  * TasksController constants

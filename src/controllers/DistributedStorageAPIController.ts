@@ -11,11 +11,14 @@ import {
   Storage,
   XS_P_$COUNT,
   XS_P_$LIMIT,
-  XS_P_$OFFSET
+  XS_P_$OFFSET,
+  XS_P_$CLASS,
+  XS_P_$REGISTRY
 } from '@typexs/base';
 import {
   _API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITIES_BY_CONDITION,
-  _API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITY, _API_CTRL_DISTRIBUTED_STORAGE_FIND_ENTITY,
+  _API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITY,
+  _API_CTRL_DISTRIBUTED_STORAGE_FIND_ENTITY,
   _API_CTRL_DISTRIBUTED_STORAGE_GET_ENTITY,
   _API_CTRL_DISTRIBUTED_STORAGE_SAVE_ENTITY,
   _API_CTRL_DISTRIBUTED_STORAGE_UPDATE_ENTITIES_BY_CONDITION,
@@ -31,13 +34,13 @@ import {
   PERMISSION_ALLOW_DISTRIBUTED_STORAGE_SAVE_ENTITY_PATTERN,
   PERMISSION_ALLOW_DISTRIBUTED_STORAGE_UPDATE_ENTITY,
   PERMISSION_ALLOW_DISTRIBUTED_STORAGE_UPDATE_ENTITY_PATTERN,
-  XS_P_LABEL,
-  XS_P_URL
+  XS_P_$LABEL,
+  XS_P_$URL
 } from '../libs/Constants';
 import {HttpResponseError} from '../libs/exceptions/HttpResponseError';
-import {IBuildOptions, IEntityRef} from 'commons-schema-api';
+import {IBuildOptions, IEntityRef, IPropertyRef} from 'commons-schema-api';
 import {Expressions} from 'commons-expressions';
-import {JsonUtils} from 'commons-base';
+import {ClassUtils, JsonUtils} from 'commons-base';
 import {IDistributedFindOptions} from '@typexs/base/libs/distributed_storage/find/IDistributedFindOptions';
 import {IUpdateOptions} from '@typexs/base/libs/storage/framework/IUpdateOptions';
 import {IDistributedAggregateOptions} from '@typexs/base/libs/distributed_storage/aggregate/IDistributedAggregateOptions';
@@ -67,19 +70,47 @@ export class DistributedStorageAPIController {
   @Inject()
   controller: DistributedStorageEntityController;
 
-  static _afterEntity(entityDef: IEntityRef, entity: any[]): void {
-    const props = entityDef.getPropertyRefs().filter(id => id.isIdentifier());
-    entity.forEach(e => {
-      const idStr = Expressions.buildLookupConditions(entityDef, e);
-      const nodeId = e.__nodeId__;
-      const url = `${API_CTRL_DISTRIBUTED_STORAGE_GET_ENTITY}`
-        .replace(':name', entityDef.machineName)
-        .replace(':id', idStr)
-        .replace(':nodeId', nodeId);
-      e[XS_P_URL] = url;
-      e[XS_P_LABEL] = _.isFunction(e.label) ? e.label() : _.map(props, p => p.get(e)).join(' ');
-    });
+  static _afterEntity(entityRef: IEntityRef | IEntityRef[], entity: any[]): void {
+    // const props = entityDef.getPropertyRefs().filter(id => id.isIdentifier());
+    // entity.forEach(e => {
+    //   const idStr = Expressions.buildLookupConditions(entityDef, e);
+    //   const nodeId = e.__nodeId__;
+    //   const url = `${API_CTRL_DISTRIBUTED_STORAGE_GET_ENTITY}`
+    //     .replace(':name', entityDef.machineName)
+    //     .replace(':id', idStr)
+    //     .replace(':nodeId', nodeId);
+    //   e[XS_P_$URL] = url;
+    //   e[XS_P_$LABEL] = _.isFunction(e.label) ? e.label() : _.map(props, p => p.get(e)).join(' ');
+    // });
 
+    if (_.isArray(entityRef)) {
+      entity.forEach(e => {
+        const nodeId = e.__nodeId__;
+        const clsName = ClassUtils.getClassName(e);
+        const _entityRef = entityRef.find(x => x.name === clsName);
+        const props = _entityRef.getPropertyRefs().filter(id => id.isIdentifier());
+        this.addMeta(_entityRef, e, props);
+      });
+    } else {
+      const props = entityRef.getPropertyRefs().filter(id => id.isIdentifier());
+      entity.forEach(e => {
+        this.addMeta(entityRef, e, props);
+      });
+    }
+  }
+
+
+  private static addMeta(entityRef: IEntityRef, e: any, props: IPropertyRef[]) {
+    const nodeId = e.__nodeId__;
+    const idStr = Expressions.buildLookupConditions(entityRef, e);
+    const url = `${API_CTRL_DISTRIBUTED_STORAGE_GET_ENTITY}`
+      .replace(':name', entityRef.machineName)
+      .replace(':id', idStr)
+      .replace(':nodeId', nodeId);
+    e[XS_P_$URL] = url;
+    e[XS_P_$LABEL] = _.isFunction(e.label) ? e.label() : _.map(props, p => p.get(e)).join(' ');
+    e[XS_P_$CLASS] = entityRef.name;
+    e[XS_P_$REGISTRY] = entityRef['_lookupRegistry'];
   }
 
 
@@ -135,7 +166,7 @@ export class DistributedStorageAPIController {
     @QueryParam('opts') opts: IDistributedFindOptions | IDistributedAggregateOptions = {},
     @CurrentUser() user: any
   ) {
-    const [entityRef, controller] = this.getControllerForEntityName(name);
+    const {ref, controller} = this.getControllerForEntityName(name);
 
     if (!_.isNumber(limit)) {
       limit = 50;
@@ -166,7 +197,7 @@ export class DistributedStorageAPIController {
       }
     }
 
-    let result = null;
+    let result: any = null;
     if (aggr && !_.isEmpty(aggr)) {
       const options: IDistributedAggregateOptions = {
         limit: limit,
@@ -176,7 +207,7 @@ export class DistributedStorageAPIController {
       DistributedStorageAPIController.checkOptions(opts, options);
 
       result = await controller.aggregate(
-        entityRef.getClassRef().getClass() as any,
+        (_.isArray(ref) ? ref.map(r => r.getClassRef().getClass()) : ref.getClassRef().getClass()) as any,
         conditions,
         options);
     } else {
@@ -188,9 +219,12 @@ export class DistributedStorageAPIController {
       };
       DistributedStorageAPIController.checkOptions(opts, options);
 
-      result = await controller.find(entityRef.getClassRef().getClass(), conditions, options);
+      result = await controller.find(
+        (_.isArray(ref) ? ref.map(r => r.getClassRef().getClass()) : ref.getClassRef().getClass()) as any,
+        conditions,
+        options);
       if (!_.isEmpty(result)) {
-        DistributedStorageAPIController._afterEntity(entityRef, result);
+        DistributedStorageAPIController._afterEntity(ref, result);
       }
     }
 
@@ -200,6 +234,12 @@ export class DistributedStorageAPIController {
       $limit: result[XS_P_$LIMIT],
       $offset: result[XS_P_$OFFSET]
     };
+    // pass $dollared key
+    if (result) {
+      _.keys(result).filter(x => _.isString(x) && /^\$/.test(x)).forEach(k => {
+        results[k] = result[k];
+      });
+    }
     return results;
   }
 
@@ -219,14 +259,17 @@ export class DistributedStorageAPIController {
     if (_.isEmpty(name) || _.isEmpty(id)) {
       throw new HttpResponseError(['distributed_storage', 'find'], 'Entity name or id not set');
     }
-    const [entityRef, controller] = this.getControllerForEntityName(name);
+    const {ref, controller} = this.getControllerForEntityName(name);
+    if (_.isArray(ref)) {
+      throw new Error('multiple entity ref are not supported for "save"');
+    }
     const options: IDistributedFindOptions = {limit: 50};
     DistributedStorageAPIController.checkOptions(opts, options);
     if (!options.targetIds) {
       options.targetIds = [targetId];
     }
 
-    let conditions = Expressions.parseLookupConditions(entityRef, id);
+    let conditions = Expressions.parseLookupConditions(ref, id);
 
     let result = null;
     if (_.isArray(conditions)) {
@@ -236,8 +279,8 @@ export class DistributedStorageAPIController {
       }
 
       result = await controller.find(
-        entityRef.getClassRef().getClass(), conditions, options);
-      DistributedStorageAPIController._afterEntity(entityRef, result);
+        ref.getClassRef().getClass(), conditions, options);
+      DistributedStorageAPIController._afterEntity(ref, result);
       const results = {
         entities: result,
         $count: result[XS_P_$COUNT],
@@ -247,8 +290,8 @@ export class DistributedStorageAPIController {
       result = results;
     } else {
       options.limit = 1;
-      result = await controller.find(entityRef.getClassRef().getClass(), conditions, options);
-      DistributedStorageAPIController._afterEntity(entityRef, result);
+      result = await controller.find(ref.getClassRef().getClass(), conditions, options);
+      DistributedStorageAPIController._afterEntity(ref, result);
       result = result.shift();
     }
 
@@ -270,13 +313,16 @@ export class DistributedStorageAPIController {
              @Body() data: any,
              @QueryParam('opts') opts: ISaveOptions | IUpdateOptions = {},
              @CurrentUser() user: any): Promise<any> {
-    const [entityDef, controller] = this.getControllerForEntityName(name);
+    const {ref, controller} = this.getControllerForEntityName(name);
+    if (_.isArray(ref)) {
+      throw new Error('multiple entity ref are not supported for "save"');
+    }
     const options: IDistributedSaveOptions = {validate: true};
     DistributedStorageAPIController.checkOptions(opts, options);
     if (!options.targetIds) {
       options.targetIds = [targetId];
     }
-    const entities = this.prepareEntities(entityDef, data, options);
+    const entities = this.prepareEntities(ref, data, options);
     try {
       const results = await controller.save(entities, options);
       return results;
@@ -302,7 +348,10 @@ export class DistributedStorageAPIController {
                    @Body() data: any,
                    @CurrentUser() user: any) {
 
-    const [entityDef, controller] = this.getControllerForEntityName(name);
+    const {ref, controller} = this.getControllerForEntityName(name);
+    if (_.isArray(ref)) {
+      throw new Error('multiple entity ref are not supported for "update"');
+    }
     // let conditions = Expressions.parseLookupConditions(entityDef, id);
     // if (conditions.length > 1) {
     //   // multiple ids should be bound by 'or', else it would be 'and'
@@ -313,7 +362,7 @@ export class DistributedStorageAPIController {
     if (!options.targetIds) {
       options.targetIds = [targetId];
     }
-    const entities = this.prepareEntities(entityDef, data, options);
+    const entities = this.prepareEntities(ref, data, options);
 
     try {
       const results = await controller.save(entities, options);
@@ -347,7 +396,10 @@ export class DistributedStorageAPIController {
       query = {};
     }
 
-    const [entityDef, controller] = this.getControllerForEntityName(name);
+    const {ref, controller} = this.getControllerForEntityName(name);
+    if (_.isArray(ref)) {
+      throw new Error('multiple entity ref are not supported for "update"');
+    }
     const options: IDistributedUpdateOptions = {};
     DistributedStorageAPIController.checkOptions(opts, options);
     if (!options.targetIds) {
@@ -355,7 +407,7 @@ export class DistributedStorageAPIController {
     }
     try {
       const results = await controller.update(
-        entityDef.getClassRef().getClass() as any,
+        ref.getClassRef().getClass() as any,
         query,
         data,
         options
@@ -385,8 +437,11 @@ export class DistributedStorageAPIController {
                    @QueryParam('opts') opts: IDistributedRemoveOptions = {},
                    @Body() data: any,
                    @CurrentUser() user: any) {
-    const [entityDef, controller] = this.getControllerForEntityName(name);
-    let conditions = Expressions.parseLookupConditions(entityDef, id);
+    const {ref, controller} = this.getControllerForEntityName(name);
+    if (_.isArray(ref)) {
+      throw new Error('multiple entity ref are not supported for "delete"');
+    }
+    let conditions = Expressions.parseLookupConditions(ref, id);
     if (conditions.length > 1) {
       // multiple ids should be bound by 'or', else it would be 'and'
       conditions = {$or: conditions};
@@ -398,7 +453,7 @@ export class DistributedStorageAPIController {
       options.targetIds = [targetId];
     }
     const results = await controller.find(
-      entityDef.getClassRef().getClass(),
+      ref.getClassRef().getClass(),
       conditions,
       options);
 
@@ -433,8 +488,10 @@ export class DistributedStorageAPIController {
       // multiple ids should be bound by 'or', else it would be 'and'
       throw new HttpResponseError(['distributed_storage', 'delete'], 'query for selection is empty');
     }
-    const [entityDef, controller] = this.getControllerForEntityName(name);
-
+    const {ref, controller} = this.getControllerForEntityName(name);
+    if (_.isArray(ref)) {
+      throw new Error('multiple entity ref are not supported for "delete"');
+    }
     const options: IDistributedRemoveOptions = {};
     DistributedStorageAPIController.checkOptions(opts, options);
     if (!options.targetIds) {
@@ -442,20 +499,20 @@ export class DistributedStorageAPIController {
     }
 
     return await controller.remove(
-      entityDef.getClassRef().getClass() as any,
+      ref.getClassRef().getClass() as any,
       query,
       options);
   }
 
 
-  private getControllerForEntityName(name: string): [IEntityRef, DistributedStorageEntityController] {
+  private getControllerForEntityName(name: string): { ref: IEntityRef | IEntityRef[], controller: DistributedStorageEntityController } {
     const storageRef = this.getStorageRef(name);
     const entityRef = this.getEntityRef(storageRef, name);
-    return [entityRef, this.controller];
+    return {ref: entityRef, controller: this.controller};
   }
 
 
-  private getEntityRef(storageRef: IStorageRef, entityName: string): IEntityRef {
+  private getEntityRef(storageRef: IStorageRef, entityName: string): IEntityRef | IEntityRef[] {
     const entityRef = storageRef.getEntityRef(entityName);
     if (!entityRef) {
       throw new HttpResponseError(['distributed_storage', 'entity_ref_not_found'], 'Entity reference not found for ' + name);

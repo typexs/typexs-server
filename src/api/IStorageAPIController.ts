@@ -24,7 +24,10 @@ export interface IStorageAPIController {
    * @param results - can be array or single entity
    * @param callOptions - is a map with => paramName to value
    */
-  postProcessResults?(state: STORAGE_API_CONTROLLER_STATE, entityRef: IEntityRef, results: any | any[], callOptions?: any): void;
+  postProcessResults?(state: STORAGE_API_CONTROLLER_STATE,
+                      entityRef: IEntityRef | IEntityRef[],
+                      results: any | any[],
+                      callOptions?: any): void;
 
 
 }
