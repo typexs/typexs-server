@@ -83,8 +83,7 @@ export class StorageAPIController {
   static _afterEntity(entityRef: IEntityRef | IEntityRef[], entity: any[]): void {
     if (_.isArray(entityRef)) {
       entity.forEach(e => {
-        const clsName = ClassUtils.getClassName(e);
-        const _entityRef = entityRef.find(x => x.name === clsName);
+        const _entityRef = entityRef.find(x => x.isOf(e));
         const props = _entityRef.getPropertyRefs().filter(id => id.isIdentifier());
         this.addMeta(_entityRef, e, props);
       });
