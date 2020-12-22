@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 import {Body, CurrentUser, Delete, Get, JsonController, Param, Post, Put, QueryParam} from 'routing-controllers';
 import {
+  __CLASS__, __REGISTRY__,
   Cache,
   DistributedStorageEntityController,
   Inject,
@@ -11,9 +12,7 @@ import {
   Storage,
   XS_P_$COUNT,
   XS_P_$LIMIT,
-  XS_P_$OFFSET,
-  XS_P_$CLASS,
-  XS_P_$REGISTRY
+  XS_P_$OFFSET
 } from '@typexs/base';
 import {
   _API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITIES_BY_CONDITION,
@@ -109,8 +108,8 @@ export class DistributedStorageAPIController {
       .replace(':nodeId', nodeId);
     e[XS_P_$URL] = url;
     e[XS_P_$LABEL] = _.isFunction(e.label) ? e.label() : _.map(props, p => p.get(e)).join(' ');
-    e[XS_P_$CLASS] = entityRef.name;
-    e[XS_P_$REGISTRY] = entityRef['_lookupRegistry'];
+    e[__CLASS__] = entityRef.name;
+    e[__REGISTRY__] = entityRef['_lookupRegistry'];
   }
 
 

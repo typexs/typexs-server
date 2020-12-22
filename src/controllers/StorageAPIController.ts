@@ -13,11 +13,11 @@ import {
   Log,
   NotYetImplementedError,
   Storage,
-  XS_P_$CLASS,
+  __CLASS__,
   XS_P_$COUNT,
   XS_P_$LIMIT,
   XS_P_$OFFSET,
-  XS_P_$REGISTRY,
+  __REGISTRY__
 } from '@typexs/base';
 import {
   _API_CTRL_STORAGE_AGGREGATE_ENTITY,
@@ -101,8 +101,8 @@ export class StorageAPIController {
     const idStr = Expressions.buildLookupConditions(entityRef, e);
     e[XS_P_$URL] = `${API_CTRL_STORAGE_GET_ENTITY}`.replace(':name', entityRef.machineName).replace(':id', idStr);
     e[XS_P_$LABEL] = _.isFunction(e.label) ? e.label() : _.map(props, p => p.get(e)).join(' ');
-    e[XS_P_$CLASS] = entityRef.name;
-    e[XS_P_$REGISTRY] = entityRef['_lookupRegistry'];
+    e[__CLASS__] = entityRef.name;
+    e[__REGISTRY__] = entityRef['_lookupRegistry'];
   }
 
   static checkOptions(opts: any, options: any) {
