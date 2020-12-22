@@ -36,6 +36,7 @@ import {
   PERMISSION_ALLOW_WORKERS_INFO
 } from './libs/Constants';
 import {BasicPermission, IPermissionDef, IPermissions} from '@typexs/roles-api';
+import {IEntityRef} from 'commons-schema-api/browser';
 
 
 export class Activator implements IActivator, IPermissions {
@@ -113,9 +114,9 @@ export class Activator implements IActivator, IPermissions {
         for (const entity of entities) {
           let eRef = null;
           if (entity instanceof EntitySchema) {
-            eRef = ref.getEntityRef(entity.options.target);
+            eRef = ref.getEntityRef(entity.options.target) as IEntityRef;
           } else {
-            eRef = ref.getEntityRef(entity);
+            eRef = ref.getEntityRef(entity) as IEntityRef;
           }
 
           if (eRef) {
