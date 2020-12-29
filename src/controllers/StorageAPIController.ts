@@ -1,6 +1,8 @@
 import * as _ from 'lodash';
 import {Body, CurrentUser, Delete, Get, HttpError, JsonController, Param, Post, Put, QueryParam} from 'routing-controllers';
 import {
+  __CLASS__,
+  __REGISTRY__,
   Cache,
   ClassLoader,
   ICollection,
@@ -13,11 +15,9 @@ import {
   Log,
   NotYetImplementedError,
   Storage,
-  __CLASS__,
   XS_P_$COUNT,
   XS_P_$LIMIT,
-  XS_P_$OFFSET,
-  __REGISTRY__
+  XS_P_$OFFSET
 } from '@typexs/base';
 import {
   _API_CTRL_STORAGE_AGGREGATE_ENTITY,
@@ -54,12 +54,13 @@ import {Expressions} from 'commons-expressions';
 import {IStorageRefMetadata} from '../libs/storage_api/IStorageRefMetadata';
 import {SystemNodeInfoApi} from '../api/SystemNodeInfo.api';
 import {StorageAPIControllerApi} from '../api/StorageAPIController.api';
-import {ClassUtils, JsonUtils, TreeUtils, WalkValues} from 'commons-base';
+import {JsonUtils, TreeUtils, WalkValues} from 'commons-base';
 import {IDeleteOptions} from '@typexs/base/libs/storage/framework/IDeleteOptions';
 import {IUpdateOptions} from '@typexs/base/libs/storage/framework/IUpdateOptions';
 import {IAggregateOptions} from '@typexs/base/libs/storage/framework/IAggregateOptions';
 import {ContextGroup} from '../decorators/ContextGroup';
 import {Access} from '../decorators/Access';
+import {IRolesHolder, PermissionHelper} from '@typexs/roles-api/index';
 
 @ContextGroup(C_API)
 @JsonController(API_CTRL_STORAGE_PREFIX)
@@ -235,9 +236,9 @@ export class StorageAPIController {
     limit: number = 50,
     offset: number = 0,
     opts: IFindOptions = {},
-    user: any
+    user: IRolesHolder
   ) {
-    const {ref, controller} = this.getControllerForEntityName(name);
+    const {ref, controller} = this.getControllerForEntityName(name, user);
 
     if (!_.isNumber(limit)) {
       limit = 50;
@@ -614,10 +615,10 @@ export class StorageAPIController {
   }
 
 
-  private getControllerForEntityName(name: string): { ref: IEntityRef | IEntityRef[], controller: IEntityController } {
+  private getControllerForEntityName(name: string, user?: IRolesHolder): { ref: IEntityRef | IEntityRef[], controller: IEntityController } {
     const storageRef = this.getStorageRef(name);
     const controller = storageRef.getController();
-    const entityRef = this.getEntityRef(storageRef, name);
+    const entityRef = this.getEntityRef(storageRef, name, user);
     return {
       ref: entityRef,
       controller: controller
@@ -625,10 +626,35 @@ export class StorageAPIController {
   }
 
 
-  private getEntityRef(storageRef: IStorageRef, entityName: string): IEntityRef | IEntityRef[] {
+  private getEntityRef(storageRef: IStorageRef, entityName: string, user?: IRolesHolder): IEntityRef | IEntityRef[] {
     const entityRef = storageRef.getEntityRef(entityName);
     if (!entityRef) {
       throw new HttpResponseError(['storage', 'entity_ref_not_found'], 'Entity reference not found for ' + name);
+    }
+    if (user && user['getRoles'] && _.isFunction(user['getRoles'])) {
+      const isArray = _.isArray(entityRef);
+      const entitiesToCheck: IEntityRef[] = isArray ? entityRef as any[] : [entityRef];
+      const allowedEntities = [];
+      const roles = user.getRoles();
+      const permissions = PermissionHelper.getPermissionNamesFromRoles(roles);
+      for (const entity of entitiesToCheck) {
+        if (PermissionHelper.checkPermission(permissions,
+          PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN.replace(':name', entity.machineName))) {
+          allowedEntities.push(entity);
+        }
+      }
+
+      if (allowedEntities.length > 0) {
+        if (isArray) {
+          return allowedEntities;
+        } else {
+          return allowedEntities.shift();
+        }
+      } else {
+        throw new HttpResponseError(['storage', 'entity_ref_not_found'], 'Entity reference not found for ' + name + ' or permissions are not given.');
+      }
+
+
     }
     return entityRef;
   }

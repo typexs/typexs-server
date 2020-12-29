@@ -19,12 +19,45 @@ export class RoutePermissionsHelper {
       let permissions: string[] = [];
       actionMetadatas.map(p => p.permissions && _.isArray(p.permissions) ? permissions = permissions.concat(p.permissions) : null);
       if (!_.isEmpty(permissions)) {
-        return _.map(permissions, right => {
-          _.keys(params).forEach(p => {
-            right = right.replace(':' + p, _.snakeCase(params[p] + ''));
-          });
-          return right;
-        });
+
+        const parameterizePermissions = [];
+        for (const right of permissions) {
+          const hasMatches = right.match(/:((\w|_)+(\d|\w|_)+)/g);
+          if (hasMatches) {
+            let rights = [right];
+            for (const match of hasMatches) {
+              let paramName = match.replace(':', '');
+
+              if (!params[paramName] && params[_.snakeCase(paramName)]) {
+                paramName = _.snakeCase(paramName);
+              }
+
+              if (params[paramName]) {
+                if (/,/.test(params[paramName])) {
+                  // multiply rights
+                  const multipliedRights = params[paramName].split(',').map((x: string) => x.trim()).map((y: string) => {
+                    return rights.map(z => z.replace(match, y + ''));
+                  });
+                  rights = _.concat([], ...multipliedRights);
+                } else {
+                  rights = rights.map(z => z.replace(match, params[paramName] + ''));
+                }
+              }
+            }
+            parameterizePermissions.push(...rights);
+          } else {
+            parameterizePermissions.push(right);
+          }
+        }
+
+        return parameterizePermissions;
+
+        // return _.map(permissions, right => {
+        //   _.keys(params).forEach(p => {
+        //     right = right.replace(':' + p, _.snakeCase(params[p] + ''));
+        //   });
+        //   return right;
+        // });
       }
     }
     return [];
