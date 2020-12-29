@@ -13,7 +13,9 @@ import {
   API_CTRL_STORAGE_SAVE_ENTITY,
   API_CTRL_STORAGE_UPDATE_ENTITIES_BY_CONDITION,
   API_CTRL_STORAGE_UPDATE_ENTITY,
-  K_ROUTE_CONTROLLER
+  DEFAULT_ANONYMOUS,
+  K_ROUTE_CONTROLLER,
+  PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN
 } from '../../../src/libs/Constants';
 import {expect} from 'chai';
 import * as _ from 'lodash';
@@ -23,17 +25,27 @@ import {HttpFactory, IHttp} from '@allgemein/http';
 import {Car} from './fake_app_storage/entities/Car';
 import {RandomData} from './fake_app_storage/entities/RandomData';
 import {Server} from '../../../src/libs/server/Server';
+import {Action} from 'routing-controllers';
+import {SecuredObject} from './fake_app_storage/entities/SecuredObject';
+import {IRole, IRolesHolder} from '@typexs/roles-api/index';
+import {BasicPermission} from '@typexs/roles-api';
 
+
+let permissionsCheck = false;
 
 const settingsTemplate: ITypexsOptions & any = {
   storage: {
     default: TEST_STORAGE_OPTIONS
   },
 
-  app: {name: 'demo', path: __dirname + '/fake_app_storage'},
+  app: {
+    name: 'demo',
+    path: __dirname + '/fake_app_storage'
+  },
 
   modules: <IRuntimeLoaderOptions>{
-    paths: [__dirname + '/../../../']
+    paths: [__dirname + '/../../../'],
+    disableCache: true
   },
 
   logging: {
@@ -52,7 +64,32 @@ const settingsTemplate: ITypexsOptions & any = {
       routes: [{
         type: K_ROUTE_CONTROLLER,
         context: 'api',
-        routePrefix: 'api'
+        routePrefix: 'api',
+
+        authorizationChecker: (action: Action, roles: any[]) => {
+          if (!permissionsCheck) {
+            return true;
+          }
+          return true;
+
+        },
+
+        currentUserChecker: (action: Action) => {
+          if (!permissionsCheck) {
+            return DEFAULT_ANONYMOUS;
+          }
+          return <IRolesHolder>{
+            getRoles(): IRole[] {
+              return <IRole[]>[
+                <IRole>{
+                  permissions: [
+                    new BasicPermission(PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN.replace(':name', _.snakeCase(RandomData.name)))
+                  ],
+                }
+              ];
+            }
+          };
+        }
       }]
     }
   }
@@ -170,7 +207,7 @@ class Storage_api_controllerSpec {
     expect(res).to.not.be.null;
     res = res.body;
     expect(res).to.have.length(1);
-    expect(res[0].entities).to.have.length(5);
+    expect(res[0].entities).to.have.length(6);
     expect(_.map(res[0].entities, e => e.name)).to.contain.members(['Driver', 'Car']);
     const driver = _.find(res[0].entities, e => e.name === 'Driver');
     expect(driver.properties).to.have.length(4);
@@ -189,7 +226,7 @@ class Storage_api_controllerSpec {
     res = res.body;
     expect(res).to.exist;
     expect(res.name).to.be.eq('default');
-    expect(res.entities).to.have.length(5);
+    expect(res.entities).to.have.length(6);
     expect(_.map(res.entities, e => e.name)).to.contain.members(['Driver', 'Car']);
     const driver = _.find(res.entities, e => e.name === 'Driver');
     expect(driver.properties).to.have.length(4);
@@ -205,7 +242,7 @@ class Storage_api_controllerSpec {
       API_CTRL_STORAGE_METADATA_ALL_ENTITIES, {responseType: 'json'});
     expect(res).to.not.be.null;
     res = res.body;
-    expect(res).to.have.length(5);
+    expect(res).to.have.length(6);
     expect(_.map(res, r => r.options.storage)).to.contain.members(['default']);
     expect(_.map(res, e => e.name)).to.contain.members(['Driver', 'Car', 'RandomData']);
     const driver = _.find(res, e => e.name === 'Driver');
@@ -478,6 +515,31 @@ class Storage_api_controllerSpec {
     expect(res.entities.map((x: any) => new Date(x.date) > date)).not.contain(false);
 
   }
+
+
+  @test
+  async 'find entities restricted by permissions'() {
+    permissionsCheck = true;
+    let res;
+    try {
+      res = await http.get(URL + '/api' +
+        API_CTRL_STORAGE_FIND_ENTITY.replace(':name', SecuredObject.name) + '?limit=5',
+        {responseType: 'json', passBody: true, retry: 1}
+      ) as any;
+      expect(true).to.be.false;
+    } catch (err) {
+      expect(err).to.not.be.null;
+    }
+    res = await http.get(URL + '/api' +
+      API_CTRL_STORAGE_FIND_ENTITY.replace(':name', RandomData.name) + '?limit=5',
+      {responseType: 'json', passBody: true, retry: 1}
+    ) as any;
+    expect(res).to.not.be.null;
+    expect(res.entities).to.have.length(5);
+
+    permissionsCheck = false;
+  }
+
 
   @test
   async 'aggregate entities'() {
