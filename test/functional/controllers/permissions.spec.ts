@@ -124,7 +124,7 @@ class PermissionsSpec {
 
 
   @test
-  async 'check multivalue permission annotations'() {
+  async 'check multivalue permission annotatigulpons'() {
     const uri = web.getUri();
     const routes = web.getRoutes();
     expect(routes).to.have.length(8);
