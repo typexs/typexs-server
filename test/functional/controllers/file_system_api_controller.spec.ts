@@ -73,6 +73,7 @@ class FileSystemApiControllerSpec {
 
 
   static async before() {
+    Bootstrap.reset();
     const settings = _.clone(settingsTemplate);
     http = HttpFactory.create();
 

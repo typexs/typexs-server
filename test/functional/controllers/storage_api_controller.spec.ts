@@ -114,6 +114,7 @@ class Storage_api_controllerSpec {
 
 
   static async before() {
+    Bootstrap.reset();
     const settings = _.clone(settingsTemplate);
     http = HttpFactory.create();
 
@@ -145,7 +146,7 @@ class Storage_api_controllerSpec {
       randomData.numValue = i * 100;
       randomData.floatValue = i * 0.893;
       randomData.bool = i % 2 === 0;
-      randomData.date = new Date(d.getFullYear(), i, i * 2, 0, 0, 0);
+      randomData.date = new Date(2020, i, i * 2, 0, 0, 0);
       randomData.short = 'short name ' + i;
       randomData.long = 'long long long very long '.repeat(i * 5);
       entries.push(randomData);
@@ -615,7 +616,7 @@ class Storage_api_controllerSpec {
       randomData.numValue = i * 100;
       randomData.floatValue = i * 0.893;
       randomData.bool = i % 2 === 0;
-      randomData.date = new Date(d.getFullYear(), i, i * 2, 0, 0, 0);
+      randomData.date = new Date(2020, i, i * 2, 0, 0, 0);
       randomData.short = 'short name ' + i;
       randomData.long = 'test update';
       entries.push(randomData);
@@ -674,7 +675,7 @@ class Storage_api_controllerSpec {
       randomData.numValue = i * 100;
       randomData.floatValue = i * 0.893;
       randomData.bool = i % 2 === 0;
-      randomData.date = new Date(d.getFullYear(), i, i * 2, 0, 0, 0);
+      randomData.date = new Date(2020, i, i * 2, 0, 0, 0);
       randomData.short = 'short name ' + i;
       randomData.long = 'test delete';
       entries.push(randomData);
@@ -717,7 +718,7 @@ class Storage_api_controllerSpec {
       randomData.numValue = i * 100;
       randomData.floatValue = i * 0.893;
       randomData.bool = i % 2 === 0;
-      randomData.date = new Date(d.getFullYear(), i, i * 2, 0, 0, 0);
+      randomData.date = new Date(2020, i, i * 2, 0, 0, 0);
       randomData.short = 'short name ' + i;
       randomData.long = 'test delete';
       entries.push(randomData);

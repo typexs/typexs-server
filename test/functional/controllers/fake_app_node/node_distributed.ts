@@ -1,7 +1,7 @@
 import {TEST_STORAGE_OPTIONS} from '../../config';
 import {IEventBusConfiguration} from 'commons-eventbus';
-import {Bootstrap, C_STORAGE_DEFAULT, Injector, ITypexsOptions, StorageRef} from '@typexs/base';
-import {Config} from 'commons-config';
+import {Bootstrap, C_STORAGE_DEFAULT, Config, Injector, ITypexsOptions, StorageRef} from '@typexs/base';
+
 import {DistributedRandomData} from './entities/DistributedRandomData';
 
 (async function () {
@@ -42,7 +42,7 @@ import {DistributedRandomData} from './entities/DistributedRandomData';
     randomData.numValue = i * 100;
     randomData.floatValue = i * 0.893;
     randomData.bool = i % 2 === 0;
-    randomData.date = new Date(d.getFullYear(), i, i * 2, 0, 0, 0);
+    randomData.date = new Date(2020, i, i * 2, 0, 0, 0);
     randomData.short = 'short name ' + i;
     randomData.long = 'long long long very long '.repeat(i * 5);
     entries.push(randomData);

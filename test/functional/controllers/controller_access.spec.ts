@@ -1,15 +1,19 @@
-import {suite, test, timeout} from '@testdeck/mocha';
+import {suite, test} from '@testdeck/mocha';
 import {Bootstrap, Config, Injector, RuntimeLoader} from '@typexs/base';
 import {WebServer} from '../../../src/libs/web/WebServer';
 import {C_DEFAULT, K_ROUTE_CONTROLLER} from '../../../src/libs/Constants';
 import {expect} from 'chai';
 import {IRoutingController} from '../../../src/libs/web/IRoutingController';
 
-process.setMaxListeners(1000);
-Bootstrap._().activateErrorHandling();
 
 @suite('functional/controllers/access')
 class WebserverSpec {
+
+  static before() {
+    process.setMaxListeners(1000);
+    Bootstrap.reset();
+    Bootstrap._().activateErrorHandling();
+  }
 
 
   before() {

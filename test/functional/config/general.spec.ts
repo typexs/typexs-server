@@ -1,10 +1,10 @@
 import {suite, test, timeout} from '@testdeck/mocha';
 import {expect} from 'chai';
-import {Config, IFileConfigOptions, PlatformUtils} from '@typexs/base';
+import {IFileConfigOptions, PlatformUtils} from '@typexs/base';
 import {C_SERVER} from '../../../src/libs/Constants';
 import {ServerUtils} from '../../../src/libs/server/ServerUtils';
 import {WebServerUtils} from '../../../src/libs/web/WebServerUtils';
-
+import {Config} from '@allgemein/config';
 
 @suite('functional/config/general')
 class GeneralSpec {

@@ -54,11 +54,12 @@ let server: WebServer = null;
 let http: IHttp = null;
 let url: string = null;
 
-@suite('functional/controllers/server_status_controller') @timeout(300000)
+@suite('functional/controllers/server_status_controller - anonymus') @timeout(300000)
 class ServerStatusControllerSpec {
 
 
   static async before() {
+    Bootstrap.reset();
     const settings = _.clone(settingsTemplate);
     http = HttpFactory.create();
 

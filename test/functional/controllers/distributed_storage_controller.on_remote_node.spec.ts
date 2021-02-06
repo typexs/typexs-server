@@ -74,6 +74,7 @@ class DistributedStorageControllerSpec {
 
 
   static async before() {
+    Bootstrap.reset();
     http = HttpFactory.create();
     const settings = _.clone(settingsTemplate);
 

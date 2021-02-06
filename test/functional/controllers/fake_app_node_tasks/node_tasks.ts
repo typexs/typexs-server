@@ -1,7 +1,6 @@
 import {TEST_STORAGE_OPTIONS} from '../../config';
 import {IEventBusConfiguration} from 'commons-eventbus';
-import {Bootstrap, ITypexsOptions} from '@typexs/base';
-import {Config} from 'commons-config';
+import {Bootstrap, Config, ITypexsOptions} from '@typexs/base';
 
 (async function () {
   const LOG_EVENT = !!process.argv.find(x => x === '--enable_log');
