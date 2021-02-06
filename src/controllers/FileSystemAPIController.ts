@@ -12,7 +12,7 @@ import {Access} from '../decorators/Access';
 import {IFileOptions, IFileSelectOptions} from '@typexs/base/adapters/exchange/filesystem/IFileOptions';
 import * as _ from 'lodash';
 import {HttpResponseError} from '../libs/exceptions/HttpResponseError';
-import {CurrentUser} from 'routing-controllers/index';
+import {CurrentUser} from 'routing-controllers';
 import {Helper} from '..';
 
 /**

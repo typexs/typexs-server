@@ -1,5 +1,5 @@
 
-import {NestedException} from '@typexs/base/browser';
+import {NestedException} from '@typexs/base';
 
 export class ServerTypeIsNotSetError extends NestedException {
 

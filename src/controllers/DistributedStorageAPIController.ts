@@ -39,7 +39,7 @@ import {
 import {HttpResponseError} from '../libs/exceptions/HttpResponseError';
 import {IBuildOptions, IEntityRef, IPropertyRef} from 'commons-schema-api';
 import {Expressions} from 'commons-expressions';
-import {ClassUtils, JsonUtils} from 'commons-base';
+import {ClassUtils, JsonUtils} from '@allgemein/base';
 import {IDistributedFindOptions} from '@typexs/base/libs/distributed_storage/find/IDistributedFindOptions';
 import {IUpdateOptions} from '@typexs/base/libs/storage/framework/IUpdateOptions';
 import {IDistributedAggregateOptions} from '@typexs/base/libs/distributed_storage/aggregate/IDistributedAggregateOptions';

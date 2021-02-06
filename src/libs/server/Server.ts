@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 import {ILoggerApi, Log, TodoException} from '@typexs/base';
 
 import {DEFAULT_SERVER_OPTIONS, IServerOptions} from './IServerOptions';
-import Exceptions from './Exceptions';
+import {Exceptions} from './Exceptions';
 
 
 export interface IServerApi {

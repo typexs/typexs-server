@@ -1,4 +1,4 @@
-import {ILoggerApi} from '@typexs/base/browser';
+import {ILoggerApi} from '@typexs/base';
 
 export interface IServerOptions {
 

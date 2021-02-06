@@ -1,17 +1,5 @@
 import * as _ from 'lodash';
-import {
-  C_CONFIG_FILTER_KEYS,
-  ClassLoader,
-  Config,
-  IModule,
-  Inject,
-  Injector,
-  Invoker,
-  RuntimeLoader,
-  Storage,
-  System,
-  Workers
-} from '@typexs/base';
+import {C_CONFIG_FILTER_KEYS, ClassLoader, IModule, Inject, Injector, Invoker, RuntimeLoader, Storage, System, Workers} from '@typexs/base';
 import {Get, JsonController, Param, QueryParam} from 'routing-controllers';
 import {getMetadataArgsStorage as ormMetadataArgsStorage} from 'typeorm';
 import {
@@ -35,10 +23,11 @@ import {
 } from '../libs/Constants';
 import {SystemNodeInfoApi} from '../api/SystemNodeInfo.api';
 import {IWorkerInfo} from '@typexs/base/libs/worker/IWorkerInfo';
-import {TreeUtils, WalkValues} from 'commons-base';
+import {TreeUtils} from '@allgemein/base';
 import {ContextGroup} from '../decorators/ContextGroup';
 import {Access} from '../decorators/Access';
 import {ServerStatusApi} from '../api/ServerStatus.api';
+import {WalkValues} from '../libs/Helper';
 
 @ContextGroup(C_API)
 @JsonController(_API_CTRL_SYSTEM)
@@ -94,11 +83,10 @@ export class SystemNodeInfoAPIController {
   }
 
 
-
   @Access(PERMISSION_ALLOW_MODULES_VIEW)
   @Get(_API_CTRL_SYSTEM_MODULES)
   listModules(): IModule[] {
-    const modules = this.loader.registry.modules();
+    const modules = this.loader.registry.getModules();
     this.invoker.use(SystemNodeInfoApi).prepareModules(modules);
     return modules;
   }

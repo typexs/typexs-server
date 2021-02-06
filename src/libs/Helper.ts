@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import {C_DEFAULT, K_META_CONTEXT_ARGS} from './Constants';
-import {MetaArgs} from 'commons-base/browser';
+import {MetaArgs} from '@allgemein/base';
 import * as fs from 'fs';
 import {Stats} from 'fs';
 import {K_INST_ID, K_NODE_ID} from '@typexs/base/libs/messaging/Constants';

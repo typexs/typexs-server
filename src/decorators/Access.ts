@@ -1,4 +1,4 @@
-import {MetaArgs} from 'commons-base/browser';
+import {MetaArgs} from '@allgemein/base';
 import * as _ from 'lodash';
 import {Authorized} from 'routing-controllers/decorator/Authorized';
 import {K_META_PERMISSIONS_ARGS} from '../libs/Constants';

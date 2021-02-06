@@ -1,6 +1,6 @@
 import * as http from 'http';
 import * as _ from 'lodash';
-import {MetaArgs} from 'commons-base/browser';
+import {MetaArgs} from '@allgemein/base';
 import {ClassLoader, Injector, Inject, Log, RuntimeLoader, TodoException} from '@typexs/base';
 import {Action, getMetadataArgsStorage, useContainer} from 'routing-controllers';
 

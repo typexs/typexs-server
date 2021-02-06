@@ -1,5 +1,5 @@
 import {Action} from 'routing-controllers';
-import {MetaArgs} from 'commons-base/browser';
+import {MetaArgs} from '@allgemein/base';
 import {K_META_PERMISSIONS_ARGS, K_ROUTE_CACHE} from './Constants';
 import * as _ from 'lodash';
 

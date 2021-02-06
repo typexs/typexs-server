@@ -1,6 +1,6 @@
-import {NestedException} from '@typexs/base/browser';
+import {NestedException} from '@typexs/base';
 
-export default class Exceptions {
+export class Exceptions {
 
   static EADDRINUSE = 'ADDRINUSE';
 

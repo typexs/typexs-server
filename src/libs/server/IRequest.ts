@@ -184,11 +184,8 @@ export interface IRequest extends http.IncomingMessage {
    *     // => "json"
    */
   accepts(): string[];
-
   accepts(type: string): string | false;
-
   accepts(type: string[]): string | false;
-
   accepts(...type: string[]): string | false;
 
   /**

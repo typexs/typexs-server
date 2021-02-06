@@ -1,4 +1,4 @@
-import {MetaArgs} from 'commons-base/browser';
+import {MetaArgs} from '@allgemein/base';
 import {K_META_CONTEXT_ARGS} from '../libs/Constants';
 
 

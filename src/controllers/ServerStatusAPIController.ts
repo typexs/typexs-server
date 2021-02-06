@@ -12,13 +12,13 @@ import {
 } from '../libs/Constants';
 import {ContextGroup} from '../decorators/ContextGroup';
 import {Config, Inject, Invoker, System} from '@typexs/base';
-import {IRolesHolder, PermissionHelper} from '@typexs/roles-api/index';
-import {ClassLoader, WalkValues} from 'commons-base/index';
+import {IRolesHolder, PermissionHelper} from '@typexs/roles-api';
+import {ClassLoader} from '@allgemein/base';
 import {ServerStatusApi} from '../api/ServerStatus.api';
-import {C_CONFIG_FILTER_KEYS} from '@typexs/base/browser';
-import {ForbiddenError, Param} from 'routing-controllers/index';
+import {C_CONFIG_FILTER_KEYS} from '@typexs/base';
+import {ForbiddenError, Param} from 'routing-controllers';
 import {ServerRegistry} from '../libs/server/ServerRegistry';
-import {Helper} from '../libs/Helper';
+import {Helper, WalkValues} from '../libs/Helper';
 import {IRoute} from '../libs/server/IRoute';
 import {ServerUtils} from '..';
 

@@ -1,5 +1,5 @@
 import {IEntityRefMetadata} from 'commons-schema-api/browser';
-import {ICollection} from '@typexs/base/browser';
+import {ICollection} from '@typexs/base';
 
 
 export interface IStorageRefMetadata {
