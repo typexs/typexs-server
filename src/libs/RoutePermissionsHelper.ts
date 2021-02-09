@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 export class RoutePermissionsHelper {
 
 
-  static getPermissionsForAction(action: Action): string[] {
+  static getPermissionsForAction(action: Action, snakeCase: boolean = true): string[] {
     const actions = MetaArgs.key(K_ROUTE_CACHE);
 
     const actionMetadatas = actions.filter(
@@ -36,11 +36,13 @@ export class RoutePermissionsHelper {
                 if (/,/.test(params[paramName])) {
                   // multiply rights
                   const multipliedRights = params[paramName].split(',').map((x: string) => x.trim()).map((y: string) => {
-                    return rights.map(z => z.replace(match, y + ''));
+                    const paramValue = snakeCase ? _.snakeCase(y + '') : y + '';
+                    return rights.map(z => z.replace(match, paramValue));
                   });
                   rights = _.concat([], ...multipliedRights);
                 } else {
-                  rights = rights.map(z => z.replace(match, params[paramName] + ''));
+                  const paramValue = snakeCase ? _.snakeCase(params[paramName] + '') : params[paramName] + '';
+                  rights = rights.map(z => z.replace(match, paramValue));
                 }
               }
             }
@@ -49,19 +51,12 @@ export class RoutePermissionsHelper {
             parameterizePermissions.push(right);
           }
         }
-
         return parameterizePermissions;
-
-        // return _.map(permissions, right => {
-        //   _.keys(params).forEach(p => {
-        //     right = right.replace(':' + p, _.snakeCase(params[p] + ''));
-        //   });
-        //   return right;
-        // });
       }
     }
     return [];
   }
+
 
   static getPermissionFor(target: Function, methodName: string): any {
     const permissions = MetaArgs.key(K_META_PERMISSIONS_ARGS)
