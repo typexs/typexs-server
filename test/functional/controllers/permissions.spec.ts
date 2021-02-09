@@ -142,7 +142,6 @@ class PermissionsSpec {
       .get('/perm/get/*')
       .expect(200);
 
-    console.log(creds, creds2);
     expect(creds).to.deep.include.members(
       [
         ['allow get testname', 'allow get hallo'],
