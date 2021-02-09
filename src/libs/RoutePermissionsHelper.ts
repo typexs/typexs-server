@@ -7,7 +7,8 @@ import * as _ from 'lodash';
 export class RoutePermissionsHelper {
 
 
-  static getPermissionsForAction(action: Action, snakeCase: boolean = true): string[] {
+  static getPermissionsForAction(action: Action,
+                                 paramNorm: (x: string) => string = (x) => !/\*/.test(x + '') ? _.snakeCase(x + '') : x + ''): string[] {
     const actions = MetaArgs.key(K_ROUTE_CACHE);
 
     const actionMetadatas = actions.filter(
@@ -36,12 +37,12 @@ export class RoutePermissionsHelper {
                 if (/,/.test(params[paramName])) {
                   // multiply rights
                   const multipliedRights = params[paramName].split(',').map((x: string) => x.trim()).map((y: string) => {
-                    const paramValue = snakeCase ? _.snakeCase(y + '') : y + '';
+                    const paramValue = paramNorm(y);
                     return rights.map(z => z.replace(match, paramValue));
                   });
                   rights = _.concat([], ...multipliedRights);
                 } else {
-                  const paramValue = snakeCase ? _.snakeCase(params[paramName] + '') : params[paramName] + '';
+                  const paramValue = paramNorm(params[paramName]);
                   rights = rights.map(z => z.replace(match, paramValue));
                 }
               }
