@@ -1,5 +1,15 @@
 import {suite, test, timeout} from '@testdeck/mocha';
-import {Bootstrap, C_STORAGE_DEFAULT, Config, Injector, IRuntimeLoaderOptions, ITypexsOptions, StorageRef} from '@typexs/base';
+import {
+  __CLASS__,
+  __REGISTRY__,
+  Bootstrap,
+  C_STORAGE_DEFAULT,
+  Config,
+  Injector,
+  IRuntimeLoaderOptions,
+  ITypexsOptions,
+  StorageRef
+} from '@typexs/base';
 import {
   API_CTRL_STORAGE_AGGREGATE_ENTITY,
   API_CTRL_STORAGE_DELETE_ENTITIES_BY_CONDITION,
@@ -29,6 +39,8 @@ import {Action} from 'routing-controllers';
 import {SecuredObject} from './fake_app_storage/entities/SecuredObject';
 import {IRole, IRolesHolder} from '@typexs/roles-api/index';
 import {BasicPermission} from '@typexs/roles-api';
+import {IStorageRefMetadata} from '../../../src';
+import {IJsonSchema7} from '@allgemein/schema-api';
 
 
 let permissionsCheck = false;
@@ -204,18 +216,18 @@ class Storage_api_controllerSpec {
   async 'list storages'() {
     const url = server.url();
     let res: any = await http.get(url + '/api' + API_CTRL_STORAGE_METADATA_ALL_STORES, {responseType: 'json'});
-    // console.log(inspect(res, false, 10));
     expect(res).to.not.be.null;
-    res = res.body;
+    res = res.body as IStorageRefMetadata[];
     expect(res).to.have.length(1);
-    expect(res[0].entities).to.have.length(6);
-    expect(_.map(res[0].entities, e => e.name)).to.contain.members(['Driver', 'Car']);
-    const driver = _.find(res[0].entities, e => e.name === 'Driver');
-    expect(driver.properties).to.have.length(4);
-    expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
-
-
+    const keyNames = _.keys(res[0].schema.definitions);
+    expect(keyNames).to.have.length(6);
+    expect(keyNames).to.contain.members(['Driver', 'Car']);
+    const driver = res[0].schema.definitions.Driver;
+    const propertyNames = _.keys(driver.properties);
+    expect(propertyNames).to.have.length(4);
+    expect(propertyNames).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
   }
+
 
   @test
   async 'list storage default'() {
@@ -224,47 +236,48 @@ class Storage_api_controllerSpec {
       API_CTRL_STORAGE_METADATA_GET_STORE.replace(':name', 'default'), {responseType: 'json'});
     // console.log(inspect(res, false, 10));
     expect(res).to.not.be.null;
-    res = res.body;
+    res = res.body as IStorageRefMetadata;
     expect(res).to.exist;
     expect(res.name).to.be.eq('default');
-    expect(res.entities).to.have.length(6);
-    expect(_.map(res.entities, e => e.name)).to.contain.members(['Driver', 'Car']);
-    const driver = _.find(res.entities, e => e.name === 'Driver');
-    expect(driver.properties).to.have.length(4);
-    expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
-
-
+    expect(_.keys(res.schema.definitions)).to.have.length(6);
+    expect(_.keys(res.schema.definitions)).to.contain.members(['Driver', 'Car']);
+    const driver = res.schema.definitions.Driver;
+    expect(_.keys(driver.properties)).to.have.length(4);
+    expect(_.keys(driver.properties)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
   }
+
 
   @test
   async 'list all entities'() {
     const url = server.url();
-    let res = await http.get(url + '/api' +
+    let res: any = await http.get(url + '/api' +
       API_CTRL_STORAGE_METADATA_ALL_ENTITIES, {responseType: 'json'});
     expect(res).to.not.be.null;
-    res = res.body;
-    expect(res).to.have.length(6);
-    expect(_.map(res, r => r.options.storage)).to.contain.members(['default']);
-    expect(_.map(res, e => e.name)).to.contain.members(['Driver', 'Car', 'RandomData']);
-    const driver = _.find(res, e => e.name === 'Driver');
-    expect(driver.properties).to.have.length(4);
-    expect(_.map(driver.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
+    res = res.body as IJsonSchema7[];
+    expect(res).to.have.length(1);
+    const classNames = _.keys(res[0].definitions);
+    expect(classNames).to.have.length(6);
+    expect(classNames.map(x => res[0].definitions[x]).map(x => x.storage)).to.contain.members(['default']);
+    expect(classNames.map(x => res[0].definitions[x]).map(x => x.title)).to.contain.members(['Driver', 'Car', 'RandomData']);
+    const driver = res[0].definitions.Driver;
+    const propertyNames = _.keys(driver.properties);
+    expect(propertyNames).to.have.length(4);
+    expect(propertyNames).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
   }
 
   @test
   async 'list entity'() {
     const url = server.url();
     let res: any = await http.get(url + '/api' +
-
       API_CTRL_STORAGE_METADATA_GET_ENTITY.replace(':name', 'driver'), {responseType: 'json'});
     expect(res).to.not.be.null;
-    res = res.body;
+    res = res.body as IJsonSchema7;
     expect(res).to.exist;
-    expect(res.storage).to.be.eq('default');
-    expect(res.name).to.be.eq('Driver');
-    expect(res.properties).to.have.length(4);
-    expect(_.map(res.properties, e => e.name)).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
-
+    expect(res.definitions.Driver.storage).to.be.eq('default');
+    expect(res.definitions.Driver.title).to.be.eq('Driver');
+    const propertyNames = _.keys(res.definitions.Driver.properties);
+    expect(propertyNames).to.have.length(4);
+    expect(propertyNames).to.be.deep.eq(['id', 'firstName', 'lastName', 'car']);
   }
 
   @test.skip
@@ -389,8 +402,8 @@ class Storage_api_controllerSpec {
     expect(res).to.deep.eq({
       '$label': '1',
       '$url': '/storage/entity/random_data/1',
-      '__class__': 'RandomData',
-      '__registry__': 'typeorm',
+      [__CLASS__]: 'RandomData',
+      [__REGISTRY__]: 'typeorm',
       'bool': false,
       'boolNeg': false,
       'date': '2020-02-01T23:00:00.000Z',
@@ -421,8 +434,8 @@ class Storage_api_controllerSpec {
     expect(res.entities[0]).to.deep.eq({
       '$label': '1',
       '$url': '/storage/entity/random_data/1',
-      '__class__': 'RandomData',
-      '__registry__': 'typeorm',
+      [__CLASS__]: 'RandomData',
+      [__REGISTRY__]: 'typeorm',
       'bool': false,
       'boolNeg': false,
       'date': '2020-02-01T23:00:00.000Z',
@@ -435,8 +448,8 @@ class Storage_api_controllerSpec {
     expect(res.entities[1]).to.deep.eq({
       '$label': '2',
       '$url': '/storage/entity/random_data/2',
-      '__class__': 'RandomData',
-      '__registry__': 'typeorm',
+      [__CLASS__]: 'RandomData',
+      [__REGISTRY__]: 'typeorm',
       'bool': true,
       'boolNeg': false,
       'date': '2020-03-03T23:00:00.000Z',
@@ -470,8 +483,8 @@ class Storage_api_controllerSpec {
     expect(res.entities[0]).to.be.deep.eq({
       '$label': '5',
       '$url': '/storage/entity/random_data/5',
-      '__class__': 'RandomData',
-      '__registry__': 'typeorm',
+      [__CLASS__]: 'RandomData',
+      [__REGISTRY__]: 'typeorm',
       'bool': false,
       'boolNeg': false,
       'date': '2020-06-09T22:00:00.000Z',
@@ -501,8 +514,8 @@ class Storage_api_controllerSpec {
     expect(res.entities[0]).to.be.deep.eq({
       '$label': '6',
       '$url': '/storage/entity/random_data/6',
-      '__class__': 'RandomData',
-      '__registry__': 'typeorm',
+      [__CLASS__]: 'RandomData',
+      [__REGISTRY__]: 'typeorm',
 
       'bool': true,
       'boolNeg': false,

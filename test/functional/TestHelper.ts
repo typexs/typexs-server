@@ -40,7 +40,7 @@ export class TestHelper {
           const r = fn();
           if (r) {
             clearInterval(i);
-            resolve();
+            resolve(null);
           }
         } catch (err) {
           clearInterval(i);

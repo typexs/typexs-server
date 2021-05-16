@@ -19,7 +19,7 @@ import {TEST_STORAGE_OPTIONS} from '../config';
 import {HttpFactory, IHttp} from '@allgemein/http';
 
 import {expect} from 'chai';
-import {Action} from 'routing-controllers/Action';
+import {Action} from 'routing-controllers/types/Action';
 import {IRole, IRolesHolder} from '@typexs/roles-api/index';
 
 

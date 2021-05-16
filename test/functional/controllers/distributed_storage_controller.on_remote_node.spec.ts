@@ -1,5 +1,5 @@
 import {suite, test, timeout} from '@testdeck/mocha';
-import {Bootstrap, Config, DistributedStorageEntityController, Injector, Log, XS_P_$COUNT} from '@typexs/base';
+import {Bootstrap, Config, DistributedStorageEntityController, Injector, Log, XS_P_$COUNT, __CLASS__, __REGISTRY__, __NODE_ID__} from '@typexs/base';
 import {
   API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITIES_BY_CONDITION,
   API_CTRL_DISTRIBUTED_STORAGE_DELETE_ENTITY,
@@ -20,6 +20,7 @@ import {HttpFactory, IHttp} from '@allgemein/http';
 import {DistributedRandomData} from './fake_app_node/entities/DistributedRandomData';
 import {RandomData} from './fake_app_storage/entities/RandomData';
 import {WebServer} from '../../../src/libs/web/WebServer';
+// import {__CLASS__} from '@allgemein/schema-api';
 
 const LOG_EVENT = TestHelper.logEnable(false);
 const carList = [
@@ -258,9 +259,9 @@ class DistributedStorageControllerSpec {
     expect(res).to.deep.eq({
       '$label': '1',
       '$url': '/distributed/entity/fake_app_node/distributed_random_data/1',
-      '__class__': 'DistributedRandomData',
-      '__nodeId__': 'fake_app_node',
-      '__registry__': 'typeorm',
+      [__CLASS__]: 'DistributedRandomData',
+      [__NODE_ID__]: 'fake_app_node',
+      [__REGISTRY__]: 'typeorm',
       'bool': false,
       'boolNeg': false,
       'date': '2020-02-01T23:00:00.000Z',
@@ -291,9 +292,9 @@ class DistributedStorageControllerSpec {
     expect(res.entities[0]).to.deep.eq({
       '$label': '1',
       '$url': '/distributed/entity/fake_app_node/distributed_random_data/1',
-      '__class__': 'DistributedRandomData',
-      '__nodeId__': 'fake_app_node',
-      '__registry__': 'typeorm',
+      [__CLASS__]: 'DistributedRandomData',
+      [__NODE_ID__]: 'fake_app_node',
+      [__REGISTRY__]: 'typeorm',
       'bool': false,
       'boolNeg': false,
       'date': '2020-02-01T23:00:00.000Z',
@@ -306,9 +307,9 @@ class DistributedStorageControllerSpec {
     expect(res.entities[1]).to.deep.eq({
       '$label': '2',
       '$url': '/distributed/entity/fake_app_node/distributed_random_data/2',
-      '__class__': 'DistributedRandomData',
-      '__nodeId__': 'fake_app_node',
-      '__registry__': 'typeorm',
+      [__CLASS__]: 'DistributedRandomData',
+      [__NODE_ID__]: 'fake_app_node',
+      [__REGISTRY__]: 'typeorm',
       'bool': true,
       'boolNeg': false,
       'date': '2020-03-03T23:00:00.000Z',
@@ -358,9 +359,9 @@ class DistributedStorageControllerSpec {
       'numValue': 100,
       'floatValue': 0.893,
       'date': '2020-02-01T23:00:00.000Z',
-      '__class__': 'DistributedRandomData',
-      '__registry__': 'typeorm',
-      '__nodeId__': 'fake_app_node',
+      [__CLASS__]: 'DistributedRandomData',
+      [__NODE_ID__]: 'fake_app_node',
+      [__REGISTRY__]: 'typeorm',
       '$url': '/distributed/entity/fake_app_node/distributed_random_data/1',
       '$label': '1'
     });
@@ -392,9 +393,9 @@ class DistributedStorageControllerSpec {
       numValue: 600,
       floatValue: 5.3580000000000005,
       date: '2020-07-11T22:00:00.000Z',
-      __class__: 'DistributedRandomData',
-      __registry__: 'typeorm',
-      __nodeId__: 'fake_app_node',
+      [__CLASS__]: 'DistributedRandomData',
+      [__NODE_ID__]: 'fake_app_node',
+      [__REGISTRY__]: 'typeorm',
       '$url':
         '/distributed/entity/fake_app_node/distributed_random_data/6',
       '$label': '6'
@@ -420,18 +421,18 @@ class DistributedStorageControllerSpec {
     expect(res.entities[0]).to.be.deep.eq({
       'bool': 0,
       'sum': 21.432000000000002,
-      '__nodeId__': 'fake_app_node',
-      '__class__': 'DistributedRandomData',
-      '__registry__': 'typeorm',
+      [__CLASS__]: 'DistributedRandomData',
+      [__NODE_ID__]: 'fake_app_node',
+      [__REGISTRY__]: 'typeorm',
 
 
     });
     expect(res.entities[1]).to.be.deep.eq({
       'bool': 1,
       'sum': 25.003999999999998,
-      '__nodeId__': 'fake_app_node',
-      '__class__': 'DistributedRandomData',
-      '__registry__': 'typeorm',
+      [__CLASS__]: 'DistributedRandomData',
+      [__NODE_ID__]: 'fake_app_node',
+      [__REGISTRY__]: 'typeorm',
     });
 
   }

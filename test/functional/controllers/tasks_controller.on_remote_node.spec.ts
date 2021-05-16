@@ -1,6 +1,18 @@
 // process.env.SQL_LOG = '1';
 import {suite, test, timeout} from '@testdeck/mocha';
-import {Bootstrap, Config, Injector} from '@typexs/base';
+import {EventBus, IEventBusConfiguration, subscribe} from 'commons-eventbus';
+import {HttpFactory, IHttp} from '@allgemein/http';
+import {
+  Bootstrap,
+  Config,
+  IMessageOptions,
+  Injector,
+  ITaskExectorOptions,
+  ITaskRunnerResult,
+  TaskEvent,
+  TaskExecutor,
+  TaskRunnerEvent
+} from '@typexs/base';
 import {
   API_CTRL_TASK_EXEC,
   API_CTRL_TASK_GET_METADATA,
@@ -18,16 +30,9 @@ import * as _ from 'lodash';
 import {SpawnHandle} from '../SpawnHandle';
 import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
-import {EventBus, IEventBusConfiguration, subscribe} from 'commons-eventbus';
-import {TaskEvent} from '@typexs/base/libs/tasks/worker/TaskEvent';
-import {HttpFactory, IHttp} from '@allgemein/http';
-import {TaskExecutor} from '@typexs/base/libs/tasks/TaskExecutor';
-import {ITaskRunnerResult} from '@typexs/base/libs/tasks/ITaskRunnerResult';
-import {ITaskExectorOptions} from '@typexs/base/libs/tasks/ITaskExectorOptions';
 import {WebServer} from '../../../src/libs/web/WebServer';
-import {IMessageOptions} from '@typexs/base/index';
 
-const LOG_EVENT = TestHelper.logEnable(false);
+const LOG_EVENT = TestHelper.logEnable(true);
 
 
 const settingsTemplate: any = {
@@ -145,73 +150,64 @@ class TasksControllerSpec {
     expect(rTaskRemote).to.not.be.null;
     rTaskRemote = rTaskRemote.body;
 
-    expect(rTasks).to.have.length(6);
-    expect(rTaskLocal).to.deep.include({
-        'id': 'local_simple_task',
-        'name': 'local_simple_task',
-        'type': 'entity',
-        'machineName': 'local_simple_task',
-        'options': {worker: false},
-        'mode': '1',
-        'permissions': null,
-        'description': null,
-        'remote': null,
-        'groups': [],
-        nodeInfos: [
-          {
-            'nodeId': 'server',
-            'hasWorker': false
-          }
-        ],
-        'target': {
-          'schema': 'default',
-          'className': 'LocalSimpleTask',
-          'isEntity': false,
-          'options': {}
-        },
-        'properties': [
-          {
-            'id': 'r',
-            'name': 'r',
-            'type': 'property',
-            'machineName': 'r',
-            'options': {},
-            'descriptor': {
-              'target': 'LocalSimpleTask',
-              'propertyName': 'r',
-              'type': 'runtime'
+    const rTasksNames = _.keys(rTasks.definitions);
+    expect(rTasksNames).to.have.length(6);
+    expect(rTaskLocal).to.deep.include(
+      {
+        '$schema': 'http://json-schema.org/draft-07/schema#',
+        'definitions': {
+          'local_simple_task': {
+            'title': 'LocalSimpleTask',
+            'type': 'object',
+            'taskName': 'local_simple_task',
+            'worker': false,
+            'taskType': 1,
+            'nodeInfos': [
+              {
+                'nodeId': 'server',
+                'hasWorker': false
+              }
+            ],
+            'properties': {
+              'r': {
+                'type': 'object',
+                'propertyType': 'runtime'
+              },
+              'name': {
+                'type': 'string',
+                'default': 'local_simple_task'
+              }
             }
           }
-        ]
+        },
+        '$ref': '#/definitions/local_simple_task'
       }
     );
-    expect(rTaskRemote).to.deep.include({
-      'id': 'simple_task',
-      'name': 'simple_task',
-      'type': 'entity',
-      'machineName': 'simple_task',
-      'options': {
-        'remote': true
-      },
-      'mode': '4',
-      'permissions': null,
-      'description': null,
-      'remote': true,
-      'groups': [],
-      nodeInfos: [
-        {
-          'hasWorker': true,
-          'nodeId': 'fake_app_node_tasks'
-        }
-      ],
-      'target': {
-        'schema': 'default',
-        'className': 'Object',
-        'isEntity': false,
-        'options': {}
-      },
-      'properties': []
-    });
+    expect(rTaskRemote).to.deep.include(
+      {
+        '$schema': 'http://json-schema.org/draft-07/schema#',
+        'definitions': {
+          'simple_task': {
+            'title': 'anonymous',
+            'type': 'object',
+            'taskName': 'simple_task',
+            'remote': true,
+            'description': null,
+            'permissions': null,
+            'groups': [],
+            'nodeInfos': [
+              {
+                'nodeId': 'fake_app_node_tasks',
+                'hasWorker': true
+              }
+            ],
+            'taskType': 4,
+            'properties': {}
+          }
+        },
+        '$ref': '#/definitions/simple_task'
+      }
+    );
 
 
     // expect(rBefore).to.have.length(2);
@@ -323,11 +319,19 @@ class TasksControllerSpec {
   @test
   async 'execute remote task with parameters'() {
     const events: TaskEvent[] = [];
+    const eventRunnert: TaskRunnerEvent[] = [];
 
     class T02 {
       @subscribe(TaskEvent) on(e: TaskEvent) {
         const _e = _.cloneDeep(e);
+        console.log('event: ' + e);
         events.push(_e);
+      }
+
+      @subscribe(TaskRunnerEvent) onRunerEvent(e: TaskRunnerEvent) {
+        const _e2 = _.cloneDeep(e);
+        console.log('event-runner: ' + e);
+        eventRunnert.push(_e2);
       }
     }
 
