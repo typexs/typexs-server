@@ -1,5 +1,5 @@
-import {IEntityRefMetadata} from 'commons-schema-api/browser';
 import {ICollection} from '@typexs/base';
+import {IJsonSchema7} from '@allgemein/schema-api';
 
 
 export interface IStorageRefMetadata {
@@ -7,6 +7,6 @@ export interface IStorageRefMetadata {
   framework: string;
   type: string;
   options?: any;
-  entities: IEntityRefMetadata[];
+  schema: IJsonSchema7;
   collections?: ICollection[];
 }

@@ -1,4 +1,4 @@
-import {IEntityRef} from 'commons-schema-api/browser';
+import {IEntityRef} from '@allgemein/schema-api';
 
 export type STORAGE_API_CONTROLLER_STATE = 'get' | 'query' | 'save' | 'update' | 'delete';
 

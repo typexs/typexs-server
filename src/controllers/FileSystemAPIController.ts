@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import {Get, JsonController, QueryParam} from 'routing-controllers';
 import {ContextGroup} from '../decorators/ContextGroup';
 import {
@@ -7,10 +8,8 @@ import {
   PERMISSION_ACCESS_FILE_PATH,
   PERMISSION_ACCESS_FILES
 } from '../libs/Constants';
-import {FileSystemExchange, Inject} from '@typexs/base';
+import {FileSystemExchange, IFileOptions, IFileSelectOptions, Inject} from '@typexs/base';
 import {Access} from '../decorators/Access';
-import {IFileOptions, IFileSelectOptions} from '@typexs/base/adapters/exchange/filesystem/IFileOptions';
-import * as _ from 'lodash';
 import {HttpResponseError} from '../libs/exceptions/HttpResponseError';
 import {CurrentUser} from 'routing-controllers';
 import {Helper} from '..';

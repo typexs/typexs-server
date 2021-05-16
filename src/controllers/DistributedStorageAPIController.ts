@@ -1,13 +1,20 @@
 import * as _ from 'lodash';
 import {Body, CurrentUser, Delete, Get, JsonController, Param, Post, Put, QueryParam} from 'routing-controllers';
 import {
-  __CLASS__, __REGISTRY__,
+  __CLASS__,
+  __REGISTRY__,
   Cache,
   DistributedStorageEntityController,
+  IDistributedAggregateOptions,
+  IDistributedFindOptions,
+  IDistributedRemoveOptions,
+  IDistributedSaveOptions,
+  IDistributedUpdateOptions,
   Inject,
   Invoker,
   ISaveOptions,
   IStorageRef,
+  IUpdateOptions,
   Log,
   Storage,
   XS_P_$COUNT,
@@ -37,15 +44,10 @@ import {
   XS_P_$URL
 } from '../libs/Constants';
 import {HttpResponseError} from '../libs/exceptions/HttpResponseError';
-import {IBuildOptions, IEntityRef, IPropertyRef} from 'commons-schema-api';
-import {Expressions} from 'commons-expressions';
-import {ClassUtils, JsonUtils} from '@allgemein/base';
-import {IDistributedFindOptions} from '@typexs/base/libs/distributed_storage/find/IDistributedFindOptions';
-import {IUpdateOptions} from '@typexs/base/libs/storage/framework/IUpdateOptions';
-import {IDistributedAggregateOptions} from '@typexs/base/libs/distributed_storage/aggregate/IDistributedAggregateOptions';
-import {IDistributedSaveOptions} from '@typexs/base/libs/distributed_storage/save/IDistributedSaveOptions';
-import {IDistributedUpdateOptions} from '@typexs/base/libs/distributed_storage/update/IDistributedUpdateOptions';
-import {IDistributedRemoveOptions} from '@typexs/base/libs/distributed_storage/remove/IDistributedRemoveOptions';
+import {IBuildOptions, IEntityRef, IPropertyRef} from '@allgemein/schema-api';
+import {Expressions} from '@allgemein/expressions';
+import {JsonUtils} from '@allgemein/base';
+
 import {ContextGroup} from '../decorators/ContextGroup';
 import {Access} from '../decorators/Access';
 
@@ -106,8 +108,13 @@ export class DistributedStorageAPIController {
       .replace(':nodeId', nodeId);
     e[XS_P_$URL] = url;
     e[XS_P_$LABEL] = _.isFunction(e.label) ? e.label() : _.map(props, p => p.get(e)).join(' ');
-    e[__CLASS__] = entityRef.name;
-    e[__REGISTRY__] = entityRef['_lookupRegistry'];
+    if (!e[__CLASS__]) {
+      e[__CLASS__] = entityRef.name;
+    }
+    if (!e[__REGISTRY__]) {
+      e[__REGISTRY__] = entityRef.getNamespace();
+    }
+
   }
 
 

@@ -1,6 +1,6 @@
-import {MetaArgs} from '@allgemein/base';
+import {MetaArgs} from '@typexs/base';
 import * as _ from 'lodash';
-import {Authorized} from 'routing-controllers/decorator/Authorized';
+import {Authorized} from 'routing-controllers';
 import {K_META_PERMISSIONS_ARGS} from '../libs/Constants';
 
 

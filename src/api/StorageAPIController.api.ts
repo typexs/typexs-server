@@ -1,5 +1,5 @@
 import {IStorageAPIController, STORAGE_API_CONTROLLER_STATE} from './IStorageAPIController';
-import {IEntityRef} from 'commons-schema-api/browser';
+import {IEntityRef} from '@allgemein/schema-api';
 
 
 /**

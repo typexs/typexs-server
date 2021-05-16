@@ -1,9 +1,8 @@
 import * as _ from 'lodash';
 import {C_DEFAULT, K_META_CONTEXT_ARGS} from './Constants';
-import {MetaArgs} from '@allgemein/base';
+import {K_INST_ID, K_NODE_ID, MetaArgs} from '@typexs/base';
 import * as fs from 'fs';
 import {Stats} from 'fs';
-import {K_INST_ID, K_NODE_ID} from '@typexs/base/libs/messaging/Constants';
 
 
 export interface WalkValues {
@@ -76,7 +75,7 @@ export class Helper {
         if (_.includes(NEW_LINE_CHARACTERS, lines.substring(0, 1))) {
           lines = lines.substring(1);
         }
-        await new Promise((resolve, reject) => fs.close(file, err => err ? reject(err) : resolve()));
+        await new Promise((resolve, reject) => fs.close(file, err => err ? reject(err) : resolve(null)));
         if (encoding as any === 'buffer') {
           return Buffer.from(lines, 'binary');
         }
@@ -135,7 +134,7 @@ export class Helper {
 
     const do_while_loop = async (): Promise<Buffer | string> => {
       if ((!started && lines.length > 0) || chars >= stat.size) {
-        await new Promise((resolve, reject) => fs.close(file, err => err ? reject(err) : resolve()));
+        await new Promise((resolve, reject) => fs.close(file, err => err ? reject(err) : resolve(null)));
         lines = lines.substring(0, lines.length - 1);
         if (encoding as any === 'buffer') {
           return Buffer.from(lines, 'binary');

@@ -1,6 +1,5 @@
-// import {Container} from 'typedi';
 import {EntitySchema} from 'typeorm';
-import * as _ from 'lodash';
+import {uniq, isEmpty} from 'lodash';
 import {IActivator, Injector, Storage} from '@typexs/base';
 import {ServerRegistry} from './libs/server/ServerRegistry';
 import {
@@ -36,7 +35,7 @@ import {
   PERMISSION_ALLOW_WORKERS_INFO
 } from './libs/Constants';
 import {BasicPermission, IPermissionDef, IPermissions} from '@typexs/roles-api';
-import {IEntityRef} from 'commons-schema-api/browser';
+import {IEntityRef} from '@allgemein/schema-api';
 
 
 export class Activator implements IActivator, IPermissions {
@@ -104,7 +103,7 @@ export class Activator implements IActivator, IPermissions {
     ];
 
 
-    permissions = _.uniq(permissions.filter(x => !_.isEmpty(x)));
+    permissions = uniq(permissions.filter(x => !isEmpty(x)));
 
     const storage = Injector.get(Storage.NAME) as Storage;
     for (const name of storage.getNames()) {
@@ -129,7 +128,7 @@ export class Activator implements IActivator, IPermissions {
       }
     }
 
-    permissions = _.uniq(permissions);
+    permissions = uniq(permissions);
 
 
     // TODO how to solve dynamic task injection and concret permissions?

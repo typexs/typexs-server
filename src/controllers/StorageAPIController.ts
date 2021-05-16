@@ -49,8 +49,8 @@ import {
   XS_P_$URL
 } from '../libs/Constants';
 import {HttpResponseError} from '../libs/exceptions/HttpResponseError';
-import {IBuildOptions, IEntityRef, IEntityRefMetadata, IPropertyRef} from 'commons-schema-api';
-import {Expressions} from 'commons-expressions';
+import {IBuildOptions, IEntityRef, IJsonSchema7, IPropertyRef, JsonSchema} from '@allgemein/schema-api';
+import {Expressions} from '@allgemein/expressions';
 import {IStorageRefMetadata} from '../libs/storage_api/IStorageRefMetadata';
 import {SystemNodeInfoApi} from '../api/SystemNodeInfo.api';
 import {StorageAPIControllerApi} from '../api/StorageAPIController.api';
@@ -62,6 +62,7 @@ import {ContextGroup} from '../decorators/ContextGroup';
 import {Access} from '../decorators/Access';
 import {IRolesHolder, PermissionHelper} from '@typexs/roles-api';
 import {WalkValues} from '../libs/Helper';
+import {isEntityRef} from '@allgemein/schema-api/api/IEntityRef';
 
 @ContextGroup(C_API)
 @JsonController(API_CTRL_STORAGE_PREFIX)
@@ -102,8 +103,12 @@ export class StorageAPIController {
     const idStr = Expressions.buildLookupConditions(entityRef, e);
     e[XS_P_$URL] = `${API_CTRL_STORAGE_GET_ENTITY}`.replace(':name', entityRef.machineName).replace(':id', idStr);
     e[XS_P_$LABEL] = _.isFunction(e.label) ? e.label() : _.map(props, p => p.get(e)).join(' ');
-    e[__CLASS__] = entityRef.name;
-    e[__REGISTRY__] = entityRef['_lookupRegistry'];
+    if (!e[__CLASS__]) {
+      e[__CLASS__] = entityRef.name;
+    }
+    if (!e[__REGISTRY__]) {
+      e[__REGISTRY__] = entityRef.getNamespace();
+    }
   }
 
   static checkOptions(opts: any, options: any) {
@@ -157,9 +162,9 @@ export class StorageAPIController {
   @Get(_API_CTRL_STORAGE_METADATA_ALL_ENTITIES)
   async getMetadataEntities(@CurrentUser() user: any) {
     const storageNames = this.storage.getNames();
-    let data: IEntityRefMetadata[] = [];
+    let data: IJsonSchema7[] = [];
     const arrs = await Promise.all(_.map(storageNames, storageName => {
-      return this.getStorageSchema(storageName).then(e => e.entities);
+      return this.getStorageSchema(storageName).then(e => e.schema);
     }));
     data = _.concat([], ...arrs);
     return data;
@@ -177,8 +182,19 @@ export class StorageAPIController {
     if (_.isArray(entityRef)) {
       throw new Error('multiple entity refs found');
     }
-    const entry = entityRef.toJson(true);
-    (<any>entry).storage = ref.getName();
+
+    const entry = JsonSchema.serialize(entityRef, {
+      /**
+       * Append storageName to entity object
+       * @param src
+       * @param dst
+       */
+      postProcess: (src, dst) => {
+        if (isEntityRef(src)) {
+          dst.storage = ref.getName();
+        }
+      }
+    });
     return entry;
   }
 
@@ -717,6 +733,7 @@ export class StorageAPIController {
   private async getStorageSchema(storageName: string, withCollections: boolean = false, refresh: boolean = false, user?: any) {
     const cacheKey = 'storage-schema-' + storageName + (withCollections ? '-with-collection' : '');
     const cacheBin = 'storage-info';
+
     let entry: IStorageRefMetadata = await this.cache.get(cacheKey, cacheBin);
     if (entry && !refresh) {
       return entry;
@@ -743,19 +760,24 @@ export class StorageAPIController {
       framework: storageRef.getFramework(),
       // synchronize: options.synchronize,
       options: options,
-      entities: []
+      schema: null
     };
-    storageRef.getEntityRefs().forEach(ref => {
-      // let ref: IEntityRef = null;
-      // if (_.isString(fn) || _.isFunction(fn)) {
-      //   ref = storageRef.getEntityRef(fn);
-      // } else {
-      //   ref = storageRef.getEntityRef((<EntitySchema<any>>fn).options.target);
-      // }
-      ref.setOption('storage', storageName);
-      const entityMetadata = ref.toJson(true);
-      entry.entities.push(entityMetadata);
+    const serializer = JsonSchema.getSerializer({
+      /**
+       * Append storageName to entity object
+       * @param src
+       * @param dst
+       */
+      postProcess: (src, dst) => {
+        if (isEntityRef(src)) {
+          dst.storage = storageName;
+        }
+      }
     });
+    storageRef.getEntityRefs().forEach(ref => {
+      serializer.serialize(ref);
+    });
+    entry.schema = serializer.getJsonSchema() ? serializer.getJsonSchema() : {};
 
     if (withCollections) {
       entry.collections = await this.getStorageRefCollections(storageRef);

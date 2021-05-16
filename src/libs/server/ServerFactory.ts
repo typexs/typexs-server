@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import {ClassLoader, Injector, Log, StringOrFunction} from '@typexs/base';
-import {ClassType} from 'commons-schema-api';
+import {ClassType} from '@allgemein/schema-api';
 
 import {WebServer} from '../web/WebServer';
 import {IServer} from './IServer';
