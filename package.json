@@ -1,6 +1,6 @@
 {
   "name": "@typexs/server",
-  "version": "1.2.0",
+  "version": "1.5.0",
   "description": "Servers for typexs",
   "main": "index.js",
   "browser": "browser.js",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/typexs/typexs-server.git"
+    "url": "git+https://gitlab.com/typexs/server.git"
   },
   "author": "Robert Kania",
   "license": "MIT",
@@ -25,9 +25,9 @@
     "controllers"
   ],
   "bugs": {
-    "url": "https://github.com/typexs/typexs-server/issues"
+    "url": "https://gitlab.com/typexs/server/-/issues"
   },
-  "homepage": "https://github.com/typexs/typexs-server#readme",
+  "homepage": "https://gitlab.com/typexs/server#readme",
   "devDependencies": {
     "@allgemein/http": "^1.2.0",
     "@allgemein/packaging": "^1.1.1",
