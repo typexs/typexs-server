@@ -80,7 +80,6 @@ export {ServerTypeIsNotSetError} from './libs/exceptions/ServerTypeIsNotSetError
 export {HttpResponseError} from './libs/exceptions/HttpResponseError';
 
 export {Helper} from './libs/Helper';
-export * from './libs/Constants';
 
 export {Exceptions} from './libs/server/Exceptions';
 export {IByteRange} from './libs/server/IByteRange';

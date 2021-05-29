@@ -275,3 +275,26 @@ export const PERMISSION_ACCESS_FILES = 'access files';
 export const PERMISSION_ACCESS_FILE_PATH = 'access files on :path';
 
 
+/**
+ * Registry constants
+ */
+export const API_CTRL_REGISTRY = '/registry';
+
+export const PERMISSION_ALLOW_ACCESS_REGISTRY_NAMESPACES = 'allow list registry namespaces';
+export const _API_CTRL_REGISTRY_NAMESPACES = '/list/namespaces';
+export const API_CTRL_REGISTRY_NAMESPACES = API_CTRL_REGISTRY + _API_CTRL_REGISTRY_NAMESPACES;
+
+export const PERMISSION_ALLOW_ACCESS_REGISTRY_ENTITY_REFS = 'allow access registry entity-refs';
+export const PERMISSION_ALLOW_ACCESS_REGISTRY_ENTITY_REFS_BY_NAMESPACE = 'allow access registry :namespace entity-refs';
+export const _API_CTRL_REGISTRY_DATA = '/:namespace/entity-refs';
+export const API_CTRL_REGISTRY_DATA = API_CTRL_REGISTRY + _API_CTRL_REGISTRY_DATA;
+
+export const PERMISSION_ALLOW_ACCESS_REGISTRY_SCHEMAS = 'allow list registry schemas';
+export const _API_CTRL_REGISTRY_SCHEMAS = '/list/schemas';
+export const API_CTRL_REGISTRY_SCHEMAS = API_CTRL_REGISTRY + _API_CTRL_REGISTRY_SCHEMAS;
+
+export const _API_CTRL_REGISTRY_SCHEMA = '/:namespace/schema-ref/:schema';
+export const API_CTRL_REGISTRY_SCHEMA = API_CTRL_REGISTRY + _API_CTRL_REGISTRY_SCHEMA;
+
+export const _API_CTRL_REGISTRY_ENTITY = '/:namespace/entity-ref/:entity';
+export const API_CTRL_REGISTRY_ENTITY = API_CTRL_REGISTRY + _API_CTRL_REGISTRY_ENTITY;

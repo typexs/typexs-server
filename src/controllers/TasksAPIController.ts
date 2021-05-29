@@ -33,7 +33,7 @@ import {TaskExecutor} from '@typexs/base/libs/tasks/TaskExecutor';
 import {IError} from '@typexs/base/libs/exceptions/IError';
 import {ContextGroup} from '../decorators/ContextGroup';
 import {Access} from '../decorators/Access';
-import {Helper} from '..';
+import {Helper} from '../libs/Helper';
 import {IFileSelectOptions} from '@typexs/base/adapters/exchange/filesystem/IFileOptions';
 import {IJsonSchema7} from '@allgemein/schema-api';
 

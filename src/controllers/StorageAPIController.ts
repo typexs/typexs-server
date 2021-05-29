@@ -77,11 +77,13 @@ export class StorageAPIController {
   @Inject(Cache.NAME)
   cache: Cache;
 
+
   static _beforeBuild(entityRef: IEntityRef, from: any, to: any) {
     _.keys(from).filter(k => k.startsWith('$')).map(k => {
       to[k] = from[k];
     });
   }
+
 
   static _afterEntity(entityRef: IEntityRef | IEntityRef[], entity: any[]): void {
     if (_.isArray(entityRef)) {
