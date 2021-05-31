@@ -14,9 +14,7 @@ import {
   PERMISSION_ALLOW_ACCESS_REGISTRY_SCHEMAS
 } from '../libs/Constants';
 import {ContextGroup} from '../decorators/ContextGroup';
-import {JsonSchema, RegistryFactory} from '@allgemein/schema-api';
-import {supportsJsonSchemaExport} from '@allgemein/schema-api/api/IJsonSchema';
-import {IJsonSchemaSerializeOptions} from '@allgemein/schema-api/lib/json-schema/IJsonSchemaSerializeOptions';
+import {IJsonSchemaSerializeOptions, JsonSchema, RegistryFactory, supportsJsonSchemaExport} from '@allgemein/schema-api';
 import {Access} from '../decorators/Access';
 
 @ContextGroup(C_API)
@@ -44,8 +42,9 @@ export class RegistryAPIController {
   getRegistry(@Param('namespace') namespace: string,
               @QueryParam('options') options?: IJsonSchemaSerializeOptions): any {
     const registry = RegistryFactory.get(namespace);
+    options = options || {};
     if (supportsJsonSchemaExport(registry)) {
-      return registry.toJsonSchema();
+      return registry.toJsonSchema(options);
     } else {
       const serializer = JsonSchema.getSerializer(options);
       for (const entityRef of registry.getEntityRefs()) {
@@ -60,11 +59,21 @@ export class RegistryAPIController {
   getRegistrySchemas(): any {
     const data = [];
     for (const namespace of RegistryFactory.getNamespaces()) {
-      let schemaNames = RegistryFactory.get(namespace).getSchemaRefs().map((value, index) => value.name);
+      const registry = RegistryFactory.get(namespace);
+      let schemaRefs: any[] = [];
+      try {
+        schemaRefs = registry.getSchemaRefs();
+      } catch (e) {
+        schemaRefs = [];
+      }
+      let schemaNames = schemaRefs.map((value, index) => value.name);
       if (isEmpty(schemaNames)) {
         schemaNames = [];
       }
-      data.push({registry: namespace, schemas: schemaNames});
+      data.push({
+        registry: namespace,
+        schemas: schemaNames
+      });
     }
     return data;
   }

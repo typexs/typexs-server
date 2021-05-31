@@ -1,9 +1,12 @@
 import {EntitySchema} from 'typeorm';
-import {uniq, isEmpty} from 'lodash';
+import {isEmpty, uniq} from 'lodash';
 import {IActivator, Injector, Storage} from '@typexs/base';
 import {ServerRegistry} from './libs/server/ServerRegistry';
 import {
   PERMISSION_ACCESS_FILES,
+  PERMISSION_ALLOW_ACCESS_REGISTRY_ENTITY_REFS,
+  PERMISSION_ALLOW_ACCESS_REGISTRY_NAMESPACES,
+  PERMISSION_ALLOW_ACCESS_REGISTRY_SCHEMAS,
   PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY,
   PERMISSION_ALLOW_ACCESS_STORAGE_ENTITY_PATTERN,
   PERMISSION_ALLOW_ACCESS_STORAGE_METADATA,
@@ -36,10 +39,14 @@ import {
 } from './libs/Constants';
 import {BasicPermission, IPermissionDef, IPermissions} from '@typexs/roles-api';
 import {IEntityRef} from '@allgemein/schema-api';
+import {CONFIG_SCHEMA} from './config.schema';
 
 
 export class Activator implements IActivator, IPermissions {
 
+  configSchema(): any {
+    return CONFIG_SCHEMA;
+  }
 
   async startup() {
     const serverRegistry = new ServerRegistry();
@@ -99,7 +106,15 @@ export class Activator implements IActivator, IPermissions {
       /**
        * File Permissions
        */
-      PERMISSION_ACCESS_FILES
+      PERMISSION_ACCESS_FILES,
+
+      /**
+       * Registry Permissions
+       */
+      PERMISSION_ALLOW_ACCESS_REGISTRY_NAMESPACES,
+      PERMISSION_ALLOW_ACCESS_REGISTRY_SCHEMAS,
+      PERMISSION_ALLOW_ACCESS_REGISTRY_ENTITY_REFS
+      // PERMISSION_ALLOW_ACCESS_REGISTRY_ENTITY_REFS_BY_NAMESPACE
     ];
 
 
@@ -135,5 +150,7 @@ export class Activator implements IActivator, IPermissions {
 
     return permissions.map(x => new BasicPermission(x));
   }
+
+
 
 }

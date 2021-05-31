@@ -1,5 +1,17 @@
 import * as _ from 'lodash';
-import {C_CONFIG_FILTER_KEYS, ClassLoader, IModule, Inject, Injector, Invoker, RuntimeLoader, Storage, System, Workers} from '@typexs/base';
+import {
+  C_CONFIG_FILTER_KEYS,
+  ClassLoader,
+  IModule,
+  Inject,
+  Injector,
+  Invoker,
+  IWorkerInfo,
+  RuntimeLoader,
+  Storage,
+  System,
+  Workers
+} from '@typexs/base';
 import {Get, JsonController, Param, QueryParam} from 'routing-controllers';
 import {getMetadataArgsStorage as ormMetadataArgsStorage} from 'typeorm';
 import {
@@ -22,7 +34,6 @@ import {
   PERMISSION_ALLOW_WORKERS_INFO
 } from '../libs/Constants';
 import {SystemNodeInfoApi} from '../api/SystemNodeInfo.api';
-import {IWorkerInfo} from '@typexs/base/libs/worker/IWorkerInfo';
 import {TreeUtils} from '@allgemein/base';
 import {ContextGroup} from '../decorators/ContextGroup';
 import {Access} from '../decorators/Access';
