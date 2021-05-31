@@ -1,0 +1,11 @@
+{
+  "name": "registry",
+  "version": "0.0.1",
+  "typexs":{
+    "name":"registry"
+  },
+  "dependencies": {
+    "@typexs/base": "latest",
+    "@typexs/server": "latest"
+  }
+}
