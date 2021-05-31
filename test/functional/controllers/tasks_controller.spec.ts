@@ -14,7 +14,7 @@ import {HttpFactory, IHttp} from '@allgemein/http';
 import {WebServer} from '../../../src/libs/web/WebServer';
 import {Helper} from '../../../src/libs/Helper';
 
-const LOG_EVENT = TestHelper.logEnable(true);
+const LOG_EVENT = TestHelper.logEnable(false);
 
 const settingsTemplate: any = {
   storage: {

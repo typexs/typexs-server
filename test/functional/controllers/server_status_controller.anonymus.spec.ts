@@ -6,7 +6,8 @@ import {
   API_CTRL_SERVER_ROUTES,
   C_API,
   K_CONFIG_ANONYMOUS_ALLOW,
-  K_ROUTE_CONTROLLER, PERMISSION_ALLOW_STORAGE_ENTITY_VIEW
+  K_ROUTE_CONTROLLER,
+  PERMISSION_ALLOW_STORAGE_ENTITY_VIEW
 } from '../../../src/libs/Constants';
 import * as _ from 'lodash';
 import {TestHelper} from '../TestHelper';
@@ -120,6 +121,7 @@ class ServerStatusControllerSpec {
             'controllers': [
               'DistributedStorageAPIController',
               'FileSystemAPIController',
+              'RegistryAPIController',
               'ServerStatusAPIController',
               'StorageAPIController',
               'SystemNodeInfoAPIController',
@@ -183,6 +185,7 @@ class ServerStatusControllerSpec {
           'controllers': [
             'DistributedStorageAPIController',
             'FileSystemAPIController',
+            'RegistryAPIController',
             'ServerStatusAPIController',
             'StorageAPIController',
             'SystemNodeInfoAPIController',

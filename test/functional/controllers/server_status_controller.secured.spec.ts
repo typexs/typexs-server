@@ -17,7 +17,6 @@ import * as _ from 'lodash';
 import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
 import {HttpFactory, IHttp} from '@allgemein/http';
-
 import {expect} from 'chai';
 import {Action} from 'routing-controllers/types/Action';
 import {IRole, IRolesHolder} from '@typexs/roles-api/index';
@@ -183,6 +182,7 @@ class ServerStatusControllerSpec {
             'controllers': [
               'DistributedStorageAPIController',
               'FileSystemAPIController',
+              'RegistryAPIController',
               'ServerStatusAPIController',
               'StorageAPIController',
               'SystemNodeInfoAPIController',
@@ -242,6 +242,7 @@ class ServerStatusControllerSpec {
           'controllers': [
             'DistributedStorageAPIController',
             'FileSystemAPIController',
+            'RegistryAPIController',
             'ServerStatusAPIController',
             'StorageAPIController',
             'SystemNodeInfoAPIController',

@@ -32,7 +32,7 @@ import {TestHelper} from '../TestHelper';
 import {TEST_STORAGE_OPTIONS} from '../config';
 import {WebServer} from '../../../src/libs/web/WebServer';
 
-const LOG_EVENT = TestHelper.logEnable(true);
+const LOG_EVENT = TestHelper.logEnable(false);
 
 
 const settingsTemplate: any = {
@@ -157,6 +157,7 @@ class TasksControllerSpec {
         '$schema': 'http://json-schema.org/draft-07/schema#',
         'definitions': {
           'local_simple_task': {
+            '$id': '#local_simple_task',
             'title': 'LocalSimpleTask',
             'type': 'object',
             'taskName': 'local_simple_task',
@@ -188,7 +189,8 @@ class TasksControllerSpec {
         '$schema': 'http://json-schema.org/draft-07/schema#',
         'definitions': {
           'simple_task': {
-            'title': 'anonymous',
+            '$id': '#simple_task',
+            'title': 'simple_task',
             'type': 'object',
             'taskName': 'simple_task',
             'remote': true,
