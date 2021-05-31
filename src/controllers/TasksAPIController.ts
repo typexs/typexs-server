@@ -78,7 +78,7 @@ export class TasksAPIController {
 
   @Access(PERMISSION_ALLOW_TASKS_METADATA)
   @Get(_API_CTRL_TASKS_METADATA)
-  tasksMetadata(): IJsonSchema7 {
+  async tasksMetadata(): Promise<any> {
     return this.tasks.toJsonSchema();
   }
 
