@@ -794,7 +794,6 @@ export class StorageAPIController {
     try {
       const collectionNames = await ref.getRawCollectionNames();
       return await ref.getRawCollections(collectionNames);
-
     } catch (e) {
       Log.error(e);
     }
