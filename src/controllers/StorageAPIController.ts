@@ -5,13 +5,16 @@ import {
   __REGISTRY__,
   Cache,
   ClassLoader,
+  IAggregateOptions,
   ICollection,
+  IDeleteOptions,
   IEntityController,
   IFindOptions,
   Inject,
   Invoker,
   ISaveOptions,
   IStorageRef,
+  IUpdateOptions,
   Log,
   NotYetImplementedError,
   Storage,
@@ -55,9 +58,6 @@ import {IStorageRefMetadata} from '../libs/storage_api/IStorageRefMetadata';
 import {SystemNodeInfoApi} from '../api/SystemNodeInfo.api';
 import {StorageAPIControllerApi} from '../api/StorageAPIController.api';
 import {JsonUtils, TreeUtils} from '@allgemein/base';
-import {IDeleteOptions} from '@typexs/base';
-import {IUpdateOptions} from '@typexs/base';
-import {IAggregateOptions} from '@typexs/base';
 import {ContextGroup} from '../decorators/ContextGroup';
 import {Access} from '../decorators/Access';
 import {IRolesHolder, PermissionHelper} from '@typexs/roles-api';
@@ -776,9 +776,11 @@ export class StorageAPIController {
         }
       }
     });
-    storageRef.getEntityRefs().forEach(ref => {
-      serializer.serialize(ref);
-    });
+    for (const ref of storageRef.getEntityRefs()) {
+      if (ref && isEntityRef(ref)) {
+        serializer.serialize(ref);
+      }
+    }
     entry.schema = serializer.getJsonSchema() ? serializer.getJsonSchema() : {};
 
     if (withCollections) {
